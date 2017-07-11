@@ -17,19 +17,34 @@ bool SettingsEntry::operator !=(const SettingsEntry &other) const
 
 SettingsValue::SettingsValue(const QVariant &data) :
 	value(data),
-	children()
+	_children()
 {}
+
+QHash<QString, SettingsValue> SettingsValue::children() const
+{
+	QHash<QString, SettingsValue> res;
+	for(auto it = _children.constBegin(); it != _children.constEnd(); it++)
+		res.insert(it.key(), *it.value());
+	return res;
+}
+
+void SettingsValue::setChildren(const QHash<QString, SettingsValue> &value)
+{
+	_children.clear();
+	for(auto it = value.constBegin(); it != value.constEnd(); it++)
+		_children.insert(it.key(), QSharedPointer<SettingsValue>::create(it.value()));
+}
 
 bool SettingsValue::operator ==(const SettingsValue &other) const
 {
 	return value == other.value &&
-			children == other.children;
+			children() == other.children();
 }
 
 bool SettingsValue::operator !=(const SettingsValue &other) const
 {
 	return value != other.value ||
-			children != other.children;
+			children() != other.children();
 }
 
 SettingsObjectMerger::SettingsObjectMerger(QObject *parent) :
@@ -77,16 +92,17 @@ SettingsValue SettingsObjectMerger::mergeValue(SettingsValue lo, SettingsValue r
 	//prefer the local value
 	ro.value = lo.value;
 
-	for(auto loIt = lo.children.begin(); loIt != lo.children.end(); loIt++) {
+	for(auto loIt = lo._children.begin(); loIt != lo._children.end(); loIt++) {
 		auto conflict = false;
-		for(auto roIt = ro.children.begin(); roIt != ro.children.end(); roIt++) {
+		for(auto roIt = ro._children.begin(); roIt != ro._children.end(); roIt++) {
 			if(loIt.key() == roIt.key()) {
-				(*roIt) = mergeValue(loIt.value(), roIt.value());
+				auto res = mergeValue(*loIt.value(), *roIt.value());
+				*roIt = QSharedPointer<SettingsValue>::create(res);
 				conflict = true;
 			}
 		}
 		if(!conflict)
-			ro.children.insert(loIt.key(), loIt.value());
+			ro._children.insert(loIt.key(), loIt.value());
 	}
 
 	return ro;

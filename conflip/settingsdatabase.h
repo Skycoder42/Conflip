@@ -26,17 +26,23 @@ class SettingsValue
 {
 	Q_GADGET
 
+	friend class SettingsObjectMerger;
+
 	Q_PROPERTY(QVariant value MEMBER value)
-	Q_PROPERTY(QHash<QString, SettingsValue> children MEMBER children)
+	Q_PROPERTY(QHash<QString, SettingsValue> children READ children WRITE setChildren)
 
 public:
 	SettingsValue(const QVariant &data = {});
 
 	QVariant value;
-	QHash<QString, SettingsValue> children;
+	QHash<QString, SettingsValue> children() const;
 
 	bool operator ==(const SettingsValue &other) const;
 	bool operator !=(const SettingsValue &other) const;
+
+private:
+	QHash<QString, QSharedPointer<SettingsValue>> _children;
+	void setChildren(const QHash<QString, SettingsValue> &value);
 };
 
 class SettingsObject

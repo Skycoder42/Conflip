@@ -29,6 +29,8 @@ SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
 
 	if(dialog.exec() == QDialog::Accepted)
 		return SettingsObject();
+	else
+		return SettingsObject();
 }
 
 SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidget *parent)
