@@ -22,18 +22,18 @@ EditSettingsObjectDialog::~EditSettingsObjectDialog()
 	delete ui;
 }
 
-SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
+SettingsObject *EditSettingsObjectDialog::createObject(QObject *parent, QWidget *window)
 {
-	EditSettingsObjectDialog dialog(parent);
+	EditSettingsObjectDialog dialog(window);
 	dialog.ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
 
 	if(dialog.exec() == QDialog::Accepted)
-		return SettingsObject();
+		return new SettingsObject(parent);
 	else
-		return SettingsObject();
+		return nullptr;
 }
 
-SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidget *parent)
+SettingsObject *EditSettingsObjectDialog::editObject(SettingsObject *object, QWidget *parent)
 {
 	Q_UNIMPLEMENTED();
 	return object;
