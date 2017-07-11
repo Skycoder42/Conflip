@@ -1,9 +1,9 @@
 #ifndef QSETTINGSSTANDARDPLUGIN_H
 #define QSETTINGSSTANDARDPLUGIN_H
 
-#include <settingsplugin.h>
+#include <qsettingsplugin.h>
 
-class QSettingsStandardPlugin : public SettingsPlugin
+class QSettingsStandardPlugin : public QSettingsPlugin
 {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID SettingsPlugin_iid FILE "qsettingsstandard.json")
@@ -11,7 +11,7 @@ class QSettingsStandardPlugin : public SettingsPlugin
 public:
 	QSettingsStandardPlugin(QObject *parent = nullptr);
 
-	SettingsFile *createSettings(const QString &path, const QString &type, QObject *parent) override;
+	QSettings::Format registerFormat(const QString &type) override;
 };
 
 #endif // QSETTINGSSTANDARDPLUGIN_H

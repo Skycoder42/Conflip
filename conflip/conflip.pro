@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += gui widgets
+QT += gui widgets datasync
 
 TARGET = conflip
 VERSION = $$CONFLIPVER
@@ -10,18 +10,20 @@ DEFINES += CONFLIP_LIBRARY
 PUBLIC_HEADERS += \
 	settingsplugin.h \
 	libconflip_global.h \
-	settingsfile.h
+	settingsfile.h \
+	qsettingsplugin.h
 
-PRIVATE_HEADERS += \
-	pluginloader.h
-
-HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS
+HEADERS += $$PUBLIC_HEADERS \
+	pluginloader.h \
+    settingsdatabase.h
 
 SOURCES += \
 	settingsplugin.cpp \
 	main.cpp \
 	settingsfile.cpp \
-	pluginloader.cpp
+	pluginloader.cpp \
+	qsettingsplugin.cpp \
+    settingsdatabase.cpp
 
 unix {
 	isEmpty(PREFIX): PREFIX = /usr

@@ -1,10 +1,15 @@
 #include "qsettingsstandardplugin.h"
 
 QSettingsStandardPlugin::QSettingsStandardPlugin(QObject *parent) :
-	SettingsPlugin(parent)
+	QSettingsPlugin(parent)
 {}
 
-SettingsFile *QSettingsStandardPlugin::createSettings(const QString &path, const QString &type, QObject *parent)
+QSettings::Format QSettingsStandardPlugin::registerFormat(const QString &type)
 {
-	return nullptr;
+	if(type == QStringLiteral("native"))
+		return QSettings::NativeFormat;
+	else if(type == QStringLiteral("ini"))
+		return QSettings::IniFormat;
+	else
+		return QSettings::InvalidFormat;
 }
