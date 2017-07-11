@@ -9,15 +9,19 @@ DEFINES += CONFLIP_LIBRARY
 
 PUBLIC_HEADERS += \
 	settingsplugin.h \
-	libconflip_global.h
+	libconflip_global.h \
+	settingsfile.h
 
-PRIVATE_HEADERS +=
+PRIVATE_HEADERS += \
+	pluginloader.h
 
-HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERSQM
+HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS
 
 SOURCES += \
 	settingsplugin.cpp \
-	main.cpp
+	main.cpp \
+	settingsfile.cpp \
+	pluginloader.cpp
 
 unix {
 	isEmpty(PREFIX): PREFIX = /usr

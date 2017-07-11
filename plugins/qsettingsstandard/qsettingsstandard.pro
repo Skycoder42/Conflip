@@ -9,12 +9,12 @@ VERSION = $$CONFLIPVER
 DESTDIR = $$OUT_PWD/..
 
 SOURCES += \
-		genericplugin.cpp
+	qsettingsstandardplugin.cpp
 
 HEADERS += \
-		genericplugin.h
+	qsettingsstandardplugin.h
 
-DISTFILES += qsettings.json
+DISTFILES += qsettingsstandard.json
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../conflip/release/ -l:conflip
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../conflip/debug/ -l:conflip
