@@ -30,12 +30,16 @@ PluginLoader::PluginLoader(QObject *parent) :
 		auto meta = loader->metaData();
 		if(meta[QStringLiteral("IID")].toString() == QStringLiteral(SettingsPlugin_iid)) {
 			if(loader->load()) {
-				auto keys = meta[QStringLiteral("MetaData")].toObject()[QStringLiteral("Keys")].toArray();
-				foreach (auto key, keys)
-					_plugins.insert(key.toString(), loader);
-				if(!keys.isEmpty())
-					continue;
-				qWarning() << "Plugin" << plg << "has no associated keys";
+				auto instance = qobject_cast<SettingsPlugin*>(loader->instance());
+				if(instance) {
+					auto keys = meta[QStringLiteral("MetaData")].toObject()[QStringLiteral("Keys")].toArray();
+					foreach (auto key, keys)
+						_plugins.insert(key.toString(), instance);
+					if(!keys.isEmpty())
+						continue;
+					qWarning() << "Plugin" << plg << "has no associated keys";
+				} else
+					qWarning() << "File" << plg << "is not a conflip plugin";
 			} else
 				qWarning() << "Failed to load plugin" << plg << "with error" << loader->errorString();
 		} else
@@ -50,7 +54,19 @@ void PluginLoader::loadPlugins()
 	Q_UNUSED(pluginLoader)
 }
 
-QStringList PluginLoader::availablePlugins()
+QMap<QString, QString> PluginLoader::typeNames()
 {
-	return pluginLoader->_plugins.keys();
+	QMap<QString, QString> res;
+	for(auto it = pluginLoader->_plugins.constBegin(); it != pluginLoader->_plugins.constEnd(); it++)
+		res.insert(it.key(), it.value()->displayName(it.key()));
+	return res;
+}
+
+SettingsFile *PluginLoader::createSettings(const QString &path, const QString &type, QObject *parent)
+{
+	auto plugin = pluginLoader->_plugins.value(type);
+	if(plugin)
+		return plugin->createSettings(path, type, parent);
+	else
+		return nullptr;
 }

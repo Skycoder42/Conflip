@@ -15,11 +15,11 @@ public:
 
 	static void loadPlugins();
 
-	static QStringList availablePlugins();
+	static QMap<QString, QString> typeNames();
 	static SettingsFile *createSettings(const QString &path, const QString &type, QObject *parent = nullptr);
 
 private:
-	QHash<QString, QPluginLoader*> _plugins;
+	QHash<QString, SettingsPlugin*> _plugins;
 };
 
 #endif // PLUGINLOADER_H

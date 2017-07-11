@@ -5,9 +5,16 @@
 #include "pluginloader.h"
 #include "settingsdatabase.h"
 
+#include "editsettingsobjectdialog.h"
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
+	QApplication::setApplicationName(QStringLiteral(TARGET));
+	QApplication::setApplicationVersion(QStringLiteral(VERSION));
+	QApplication::setOrganizationName(QStringLiteral(COMPANY));
+	QApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
+	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 
 	// register types
 	QJsonSerializer::registerAllConverters<SettingsEntry>();
@@ -22,8 +29,9 @@ int main(int argc, char *argv[])
 			.setDataMerger(new SettingsObjectMerger())
 			.create();
 
+	EditSettingsObjectDialog::createObject();
+
 	return 0;
-	return a.exec();
 }
 
 QUuid deviceId()

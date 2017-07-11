@@ -5,7 +5,21 @@ QT += gui widgets datasync
 TARGET = conflip
 VERSION = $$CONFLIPVER
 
+QMAKE_TARGET_COMPANY = "Skycoder42"
+QMAKE_TARGET_PRODUCT = $$TARGET
+QMAKE_TARGET_DESCRIPTION = "Conflip"
+QMAKE_TARGET_COPYRIGHT = "Felix Barz"
+QMAKE_TARGET_BUNDLE_PREFIX = de.skycoder42
+
+DEFINES += "TARGET=\\\"$$TARGET\\\""
+DEFINES += "VERSION=\\\"$$VERSION\\\""
+DEFINES += "COMPANY=\"\\\"$$QMAKE_TARGET_COMPANY\\\"\""
+DEFINES += "DISPLAY_NAME=\"\\\"$$QMAKE_TARGET_DESCRIPTION\\\"\""
+DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
+
 DEFINES += CONFLIP_LIBRARY
+
+include(vendor/vendor.pri)
 
 PUBLIC_HEADERS += \
 	settingsplugin.h \
@@ -15,7 +29,8 @@ PUBLIC_HEADERS += \
 
 HEADERS += $$PUBLIC_HEADERS \
 	pluginloader.h \
-    settingsdatabase.h
+	settingsdatabase.h \
+	editsettingsobjectdialog.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -23,7 +38,11 @@ SOURCES += \
 	settingsfile.cpp \
 	pluginloader.cpp \
 	qsettingsplugin.cpp \
-    settingsdatabase.cpp
+	settingsdatabase.cpp \
+	editsettingsobjectdialog.cpp
+
+FORMS += \
+	editsettingsobjectdialog.ui
 
 unix {
 	isEmpty(PREFIX): PREFIX = /usr

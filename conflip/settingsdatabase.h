@@ -30,6 +30,8 @@ class SettingsValue
 	Q_PROPERTY(QHash<QString, SettingsValue> children MEMBER children)
 
 public:
+	SettingsValue(const QVariant &data = {});
+
 	QVariant value;
 	QHash<QString, SettingsValue> children;
 

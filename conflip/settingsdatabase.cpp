@@ -15,6 +15,11 @@ bool SettingsEntry::operator !=(const SettingsEntry &other) const
 			recursive != other.recursive;
 }
 
+SettingsValue::SettingsValue(const QVariant &data) :
+	value(data),
+	children()
+{}
+
 bool SettingsValue::operator ==(const SettingsValue &other) const
 {
 	return value == other.value &&
@@ -84,4 +89,5 @@ SettingsValue SettingsObjectMerger::mergeValue(SettingsValue lo, SettingsValue r
 			ro.children.insert(loIt.key(), loIt.value());
 	}
 
+	return ro;
 }
