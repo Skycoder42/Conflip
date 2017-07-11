@@ -30,7 +30,9 @@ PUBLIC_HEADERS += \
 HEADERS += $$PUBLIC_HEADERS \
 	pluginloader.h \
 	settingsdatabase.h \
-	editsettingsobjectdialog.h
+	editsettingsobjectdialog.h \
+    qsettingsfile.h \
+    settingsfilemodel.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -39,7 +41,9 @@ SOURCES += \
 	pluginloader.cpp \
 	qsettingsplugin.cpp \
 	settingsdatabase.cpp \
-	editsettingsobjectdialog.cpp
+	editsettingsobjectdialog.cpp \
+    qsettingsfile.cpp \
+    settingsfilemodel.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui

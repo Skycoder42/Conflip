@@ -2,6 +2,7 @@
 #define EDITSETTINGSOBJECTDIALOG_H
 
 #include "settingsdatabase.h"
+#include "settingsfilemodel.h"
 
 #include <QDialog>
 
@@ -23,6 +24,7 @@ private slots:
 
 private:
 	Ui::EditSettingsObjectDialog *ui;
+	SettingsFileModel *model;
 
 	explicit EditSettingsObjectDialog(QWidget *parent = nullptr);
 	~EditSettingsObjectDialog();

@@ -6,7 +6,8 @@
 
 EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	QDialog(parent),
-	ui(new Ui::EditSettingsObjectDialog)
+	ui(new Ui::EditSettingsObjectDialog),
+	model(nullptr)
 {
 	ui->setupUi(this);
 	DialogMaster::masterDialog(this);
@@ -53,5 +54,16 @@ void EditSettingsObjectDialog::on_openButton_clicked()
 
 void EditSettingsObjectDialog::on_applyButton_clicked()
 {
-	//TODO load settings file
+	if(model)
+		model->deleteLater();
+	try {
+		auto file = PluginLoader::createSettings(ui->pathIDLineEdit->text(), ui->settingsTypeComboBox->currentData().toString(), this);
+		model = new SettingsFileModel(file, this);
+		ui->settingsTreeView->setModel(model);
+	} catch(QException &e) {
+		qWarning() << "Failed to load" << ui->pathIDLineEdit->text()
+				   << "for type" << ui->settingsTypeComboBox->currentData().toString()
+				   << "with error" << e.what();
+		//TODO message box
+	}
 }

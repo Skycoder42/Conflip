@@ -1,3 +1,4 @@
+#include "qsettingsfile.h"
 #include "qsettingsplugin.h"
 
 QSettingsPlugin::QSettingsPlugin(QObject *parent) :
@@ -13,5 +14,5 @@ SettingsFile *QSettingsPlugin::createSettings(const QString &path, const QString
 	if(format == QSettings::InvalidFormat)
 		return nullptr;
 	else
-		return nullptr;//TODO return QSettingsFile
+		return new QSettingsFile(path, format, parent);//TODO return QSettingsFile
 }
