@@ -6,6 +6,7 @@
 #include "datastore.h"
 
 #include <QDialog>
+#include <QSortFilterProxyModel>
 
 namespace Ui {
 class EditSettingsObjectDialog;
@@ -24,13 +25,13 @@ public:
 private slots:
 	void on_openButton_clicked();
 	void on_applyButton_clicked();
+	void on_dataPreviewCheckBox_clicked(bool checked);
 
-protected:
-	void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::EditSettingsObjectDialog *ui;
 	SettingsFileModel *model;
+	QSortFilterProxyModel *sortModel;
 	DataStore *store;
 
 	bool isCreate;
@@ -39,6 +40,7 @@ private:
 	explicit EditSettingsObjectDialog(QWidget *parent = nullptr);
 	~EditSettingsObjectDialog();
 
+	void setup();
 };
 
 #endif // EDITSETTINGSOBJECTDIALOG_H

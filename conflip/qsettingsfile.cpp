@@ -1,9 +1,11 @@
 #include "qsettingsfile.h"
 
-QSettingsFile::QSettingsFile(const QString &fileName, QSettings::Format format, QObject *parent) :
+QSettingsFile::QSettingsFile(QSettings *settings, QObject *parent) :
 	SettingsFile(parent),
-	_settings(new QSettings(fileName, format, this))
-{}
+	_settings(settings)
+{
+	_settings->setParent(this);
+}
 
 bool QSettingsFile::hasChildren(const QStringList &parentChain)
 {

@@ -12,7 +12,13 @@ SettingsFile *QSettingsPlugin::createSettings(const QString &path, const QString
 
 	auto format = _formats.value(type);
 	if(format == QSettings::InvalidFormat)
-		return nullptr;
-	else
-		return new QSettingsFile(path, format, parent);//TODO return QSettingsFile
+		throw SettingsLoadException("Type does not name a valid QSettings format");
+	else {
+		auto settings = new QSettings(path, format);
+		if(settings->status() != QSettings::NoError)
+			throw SettingsLoadException(settings->status() == QSettings::AccessError ?
+											"Access Denied" :
+											"Malformed File");
+		return new QSettingsFile(settings, parent);
+	}
 }

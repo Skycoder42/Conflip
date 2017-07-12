@@ -1,12 +1,26 @@
 #include "settingsfilemodel.h"
 
 #include <QDebug>
+#include <QGuiApplication>
+#include <QFont>
+#include <QColor>
 
 SettingsFileModel::SettingsFileModel(SettingsFile *settingsFile, QObject *parent) :
 	QAbstractItemModel(parent),
 	_settings(settingsFile),
 	_root(new SettingsItem(QString(), nullptr))
 {}
+
+void SettingsFileModel::enablePreview(bool enable)
+{
+	if(_preview != enable) {
+		_preview = enable;
+		if(!_root->children.isEmpty()) {
+			emit dataChanged(this->index(0, 1),
+							 this->index(_root->children.size() - 1, 1));
+		}
+	}
+}
 
 QList<QPair<QStringList, bool> > SettingsFileModel::extractEntries() const
 {
@@ -21,6 +35,8 @@ QVariant SettingsFileModel::headerData(int section, Qt::Orientation orientation,
 		switch (section) {
 		case 0:
 			return tr("Keys");
+		case 1:
+			return tr("Data Preview");
 		default:
 			return QVariant();
 		}
@@ -32,7 +48,7 @@ QModelIndex SettingsFileModel::index(int row, int column, const QModelIndex &par
 {
 	auto item = getItem(parent);
 	if(row < 0 || column < 0 ||
-	   row >= item->children.size() || column != 0)
+	   row >= item->children.size() || column >= 2)
 		return QModelIndex();
 
 	return createIndex(row, column, item->children[row]);
@@ -56,7 +72,7 @@ int SettingsFileModel::rowCount(const QModelIndex &parent) const
 int SettingsFileModel::columnCount(const QModelIndex &parent) const
 {
 	Q_UNUSED(parent);
-	return 1;
+	return 2;
 }
 
 bool SettingsFileModel::hasChildren(const QModelIndex &parent) const
@@ -100,8 +116,19 @@ QVariant SettingsFileModel::data(const QModelIndex &index, int role) const
 
 	switch (role) {
 	case Qt::DisplayRole:
-		if(index.column() == 0)
+		switch (index.column()) {
+		case 0:
 			return item->key;
+		case 1:
+			if(_preview) {
+				if(item->isKey)
+					return _settings->value(item->keyChain());
+				else
+					return tr("<none>");
+			}
+		default:
+			break;
+		}
 		break;
 	case Qt::CheckStateRole:
 		if(index.column() == 0) {
@@ -112,6 +139,18 @@ QVariant SettingsFileModel::data(const QModelIndex &index, int role) const
 			else
 				return Qt::Unchecked;
 		}
+		break;
+	case Qt::FontRole:
+		if(index.column() == 1 && !item->isKey) {
+			auto font = QGuiApplication::font();
+			font.setItalic(true);
+			return font;
+		}
+		break;
+	case Qt::ForegroundRole:
+		if(index.column() == 1 && !item->isKey)
+			return QColor(Qt::lightGray);
+		break;
 	default:
 		break;
 	}
@@ -130,8 +169,13 @@ bool SettingsFileModel::setData(const QModelIndex &index, const QVariant &value,
 		item->recursive = false;
 		break;
 	case Qt::PartiallyChecked:
-		item->synced = true;
-		item->recursive = false;
+		if(item->isKey) {
+			item->synced = true;
+			item->recursive = false;
+		} else {
+			item->synced = true;
+			item->recursive = true;
+		}
 		break;
 	case Qt::Checked:
 		item->synced = true;
@@ -145,7 +189,7 @@ bool SettingsFileModel::setData(const QModelIndex &index, const QVariant &value,
 	emit dataChanged(index, index);
 	//update all children
 	emit dataChanged(this->index(0, 0, index),
-					 this->index(item->children.size() - 1, 0, index));
+					 this->index(item->children.size() - 1, columnCount() - 1, index));
 	return true;
 }
 

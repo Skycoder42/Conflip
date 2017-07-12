@@ -12,6 +12,7 @@ class SettingsFileModel : public QAbstractItemModel
 public:
 	explicit SettingsFileModel(SettingsFile *settingsFile, QObject *parent = nullptr);
 
+	void enablePreview(bool enable);
 	QList<QPair<QStringList, bool>> extractEntries() const;
 
 	// Header:
@@ -56,6 +57,7 @@ private:
 
 	SettingsFile *_settings;
 	QScopedPointer<SettingsItem> _root;
+	bool _preview;
 
 	SettingsItem *getItem(const QModelIndex &index) const;
 	QModelIndex itemIndex(const SettingsItem *item) const;

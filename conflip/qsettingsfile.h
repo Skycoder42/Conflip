@@ -9,7 +9,7 @@ class QSettingsFile : public SettingsFile
 	Q_OBJECT
 
 public:
-	explicit QSettingsFile(const QString &fileName, QSettings::Format format, QObject *parent = nullptr);
+	explicit QSettingsFile(QSettings *settings, QObject *parent = nullptr);
 
 	bool hasChildren(const QStringList &parentChain) override;
 	QStringList childGroups(const QStringList &parentChain) override;

@@ -2,12 +2,14 @@
 #include "ui_editsettingsobjectdialog.h"
 #include <dialogmaster.h>
 #include <QStandardPaths>
+#include <QPushButton>
 #include "pluginloader.h"
 
 EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::EditSettingsObjectDialog),
 	model(nullptr),
+	sortModel(new QSortFilterProxyModel(this)),
 	store(new DataStore(this)),
 	isCreate(true),
 	object()
@@ -19,6 +21,8 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	for(auto it = types.constBegin(); it != types.constEnd(); it++)
 		ui->settingsTypeComboBox->insertItem(0, it.value(), it.key());
 	ui->settingsTypeComboBox->setCurrentIndex(0);
+
+	ui->settingsTreeView->setModel(sortModel);
 }
 
 EditSettingsObjectDialog::~EditSettingsObjectDialog()
@@ -26,10 +30,23 @@ EditSettingsObjectDialog::~EditSettingsObjectDialog()
 	delete ui;
 }
 
+void EditSettingsObjectDialog::setup()
+{
+	if(isCreate)
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+	else {
+		ui->settingsTypeLabel->setEnabled(false);
+		ui->settingsTypeComboBox->setEnabled(false);
+		ui->pathIDLineEdit->setText(object.paths.value(deviceId(), object.paths.values().first()));
+		on_applyButton_clicked();
+	}
+}
+
 SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
 {
 	EditSettingsObjectDialog dialog(parent);
 	dialog.isCreate = true;
+	dialog.setup();
 	if(dialog.exec() == QDialog::Accepted)
 		return dialog.object;
 	else
@@ -41,6 +58,7 @@ SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidg
 	EditSettingsObjectDialog dialog(parent);
 	dialog.isCreate = false;
 	dialog.object = object;
+	dialog.setup();
 	if(dialog.exec() == QDialog::Accepted)
 		return dialog.object;
 	else
@@ -49,9 +67,11 @@ SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidg
 
 void EditSettingsObjectDialog::accept()
 {
-	object = store->createNew(ui->settingsTypeComboBox->currentText(),
-							  ui->pathIDLineEdit->text(),
-							  {});
+	if(isCreate) {
+		object = store->createNew(ui->settingsTypeComboBox->currentText(),
+								  ui->pathIDLineEdit->text(),
+								  {});
+	}
 	QDialog::accept();
 }
 
@@ -74,19 +94,21 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 	try {
 		auto file = PluginLoader::createSettings(ui->pathIDLineEdit->text(), ui->settingsTypeComboBox->currentData().toString(), this);
 		model = new SettingsFileModel(file, this);
-		ui->settingsTreeView->setModel(model);
+		model->enablePreview(ui->dataPreviewCheckBox->isChecked());
+		sortModel->setSourceModel(model);
+		ui->settingsTreeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 	} catch(QException &e) {
 		qWarning() << "Failed to load" << ui->pathIDLineEdit->text()
 				   << "for type" << ui->settingsTypeComboBox->currentData().toString()
 				   << "with error" << e.what();
-		//TODO message box
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+		DialogMaster::warning(this, tr("Failed to load settings for the given file/ID"));
 	}
 }
 
-void EditSettingsObjectDialog::showEvent(QShowEvent *event)
+void EditSettingsObjectDialog::on_dataPreviewCheckBox_clicked(bool checked)
 {
-	if(isCreate)
-		ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
-
-	QDialog::showEvent(event);
+	if(model)
+		model->enablePreview(checked);
 }
