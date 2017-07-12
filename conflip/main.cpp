@@ -8,6 +8,7 @@
 #include "settingsdatabase.h"
 
 #include "editsettingsobjectdialog.h"
+#include "traycontrol.h"
 
 int main(int argc, char *argv[])
 {
@@ -32,14 +33,15 @@ int main(int argc, char *argv[])
 			.setDataMerger(new SettingsObjectMerger())
 			.create();
 
-	DataStore s;
-	s.loadAll<SettingsObject>().onResult([](QList<SettingsObject> o){
-		if(o.isEmpty())
-			EditSettingsObjectDialog::createObject();
-		else
-			EditSettingsObjectDialog::editObject(o.first());
-	});
+//	DataStore s;
+//	s.loadAll<SettingsObject>().onResult([](QList<SettingsObject> o){
+//		if(o.isEmpty())
+//			EditSettingsObjectDialog::createObject();
+//		else
+//			EditSettingsObjectDialog::editObject(o.first());
+//	});
 
+	TrayControl tray;
 	return a.exec();
 }
 

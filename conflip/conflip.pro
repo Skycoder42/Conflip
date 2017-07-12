@@ -36,7 +36,8 @@ HEADERS += $$PUBLIC_HEADERS \
 	editsettingsobjectdialog.h \
 	qsettingsfile.h \
 	settingsfilemodel.h \
-	datastore.h
+	datastore.h \
+    traycontrol.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -48,7 +49,8 @@ SOURCES += \
 	editsettingsobjectdialog.cpp \
 	qsettingsfile.cpp \
 	settingsfilemodel.cpp \
-	datastore.cpp
+	datastore.cpp \
+    traycontrol.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui
