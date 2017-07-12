@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="main.svg">icons/conflip.svg</file>
+    </qresource>
+    <qresource prefix="/icons/tray">
+        <file alias="main.ico">icons/conflip.ico</file>
+    </qresource>
+</RCC>

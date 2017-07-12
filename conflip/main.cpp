@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QIcon>
 #include <QJsonSerializer>
 #include <QSqlDatabase>
 #include <QtDataSync/Setup>
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
+	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 
 	// register types
 	QJsonSerializer::registerAllConverters<SettingsObject>();

@@ -11,6 +11,9 @@ QMAKE_TARGET_DESCRIPTION = "Conflip"
 QMAKE_TARGET_COPYRIGHT = "Felix Barz"
 QMAKE_TARGET_BUNDLE_PREFIX = de.skycoder42
 
+RC_ICONS += ./icons/conflip.ico
+ICON = ./icons/conflip.icns
+
 DEFINES += "TARGET=\\\"$$TARGET\\\""
 DEFINES += "VERSION=\\\"$$VERSION\\\""
 DEFINES += "COMPANY=\"\\\"$$QMAKE_TARGET_COMPANY\\\"\""
@@ -31,9 +34,9 @@ HEADERS += $$PUBLIC_HEADERS \
 	pluginloader.h \
 	settingsdatabase.h \
 	editsettingsobjectdialog.h \
-    qsettingsfile.h \
-    settingsfilemodel.h \
-    datastore.h
+	qsettingsfile.h \
+	settingsfilemodel.h \
+	datastore.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -43,9 +46,9 @@ SOURCES += \
 	qsettingsplugin.cpp \
 	settingsdatabase.cpp \
 	editsettingsobjectdialog.cpp \
-    qsettingsfile.cpp \
-    settingsfilemodel.cpp \
-    datastore.cpp
+	qsettingsfile.cpp \
+	settingsfilemodel.cpp \
+	datastore.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui
@@ -60,3 +63,6 @@ unix {
 
 	INSTALLS += target tHeaders
 }
+
+RESOURCES += \
+	conflip.qrc
