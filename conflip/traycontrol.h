@@ -13,6 +13,11 @@ class TrayControl : public QObject
 public:
 	explicit TrayControl(QObject *parent = nullptr);
 
+private slots:
+	void trayAction(QSystemTrayIcon::ActivationReason reason);
+
+	void manageSync();
+
 private:
 	QSystemTrayIcon *_tray;
 	QScopedPointer<QMenu> _trayMenu;
