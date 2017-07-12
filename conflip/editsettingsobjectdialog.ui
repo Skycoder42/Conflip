@@ -89,6 +89,9 @@
    </item>
    <item>
     <widget class="QTreeView" name="settingsTreeView">
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
@@ -104,16 +107,37 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QCheckBox" name="syncAllBox">
+       <property name="text">
+        <string>Sync &amp;all Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
+  <action name="action_Expand_all">
+   <property name="text">
+    <string>&amp;Expand all</string>
+   </property>
+  </action>
+  <action name="action_Collapse_all">
+   <property name="text">
+    <string>&amp;Collapse all</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>settingsTypeComboBox</tabstop>
@@ -132,8 +156,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>388</x>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -148,12 +172,28 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>456</x>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>syncAllBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>settingsTreeView</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>400</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>56</x>
+     <y>295</y>
     </hint>
    </hints>
   </connection>

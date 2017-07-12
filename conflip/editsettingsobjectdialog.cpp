@@ -17,6 +17,16 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	ui->setupUi(this);
 	DialogMaster::masterDialog(this);
 
+	ui->settingsTreeView->addActions({
+										 ui->action_Expand_all,
+										 ui->action_Collapse_all,
+									 });
+
+	connect(ui->action_Expand_all, &QAction::triggered,
+			ui->settingsTreeView, &QTreeView::expandAll);
+	connect(ui->action_Collapse_all, &QAction::triggered,
+			ui->settingsTreeView, &QTreeView::collapseAll);
+
 	auto types = PluginLoader::typeNames();
 	for(auto it = types.constBegin(); it != types.constEnd(); it++)
 		ui->settingsTypeComboBox->insertItem(0, it.value(), it.key());
@@ -38,6 +48,7 @@ void EditSettingsObjectDialog::setup()
 		ui->settingsTypeLabel->setEnabled(false);
 		ui->settingsTypeComboBox->setEnabled(false);
 		ui->pathIDLineEdit->setText(object.paths.value(deviceId(), object.paths.values().first()));
+		ui->syncAllBox->setChecked(object.syncAll);
 		on_applyButton_clicked();
 	}
 }
@@ -67,13 +78,23 @@ SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidg
 
 void EditSettingsObjectDialog::accept()
 {
+	QList<QPair<QStringList, bool>> entries;
+	auto all = ui->syncAllBox->isChecked();
+	if(!all)
+		entries = model->extractEntries();
+
 	if(isCreate) {
 		object = store->createNew(ui->settingsTypeComboBox->currentText(),
 								  ui->pathIDLineEdit->text(),
-								  model->extractEntries());
+								  entries,
+								  all);
 	} else {
-		object = store->update(object, ui->pathIDLineEdit->text(), model->extractEntries());
+		object = store->update(object,
+							   ui->pathIDLineEdit->text(),
+							   entries,
+							   all);
 	}
+
 	QDialog::accept();
 }
 

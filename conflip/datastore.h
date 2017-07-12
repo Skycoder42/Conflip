@@ -11,8 +11,8 @@ class DataStore : public QtDataSync::AsyncDataStore
 public:
 	explicit DataStore(QObject *parent = nullptr);
 
-	SettingsObject createNew(const QString &type, const QString &path, const QList<QPair<QStringList, bool>> &entries);
-	SettingsObject update(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool>> &entries);
+	SettingsObject createNew(const QString &type, const QString &path, const QList<QPair<QStringList, bool>> &entries, bool syncAll);
+	SettingsObject update(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool>> &entries, bool syncAll);
 };
 
 #endif // DATASTORE_H

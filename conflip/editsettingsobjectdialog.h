@@ -27,7 +27,6 @@ private slots:
 	void on_applyButton_clicked();
 	void on_dataPreviewCheckBox_clicked(bool checked);
 
-
 private:
 	Ui::EditSettingsObjectDialog *ui;
 	SettingsFileModel *model;
