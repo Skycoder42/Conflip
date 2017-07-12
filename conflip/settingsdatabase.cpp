@@ -26,6 +26,21 @@ bool SettingsObject::operator !=(const SettingsObject &other) const
 	return id != other.id;
 }
 
+QMap<QString, QString> SettingsObject::getPaths() const
+{
+	QMap<QString, QString> res;
+	for(auto it = paths.begin(); it != paths.end(); it++)
+		res.insert(it.key().toString(), it.value());
+	return res;
+}
+
+void SettingsObject::setPaths(const QMap<QString, QString> &value)
+{
+	paths.clear();
+	for(auto it = value.begin(); it != value.end(); it++)
+		paths.insert(it.key(), it.value());
+}
+
 QList<QUuid> SettingsObject::getEntries() const
 {
 	return entries.toList();

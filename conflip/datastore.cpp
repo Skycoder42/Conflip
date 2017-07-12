@@ -29,3 +29,32 @@ SettingsObject DataStore::createNew(const QString &type, const QString &path, co
 
 	return object;
 }
+
+SettingsObject DataStore::update(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries)
+{
+	object.paths.insert(deviceId(), path);
+
+	//generate/update new entries
+	QSet<QUuid> newEntries;
+	foreach(auto entryInfo, entries) {
+		SettingsEntry entry;
+		entry.objectId = object.id;
+		entry.keyChain = entryInfo.first;
+		entry.recursive = entryInfo.second;
+		newEntries.insert(entry.id());
+		save(entry);
+	}
+
+	//get entries to delete
+	auto delEntries = object.entries.subtract(newEntries);
+	object.entries = newEntries;
+
+	//now update with all it's entries
+	save(object);
+
+	//and delete the old entries
+	foreach(auto entry, entries)
+		remove<SettingsEntry>(entry);
+
+	return object;
+}

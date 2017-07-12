@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QJsonSerializer>
+#include <QSqlDatabase>
 #include <QtDataSync/Setup>
 #include "libconflip_global.h"
 #include "pluginloader.h"

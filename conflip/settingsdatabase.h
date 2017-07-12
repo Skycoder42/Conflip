@@ -13,7 +13,7 @@ class SettingsObject
 
 	Q_PROPERTY(QUuid id MEMBER id USER true)
 	Q_PROPERTY(QString type MEMBER type)
-	Q_PROPERTY(QHash<QUuid, QString> paths MEMBER paths)
+	Q_PROPERTY(QMap<QString, QString> paths READ getPaths WRITE setPaths)
 	Q_PROPERTY(QList<QUuid> entries READ getEntries WRITE setEntries)
 	Q_PROPERTY(QList<QUuid> values READ getValues WRITE setValues)
 
@@ -32,6 +32,9 @@ public:
 	bool operator !=(const SettingsObject &other) const;
 
 private:
+	QMap<QString, QString> getPaths() const;
+	void setPaths(const QMap<QString, QString> &value);
+
 	QList<QUuid> getEntries() const;
 	void setEntries(const QList<QUuid> &value);
 

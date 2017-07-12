@@ -70,7 +70,9 @@ void EditSettingsObjectDialog::accept()
 	if(isCreate) {
 		object = store->createNew(ui->settingsTypeComboBox->currentText(),
 								  ui->pathIDLineEdit->text(),
-								  {});
+								  model->extractEntries());
+	} else {
+		object = store->update(object, ui->pathIDLineEdit->text(), model->extractEntries());
 	}
 	QDialog::accept();
 }

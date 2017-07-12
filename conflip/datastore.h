@@ -12,6 +12,7 @@ public:
 	explicit DataStore(QObject *parent = nullptr);
 
 	SettingsObject createNew(const QString &type, const QString &path, const QList<QPair<QStringList, bool>> &entries);
+	SettingsObject update(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool>> &entries);
 };
 
 #endif // DATASTORE_H
