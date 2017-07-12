@@ -7,7 +7,10 @@
 EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::EditSettingsObjectDialog),
-	model(nullptr)
+	model(nullptr),
+	store(new DataStore(this)),
+	isCreate(true),
+	object()
 {
 	ui->setupUi(this);
 	DialogMaster::masterDialog(this);
@@ -23,21 +26,33 @@ EditSettingsObjectDialog::~EditSettingsObjectDialog()
 	delete ui;
 }
 
-SettingsObject EditSettingsObjectDialog::createObject(QObject *parent, QWidget *window)
+SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
 {
-	EditSettingsObjectDialog dialog(window);
-	dialog.ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
-
+	EditSettingsObjectDialog dialog(parent);
+	dialog.isCreate = true;
 	if(dialog.exec() == QDialog::Accepted)
-		return SettingsObject();
+		return dialog.object;
 	else
 		return SettingsObject();
 }
 
 SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidget *parent)
 {
-	Q_UNIMPLEMENTED();
-	return object;
+	EditSettingsObjectDialog dialog(parent);
+	dialog.isCreate = false;
+	dialog.object = object;
+	if(dialog.exec() == QDialog::Accepted)
+		return dialog.object;
+	else
+		return SettingsObject();
+}
+
+void EditSettingsObjectDialog::accept()
+{
+	object = store->createNew(ui->settingsTypeComboBox->currentText(),
+							  ui->pathIDLineEdit->text(),
+							  {});
+	QDialog::accept();
 }
 
 void EditSettingsObjectDialog::on_openButton_clicked()
@@ -66,4 +81,12 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 				   << "with error" << e.what();
 		//TODO message box
 	}
+}
+
+void EditSettingsObjectDialog::showEvent(QShowEvent *event)
+{
+	if(isCreate)
+		ui->buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
+
+	QDialog::showEvent(event);
 }

@@ -18,6 +18,8 @@ class SettingsObject
 	Q_PROPERTY(QList<QUuid> values READ getValues WRITE setValues)
 
 public:
+	SettingsObject();
+
 	QUuid id;
 	QString type;
 	QHash<QUuid, QString> paths;
@@ -47,6 +49,8 @@ class SettingsEntry
 	Q_PROPERTY(bool recursive MEMBER recursive)
 
 public:
+	SettingsEntry();
+
 	QUuid objectId;
 	QStringList keyChain;
 	bool recursive;
@@ -67,6 +71,8 @@ class SettingsValue
 	Q_PROPERTY(QVariant value MEMBER value)
 
 public:
+	SettingsValue();
+
 	QUuid objectId;
 	QStringList keyChain;
 	QVariant value;

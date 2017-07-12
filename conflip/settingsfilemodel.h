@@ -12,6 +12,8 @@ class SettingsFileModel : public QAbstractItemModel
 public:
 	explicit SettingsFileModel(SettingsFile *settingsFile, QObject *parent = nullptr);
 
+	QList<QPair<QStringList, bool>> extractEntries() const;
+
 	// Header:
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
@@ -29,6 +31,8 @@ public:
 	void fetchMore(const QModelIndex &parent) override;
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+	bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+	Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
 	class SettingsItem
@@ -45,6 +49,9 @@ private:
 
 		const SettingsItem *parent;
 		QList<SettingsItem*> children;
+
+		bool recurseOut() const;
+		void addEntries(QList<QPair<QStringList, bool>> &entries, const QStringList &baseChain = {}) const;
 	};
 
 	SettingsFile *_settings;

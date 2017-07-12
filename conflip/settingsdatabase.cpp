@@ -3,6 +3,14 @@
 
 #include <QException>
 
+SettingsObject::SettingsObject() :
+	id(),
+	type(),
+	paths(),
+	entries(),
+	values()
+{}
+
 bool SettingsObject::isValid() const
 {
 	return !id.isNull();
@@ -38,6 +46,12 @@ void SettingsObject::setValues(const QList<QUuid> &value)
 	values = QSet<QUuid>::fromList(value);
 }
 
+SettingsEntry::SettingsEntry() :
+	objectId(),
+	keyChain(),
+	recursive(false)
+{}
+
 QUuid SettingsEntry::id() const
 {
 	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
@@ -52,6 +66,12 @@ bool SettingsEntry::operator !=(const SettingsEntry &other) const
 {
 	return id() != other.id();
 }
+
+SettingsValue::SettingsValue() :
+	objectId(),
+	keyChain(),
+	value()
+{}
 
 QUuid SettingsValue::id() const
 {
