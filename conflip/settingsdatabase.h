@@ -7,54 +7,74 @@
 #include <QVariant>
 #include <QtDataSync/DataMerger>
 
-class SettingsEntry : public QObject
+class SettingsObject
 {
-	Q_OBJECT
-
-	Q_PROPERTY(QStringList keyChain MEMBER keyChain)
-	Q_PROPERTY(bool recursive MEMBER recursive)
-
-public:
-	SettingsEntry(QObject *parent = nullptr);
-
-	QStringList keyChain;
-	bool recursive;
-};
-
-class SettingsValue : public QObject
-{
-	Q_OBJECT
-
-	friend class SettingsObjectMerger;
-
-	Q_PROPERTY(QVariant value MEMBER value)
-	Q_PROPERTY(QHash<QString, SettingsValue*> children MEMBER children)
-
-public:
-	SettingsValue(QObject *parent = nullptr, const QVariant &data = {});
-
-	QVariant value;
-	QHash<QString, SettingsValue*> children;
-};
-
-class SettingsObject : public QObject
-{
-	Q_OBJECT
+	Q_GADGET
 
 	Q_PROPERTY(QUuid id MEMBER id USER true)
 	Q_PROPERTY(QString type MEMBER type)
 	Q_PROPERTY(QHash<QUuid, QString> paths MEMBER paths)
-	Q_PROPERTY(QList<SettingsEntry*> entries MEMBER entries)
-	Q_PROPERTY(SettingsValue* data MEMBER data)
+	Q_PROPERTY(QList<QUuid> entries READ getEntries WRITE setEntries)
+	Q_PROPERTY(QList<QUuid> values READ getValues WRITE setValues)
 
 public:
-	SettingsObject(QObject *parent = nullptr);
-
 	QUuid id;
 	QString type;
 	QHash<QUuid, QString> paths;
-	QList<SettingsEntry*> entries;
-	SettingsValue *data;
+	QSet<QUuid> entries;
+	QSet<QUuid> values;
+
+	bool isValid() const;
+
+	bool operator ==(const SettingsObject &other) const;
+	bool operator !=(const SettingsObject &other) const;
+
+private:
+	QList<QUuid> getEntries() const;
+	void setEntries(const QList<QUuid> &value);
+
+	QList<QUuid> getValues() const;
+	void setValues(const QList<QUuid> &value);
+};
+
+class SettingsEntry
+{
+	Q_GADGET
+
+	Q_PROPERTY(QUuid id READ id CONSTANT USER true)
+	Q_PROPERTY(QUuid objectId MEMBER objectId)
+	Q_PROPERTY(QStringList keyChain MEMBER keyChain)
+	Q_PROPERTY(bool recursive MEMBER recursive)
+
+public:
+	QUuid objectId;
+	QStringList keyChain;
+	bool recursive;
+
+	QUuid id() const;
+
+	bool operator ==(const SettingsEntry &other) const;
+	bool operator !=(const SettingsEntry &other) const;
+};
+
+class SettingsValue
+{
+	Q_GADGET
+
+	Q_PROPERTY(QUuid id READ id CONSTANT USER true)
+	Q_PROPERTY(QUuid objectId MEMBER objectId)
+	Q_PROPERTY(QStringList keyChain MEMBER keyChain)
+	Q_PROPERTY(QVariant value MEMBER value)
+
+public:
+	QUuid objectId;
+	QStringList keyChain;
+	QVariant value;
+
+	QUuid id() const;
+
+	bool operator ==(const SettingsValue &other) const;
+	bool operator !=(const SettingsValue &other) const;
 };
 
 class SettingsObjectMerger : public QtDataSync::DataMerger
@@ -68,8 +88,6 @@ public:
 
 private:
 	QJsonSerializer *_serializer;
-
-	void mergeValue(SettingsValue *lo, SettingsValue *ro);
 };
 
 #endif // SETTINGSDATABASE_H

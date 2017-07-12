@@ -3,26 +3,70 @@
 
 #include <QException>
 
-SettingsEntry::SettingsEntry(QObject *parent) :
-	QObject(parent),
-	keyChain(),
-	recursive(false)
-{}
+bool SettingsObject::isValid() const
+{
+	return !id.isNull();
+}
 
-SettingsValue::SettingsValue(QObject *parent, const QVariant &data) :
-	QObject(parent),
-	value(data),
-	children()
-{}
+bool SettingsObject::operator ==(const SettingsObject &other) const
+{
+	return id == other.id;
+}
 
-SettingsObject::SettingsObject(QObject *parent) :
-	QObject(parent),
-	id(),
-	type(),
-	paths(),
-	entries(),
-	data(new SettingsValue(this))
-{}
+bool SettingsObject::operator !=(const SettingsObject &other) const
+{
+	return id != other.id;
+}
+
+QList<QUuid> SettingsObject::getEntries() const
+{
+	return entries.toList();
+}
+
+void SettingsObject::setEntries(const QList<QUuid> &value)
+{
+	entries = QSet<QUuid>::fromList(value);
+}
+
+QList<QUuid> SettingsObject::getValues() const
+{
+	return values.toList();
+}
+
+void SettingsObject::setValues(const QList<QUuid> &value)
+{
+	values = QSet<QUuid>::fromList(value);
+}
+
+QUuid SettingsEntry::id() const
+{
+	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
+}
+
+bool SettingsEntry::operator ==(const SettingsEntry &other) const
+{
+	return id() == other.id();
+}
+
+bool SettingsEntry::operator !=(const SettingsEntry &other) const
+{
+	return id() != other.id();
+}
+
+QUuid SettingsValue::id() const
+{
+	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
+}
+
+bool SettingsValue::operator ==(const SettingsValue &other) const
+{
+	return id() == other.id();
+}
+
+bool SettingsValue::operator !=(const SettingsValue &other) const
+{
+	return id() != other.id();
+}
 
 SettingsObjectMerger::SettingsObjectMerger(QObject *parent) :
 	DataMerger(parent),
@@ -35,61 +79,32 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 {
 	//assume SettingsObject
 	try {
-		SettingsObject* lo = _serializer->deserialize<SettingsObject*>(local);
-		SettingsObject* ro = _serializer->deserialize<SettingsObject*>(remote);
+		if(local.contains(QStringLiteral("type"))) {
+			auto lo = _serializer->deserialize<SettingsObject>(local);
+			auto ro = _serializer->deserialize<SettingsObject>(remote);
 
-		//overwrite own path only
-		auto id = deviceId();
-		auto mPath = lo->paths.value(id);
-		if(!mPath.isNull())
-			ro->paths.insert(id, mPath);
+			//overwrite own path only
+			auto id = deviceId();
+			ro.paths.insert(id, lo.paths.value(id));
 
-		// update entries to merge lists and prefer local
-		for(auto loIt = lo->entries.begin(); loIt != lo->entries.end(); loIt++) {
-			auto lobj = *loIt;
+			// update entries to merge lists and prefer local
+			ro.entries.unite(lo.entries);
+			ro.values.unite(lo.values);
 
-			auto conflict = false;
-			for(auto roIt = ro->entries.begin(); roIt != ro->entries.end(); roIt++) {
-				auto robj = *roIt;
+			return _serializer->serialize(ro);
+		} else if(local.contains(QStringLiteral("recursive"))) {
+			auto lo = _serializer->deserialize<SettingsEntry>(local);
+			auto ro = _serializer->deserialize<SettingsEntry>(remote);
 
-				if(robj->keyChain == lobj->keyChain) {
-					robj->recursive = lobj->recursive;
-					conflict = true;
-				}
-			}
+			// prefer recursive
+			if(lo.recursive != ro.recursive)
+				ro.recursive = true;
 
-			if(!conflict) {
-				lobj->setParent(ro);
-				ro->entries.append(lobj);
-			}
+			return _serializer->serialize(ro);
 		}
-
-		mergeValue(lo->data, ro->data);
-
-		return _serializer->serialize(ro);
 	} catch(QException &e) {
 		qWarning() << "Failed to merge with exception:" << e.what();
-		return local;
 	}
-}
 
-void SettingsObjectMerger::mergeValue(SettingsValue *lo, SettingsValue *ro)
-{
-	//prefer the local value
-	ro->value = lo->value;
-
-	for(auto loIt = lo->children.begin(); loIt != lo->children.end(); loIt++) {
-		auto conflict = false;
-		for(auto roIt = ro->children.begin(); roIt != ro->children.end(); roIt++) {
-			if(roIt.key() == loIt.key()) {
-				mergeValue(loIt.value(), roIt.value());
-				conflict = true;
-			}
-		}
-
-		if(!conflict) {
-			loIt.value()->setParent(ro);
-			ro->children.insert(loIt.key(), loIt.value());
-		}
-	}
+	return local;
 }

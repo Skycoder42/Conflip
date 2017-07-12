@@ -15,8 +15,8 @@ class EditSettingsObjectDialog : public QDialog
 	Q_OBJECT
 
 public:
-	static SettingsObject *createObject(QObject *parent = nullptr, QWidget *window = nullptr);
-	static SettingsObject *editObject(SettingsObject *object, QWidget *parent = nullptr);
+	static SettingsObject createObject(QObject *parent = nullptr, QWidget *window = nullptr);
+	static SettingsObject editObject(SettingsObject object, QWidget *parent = nullptr);
 
 private slots:
 	void on_openButton_clicked();

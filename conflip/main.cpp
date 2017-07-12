@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 
 	// register types
-	QJsonSerializer::registerAllConverters<SettingsEntry*>();
-	QJsonSerializer::registerAllConverters<SettingsValue*>();
-	QJsonSerializer::registerAllConverters<SettingsObject*>();
+	QJsonSerializer::registerAllConverters<SettingsObject>();
+	QJsonSerializer::registerAllConverters<SettingsEntry>();
+	QJsonSerializer::registerAllConverters<SettingsValue>();
 
 	// load plugins
 	PluginLoader::loadPlugins();
