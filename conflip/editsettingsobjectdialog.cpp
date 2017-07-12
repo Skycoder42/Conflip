@@ -100,6 +100,9 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 		sortModel->setSourceModel(model);
 		ui->settingsTreeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+
+		if(!isCreate)
+			model->initialize(object);
 	} catch(QException &e) {
 		qWarning() << "Failed to load" << ui->pathIDLineEdit->text()
 				   << "for type" << ui->settingsTypeComboBox->currentData().toString()

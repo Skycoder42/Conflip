@@ -3,6 +3,8 @@
 
 #include <QAbstractItemModel>
 #include <QScopedPointer>
+#include "datastore.h"
+#include "settingsdatabase.h"
 #include "settingsfile.h"
 
 class SettingsFileModel : public QAbstractItemModel
@@ -14,6 +16,7 @@ public:
 
 	void enablePreview(bool enable);
 	QList<QPair<QStringList, bool>> extractEntries() const;
+	void initialize(SettingsObject object);
 
 	// Header:
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -56,11 +59,14 @@ private:
 	};
 
 	SettingsFile *_settings;
+	DataStore *_store;
 	QScopedPointer<SettingsItem> _root;
 	bool _preview;
 
 	SettingsItem *getItem(const QModelIndex &index) const;
 	QModelIndex itemIndex(const SettingsItem *item) const;
+
+	SettingsItem *loadTree(QStringList keyTree, SettingsItem *parent);
 };
 
 #endif // SETTINGSFILEMODEL_H

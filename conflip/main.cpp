@@ -30,9 +30,15 @@ int main(int argc, char *argv[])
 			.setDataMerger(new SettingsObjectMerger())
 			.create();
 
-	EditSettingsObjectDialog::createObject();
+	DataStore s;
+	s.loadAll<SettingsObject>().onResult([](QList<SettingsObject> o){
+		if(o.isEmpty())
+			EditSettingsObjectDialog::createObject();
+		else
+			EditSettingsObjectDialog::editObject(o.first());
+	});
 
-	return 0;
+	return a.exec();
 }
 
 QUuid deviceId()

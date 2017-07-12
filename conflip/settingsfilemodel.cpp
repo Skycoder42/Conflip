@@ -8,6 +8,7 @@
 SettingsFileModel::SettingsFileModel(SettingsFile *settingsFile, QObject *parent) :
 	QAbstractItemModel(parent),
 	_settings(settingsFile),
+	_store(new DataStore()),
 	_root(new SettingsItem(QString(), nullptr))
 {}
 
@@ -27,6 +28,24 @@ QList<QPair<QStringList, bool> > SettingsFileModel::extractEntries() const
 	QList<QPair<QStringList, bool>> entries;
 	_root->addEntries(entries);
 	return entries;
+}
+
+void SettingsFileModel::initialize(SettingsObject object)
+{
+	foreach(auto entry, object.entries) {
+		_store->load<SettingsEntry>(entry).onResult(this, [this](SettingsEntry entry){
+			auto item = loadTree(entry.keyChain, _root.data());
+			item->synced = true;
+			item->recursive = entry.recursive;
+			auto index = itemIndex(item);
+			emit dataChanged(index, index);
+		}, [entry](const QException &e){
+			qWarning() << "Skipping entry"
+					   << entry
+					   << "with error"
+					   << e.what();
+		});
+	}
 }
 
 QVariant SettingsFileModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -77,7 +96,11 @@ int SettingsFileModel::columnCount(const QModelIndex &parent) const
 
 bool SettingsFileModel::hasChildren(const QModelIndex &parent) const
 {
-	return _settings->hasChildren(getItem(parent)->keyChain());
+	auto item = getItem(parent);
+	if(item->children.isEmpty())
+		return _settings->hasChildren(item->keyChain());
+	else
+		return true;
 }
 
 bool SettingsFileModel::canFetchMore(const QModelIndex &parent) const
@@ -209,9 +232,6 @@ Qt::ItemFlags SettingsFileModel::flags(const QModelIndex &index) const
 			flags |= Qt::ItemIsUserTristate | Qt::ItemIsUserCheckable;
 	}
 
-	if(item->isKey)
-		flags |= Qt::ItemNeverHasChildren;
-
 	return flags;
 }
 
@@ -232,6 +252,29 @@ QModelIndex SettingsFileModel::itemIndex(const SettingsItem *item) const
 	}
 
 	return QModelIndex();
+}
+
+SettingsFileModel::SettingsItem *SettingsFileModel::loadTree(QStringList keyTree, SettingsItem *parent)
+{
+	if(keyTree.isEmpty())
+		return parent;
+
+	auto index = itemIndex(parent);
+	auto mKey = keyTree.takeFirst();
+	if(parent->children.isEmpty())
+		fetchMore(index);
+
+	foreach(auto child, parent->children) {
+		if(child->key == mKey)
+			return loadTree(keyTree, child);
+	}
+
+	auto child = new SettingsItem(mKey, parent);
+	child->isKey = true;
+	beginInsertRows(index, parent->children.size(), parent->children.size());
+	parent->children.append(child);
+	endInsertRows();
+	return loadTree(keyTree, child);
 }
 
 
