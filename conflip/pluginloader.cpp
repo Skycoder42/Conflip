@@ -68,5 +68,5 @@ SettingsFile *PluginLoader::createSettings(const QString &path, const QString &t
 	if(plugin)
 		return plugin->createSettings(path, type, parent);
 	else
-		return nullptr;
+		throw SettingsLoadException("No plugin found for type: " + type.toUtf8());
 }

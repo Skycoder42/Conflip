@@ -24,9 +24,14 @@ private:
 	QtDataSync::CachingDataStore<SettingsObject, QUuid> *_objectStore;
 	DataStore *_dataStore;
 	QHash<QUuid, SettingsFile*> _fileMap;
+
+	QHash<QUuid, int> _loadCache;
 	QSet<QUuid> _locks;
 
 	void reloadObject(SettingsObject object);
+	void completeObjectSetup(const QUuid &objectId);
+	void updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data);
+	void applyRemoteChange(SettingsValue value);
 };
 
 #endif // SYNCMANAGER_H

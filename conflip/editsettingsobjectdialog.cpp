@@ -84,15 +84,15 @@ void EditSettingsObjectDialog::accept()
 		entries = model->extractEntries();
 
 	if(isCreate) {
-		object = store->createObject(ui->settingsTypeComboBox->currentText(),
-								  ui->pathIDLineEdit->text(),
-								  entries,
-								  all);
+		object = store->createObject(ui->settingsTypeComboBox->currentData().toString(),
+									 ui->pathIDLineEdit->text(),
+									 entries,
+									 all);
 	} else {
 		object = store->updateObject(object,
-							   ui->pathIDLineEdit->text(),
-							   entries,
-							   all);
+									 ui->pathIDLineEdit->text(),
+									 entries,
+									 all);
 	}
 
 	QDialog::accept();

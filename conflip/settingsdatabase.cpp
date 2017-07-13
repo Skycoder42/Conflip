@@ -110,7 +110,7 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 {
 	//assume SettingsObject
 	try {
-		if(local.contains(QStringLiteral("type"))) {
+		if(local.contains(QStringLiteral("type"))) { //SettingsObject
 			auto lo = _serializer->deserialize<SettingsObject>(local);
 			auto ro = _serializer->deserialize<SettingsObject>(remote);
 
@@ -132,7 +132,8 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 			ro.values.unite(lo.values);
 
 			return _serializer->serialize(ro);
-		}
+		} else if(local.contains(QStringLiteral("objectId"))) //SettingsValue
+			return remote;// prefer remote state
 	} catch(QException &e) {
 		qWarning() << "Failed to merge with exception:" << e.what();
 	}
