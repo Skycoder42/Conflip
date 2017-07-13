@@ -2,6 +2,7 @@
 #define QSETTINGSFILE_H
 
 #include "settingsfile.h"
+#include <QFileSystemWatcher>
 #include <QSettings>
 
 class QSettingsFile : public SettingsFile
@@ -19,6 +20,7 @@ public:
 
 private:
 	QSettings *_settings;
+	QFileSystemWatcher *_watcher;
 };
 
 #endif // QSETTINGSFILE_H

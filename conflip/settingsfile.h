@@ -3,6 +3,7 @@
 
 #include "libconflip_global.h"
 #include <QObject>
+#include <QVariant>
 
 class LIBCONFLIP_EXPORT SettingsFile : public QObject
 {
@@ -16,6 +17,9 @@ public:
 	virtual QStringList childKeys(const QStringList &parentChain) = 0;
 	virtual QVariant value(const QStringList &keyChain) = 0;
 	virtual void setValue(const QStringList &keyChain, const QVariant &value) = 0;
+
+signals:
+	void settingsChanged(const QStringList &keyChain = {}, const QVariant &value = {});
 };
 
 #endif // SETTINGSFILE_H

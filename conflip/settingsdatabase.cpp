@@ -8,7 +8,8 @@ SettingsObject::SettingsObject() :
 	type(),
 	paths(),
 	syncAll(false),
-	entries()
+	entries(),
+	values()
 {}
 
 bool SettingsObject::isValid() const
@@ -50,10 +51,19 @@ void SettingsObject::setPaths(const QMap<QString, QString> &value)
 		paths.insert(it.key(), it.value());
 }
 
+QList<QUuid> SettingsObject::getValues() const
+{
+	return values.toList();
+}
+
+void SettingsObject::setValues(const QList<QUuid> &value)
+{
+	values = QSet<QUuid>::fromList(value);
+}
+
 SettingsEntry::SettingsEntry() :
 	keyChain(),
-	recursive(false),
-	values()
+	recursive(false)
 {}
 
 bool SettingsEntry::operator ==(const SettingsEntry &other) const
@@ -66,25 +76,16 @@ bool SettingsEntry::operator !=(const SettingsEntry &other) const
 	return keyChain != other.keyChain;
 }
 
-QList<QUuid> SettingsEntry::getValues() const
-{
-	return values.toList();
-}
-
-void SettingsEntry::setValues(const QList<QUuid> &value)
-{
-	values = QSet<QUuid>::fromList(value);
-}
-
 SettingsValue::SettingsValue() :
-	entryId(),
+	objectId(),
 	keyChain(),
+	entryChain(),
 	value()
 {}
 
 QUuid SettingsValue::id() const
 {
-	return QUuid::createUuidV5(entryId, keyChain.join(QLatin1Char('/')));
+	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
 }
 
 bool SettingsValue::operator ==(const SettingsValue &other) const
@@ -101,6 +102,7 @@ SettingsObjectMerger::SettingsObjectMerger(QObject *parent) :
 	DataMerger(parent),
 	_serializer(new QJsonSerializer(this))
 {
+	setSyncPolicy(PreferDeleted);
 	setMergePolicy(Merge);
 }
 
@@ -124,11 +126,10 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 					// prefer recursive
 					if(entry.recursive != roEntry.recursive)
 						roEntry.recursive = true;
-					// update entries to merge lists and prefer local
-					roEntry.values.unite(entry.values);
 				} else
 					ro.entries.append(entry);
 			}
+			ro.values.unite(lo.values);
 
 			return _serializer->serialize(ro);
 		}

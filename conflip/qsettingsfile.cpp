@@ -1,10 +1,22 @@
 #include "qsettingsfile.h"
 
+#include <QFile>
+#include <QDebug>
+
 QSettingsFile::QSettingsFile(QSettings *settings, QObject *parent) :
 	SettingsFile(parent),
-	_settings(settings)
+	_settings(settings),
+	_watcher(new QFileSystemWatcher(this))
 {
 	_settings->setParent(this);
+
+	connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
+		emit settingsChanged();
+		_watcher->addPath(file);
+	});
+
+	if(!_watcher->addPath(_settings->fileName()))
+		qWarning() << "Failed to watch for changes on" << _settings->fileName();
 }
 
 bool QSettingsFile::hasChildren(const QStringList &parentChain)

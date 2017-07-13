@@ -10,7 +10,7 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	ui(new Ui::EditSettingsObjectDialog),
 	model(nullptr),
 	sortModel(new QSortFilterProxyModel(this)),
-	store(new DataStore(this)),
+	store(DataStore::instance()),
 	isCreate(true),
 	object()
 {
@@ -84,12 +84,12 @@ void EditSettingsObjectDialog::accept()
 		entries = model->extractEntries();
 
 	if(isCreate) {
-		object = store->createNew(ui->settingsTypeComboBox->currentText(),
+		object = store->createObject(ui->settingsTypeComboBox->currentText(),
 								  ui->pathIDLineEdit->text(),
 								  entries,
 								  all);
 	} else {
-		object = store->update(object,
+		object = store->updateObject(object,
 							   ui->pathIDLineEdit->text(),
 							   entries,
 							   all);

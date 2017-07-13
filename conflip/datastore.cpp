@@ -1,11 +1,21 @@
 #include "datastore.h"
 #include "libconflip_global.h"
+#include <QGlobalStatic>
 
-DataStore::DataStore(QObject *parent) :
-	AsyncDataStore(parent)
+Q_GLOBAL_STATIC(DataStore, store)
+
+//TODO global: better exception handling?
+
+DataStore::DataStore() :
+	AsyncDataStore()
 {}
 
-SettingsObject DataStore::createNew(const QString &type, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
+DataStore *DataStore::instance()
+{
+	return store;
+}
+
+SettingsObject DataStore::createObject(const QString &type, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
 {
 	SettingsObject object;
 	object.id = QUuid::createUuid();
@@ -29,11 +39,19 @@ SettingsObject DataStore::createNew(const QString &type, const QString &path, co
 	return object;
 }
 
-SettingsObject DataStore::update(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
+SettingsObject DataStore::updateObject(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
 {
+	emit lockObject(object.id);
+
 	object.paths.insert(deviceId(), path);
 	object.syncAll = syncAll;
 	object.entries.clear();
+
+	//discard all old values (they will be recreated based on the new entries)
+	//TODO may not contain newly added ones!!!
+	foreach(auto value, object.values)
+		remove<SettingsValue>(value.toString());
+	object.values.clear();
 
 	if(!syncAll) {
 		//generate/update new entries
@@ -43,14 +61,26 @@ SettingsObject DataStore::update(SettingsObject object, const QString &path, con
 			entry.recursive = entryInfo.second;
 			object.entries.append(entry);
 		}
-
-		//TODO get entries to delete
-		//auto delEntries = object.entries.subtract(newEntries);
-		//object.entries = newEntries;
-	}
+	} else
+		object.entries.clear();
 
 	//now update with all it's entries
 	save(object);
 
 	return object;
+}
+
+void DataStore::removeObject(QUuid objectId)
+{
+	load<SettingsObject>(objectId).onResult(this, [this](SettingsObject o){
+		removeObject(o);
+	});
+}
+
+void DataStore::removeObject(SettingsObject object)
+{
+	emit lockObject(object.id);
+	foreach(auto value, object.values)
+		remove<SettingsValue>(value.toString());
+	remove<SettingsObject>(object.id);
 }

@@ -6,7 +6,7 @@
 ManageSettingsDialog::ManageSettingsDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ManageSettingsDialog),
-	_store(new DataStore(this))
+	_store(DataStore::instance())
 {
 	ui->setupUi(this);
 	DialogMaster::masterDialog(this);
@@ -69,11 +69,7 @@ void ManageSettingsDialog::on_action_Remove_triggered()
 	auto item = ui->listWidget->currentItem();
 	if(item) {
 		item->setFlags(Qt::NoItemFlags);
-		_store->remove<SettingsObject>(item->data(Qt::UserRole).value<SettingsObject>().id).onResult(this, [item](bool){
-			delete item;
-		}, [this](const QException &e){
-			qWarning() << "Failed to delete settings objects with error"
-					   << e.what();
-		});
+		_store->removeObject(item->data(Qt::UserRole).value<SettingsObject>());
+		delete item;
 	}
 }
