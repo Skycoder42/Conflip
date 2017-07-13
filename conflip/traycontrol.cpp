@@ -1,6 +1,7 @@
 #include "traycontrol.h"
 
 #include <QApplication>
+#include "managesettingsdialog.h"
 
 TrayControl::TrayControl(QObject *parent) :
 	QObject(parent),
@@ -37,5 +38,6 @@ void TrayControl::trayAction(QSystemTrayIcon::ActivationReason reason)
 
 void TrayControl::manageSync()
 {
-	Q_UNIMPLEMENTED();
+	auto dialog = new ManageSettingsDialog();
+	dialog->open();
 }

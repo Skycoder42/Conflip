@@ -29,6 +29,7 @@ public:
 	QSet<QUuid> values;
 
 	bool isValid() const;
+	QString devicePath() const;
 
 	bool operator ==(const SettingsObject &other) const;
 	bool operator !=(const SettingsObject &other) const;

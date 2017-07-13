@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
+	QApplication::setQuitOnLastWindowClosed(false);
 
 	// register types
 	QJsonSerializer::registerAllConverters<SettingsObject>();

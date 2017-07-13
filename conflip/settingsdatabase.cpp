@@ -17,6 +17,15 @@ bool SettingsObject::isValid() const
 	return !id.isNull();
 }
 
+QString SettingsObject::devicePath() const
+{
+	auto p = paths.value(deviceId());
+	if(p.isNull() && !paths.isEmpty())
+		return paths.values().first();
+	else
+		return p;
+}
+
 bool SettingsObject::operator ==(const SettingsObject &other) const
 {
 	return id == other.id;

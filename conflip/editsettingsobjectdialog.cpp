@@ -47,7 +47,7 @@ void EditSettingsObjectDialog::setup()
 	else {
 		ui->settingsTypeLabel->setEnabled(false);
 		ui->settingsTypeComboBox->setEnabled(false);
-		ui->pathIDLineEdit->setText(object.paths.value(deviceId(), object.paths.values().first()));
+		ui->pathIDLineEdit->setText(object.devicePath());
 		ui->syncAllBox->setChecked(object.syncAll);
 		on_applyButton_clicked();
 	}

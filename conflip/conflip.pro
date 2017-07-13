@@ -37,7 +37,8 @@ HEADERS += $$PUBLIC_HEADERS \
 	qsettingsfile.h \
 	settingsfilemodel.h \
 	datastore.h \
-    traycontrol.h
+    traycontrol.h \
+    managesettingsdialog.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -50,10 +51,12 @@ SOURCES += \
 	qsettingsfile.cpp \
 	settingsfilemodel.cpp \
 	datastore.cpp \
-    traycontrol.cpp
+    traycontrol.cpp \
+    managesettingsdialog.cpp
 
 FORMS += \
-	editsettingsobjectdialog.ui
+	editsettingsobjectdialog.ui \
+    managesettingsdialog.ui
 
 unix {
 	isEmpty(PREFIX): PREFIX = /usr
