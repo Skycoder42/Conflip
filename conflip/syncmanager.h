@@ -16,9 +16,11 @@ public:
 private slots:
 	void lockObject(QUuid objId);
 
-	void storeLoaded();
-	void dataChanged(const QString &key, const QVariant &value);
-	void dataResetted();
+	void objectStoreLoaded();
+	void objectChanged(const QString &key, const QVariant &value);
+	void objectStoreResetted();
+
+	void valueChanged(int metaTypeId, const QString &key, bool wasDeleted);
 
 private:
 	QtDataSync::CachingDataStore<SettingsObject, QUuid> *_objectStore;
@@ -34,6 +36,8 @@ private:
 	void updateAll(const QUuid &objectId);
 	void storeEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain);
 	void recurseEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain);
+
+	void saveIfChanged(SettingsValue value);
 };
 
 #endif // SYNCMANAGER_H

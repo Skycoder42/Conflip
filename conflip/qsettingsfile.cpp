@@ -57,6 +57,7 @@ void QSettingsFile::watchChanges()
 
 	_watcher = new QFileSystemWatcher(this);
 	connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
+		_settings->sync();
 		emit settingsChanged();
 		_watcher->addPath(file);
 	});

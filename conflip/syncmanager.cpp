@@ -12,13 +12,15 @@ SyncManager::SyncManager(QObject *parent) :
 {
 	connect(_dataStore, &DataStore::lockObject,
 			this, &SyncManager::lockObject);
+	connect(_dataStore, &DataStore::dataChanged,
+			this, &SyncManager::valueChanged);
 
 	connect(_objectStore, &QtDataSync::CachingDataStoreBase::storeLoaded,
-			this, &SyncManager::storeLoaded);
+			this, &SyncManager::objectStoreLoaded);
 	connect(_objectStore, &QtDataSync::CachingDataStoreBase::dataChanged,
-			this, &SyncManager::dataChanged);
+			this, &SyncManager::objectChanged);
 	connect(_objectStore, &QtDataSync::CachingDataStoreBase::dataResetted,
-			this, &SyncManager::dataResetted);
+			this, &SyncManager::objectStoreResetted);
 }
 
 void SyncManager::lockObject(QUuid objId)
@@ -26,13 +28,13 @@ void SyncManager::lockObject(QUuid objId)
 	_locks.insert(objId);
 }
 
-void SyncManager::storeLoaded()
+void SyncManager::objectStoreLoaded()
 {
 	foreach(auto object, _objectStore->loadAll())
 		loadObject(object);
 }
 
-void SyncManager::dataChanged(const QString &key, const QVariant &value)
+void SyncManager::objectChanged(const QString &key, const QVariant &value)
 {
 	auto rKey = _objectStore->toKey(key);
 
@@ -49,13 +51,25 @@ void SyncManager::dataChanged(const QString &key, const QVariant &value)
 	}
 }
 
-void SyncManager::dataResetted()
+void SyncManager::objectStoreResetted()
 {
 	qDeleteAll(_fileMap.values());//TODO deleteAllLater
 	_fileMap.clear();
 	_locks.clear();
 	foreach(auto object, _objectStore->loadAll())
 		loadObject(object);
+}
+
+void SyncManager::valueChanged(int metaTypeId, const QString &key, bool wasDeleted)
+{
+	if(wasDeleted || metaTypeId != qMetaTypeId<SettingsValue>())
+		return;
+
+	_dataStore->load<SettingsValue>(key).onResult(this, [this](SettingsValue value){
+		//skip locked objects
+		if(!_locks.contains(value.objectId))
+			applyRemoteChange(value);
+	});
 }
 
 void SyncManager::loadObject(SettingsObject object)
@@ -84,6 +98,10 @@ void SyncManager::loadObject(SettingsObject object)
 
 void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data)
 {
+	//skip locked objects
+	if(_locks.contains(objectId))
+		return;
+
 	if(keyChain.isEmpty())
 		updateAll(objectId);
 	else {
@@ -120,8 +138,7 @@ void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain,
 			value.value = file->value(keyChain);
 
 		//store value
-		_dataStore->save(value);
-		qDebug() << "synced" << value.keyChain << "with" << value.value;
+		saveIfChanged(value);
 	}
 }
 
@@ -158,8 +175,7 @@ void SyncManager::storeEntry(const QStringList &entryChain, QUuid objectId, Sett
 		value.keyChain = entryChain;
 		value.entryChain = rootChain;
 		value.value = file->value(entryChain);
-		_dataStore->save(value);
-		qDebug() << "synced" << value.keyChain << "with" << value.value;
+		saveIfChanged(value);
 	}
 }
 
@@ -171,4 +187,19 @@ void SyncManager::recurseEntry(const QStringList &entryChain, QUuid objectId, Se
 		storeEntry(nChain, objectId, file, rootChain);
 		recurseEntry(nChain, objectId, file, rootChain);
 	}
+}
+
+void SyncManager::saveIfChanged(SettingsValue value)
+{
+	_dataStore->load<SettingsValue>(value.id()).onResult(this, [this, value](SettingsValue oldValue){
+		if(value.value != oldValue.value) {
+			_dataStore->save(value);
+			qDebug() << "synced" << value.keyChain << "with" << value.value;
+		}
+	}, [this, value](const QException &e) {
+		qWarning() << "Failed to load value - saving anyway. Error:"
+				   << e.what();
+		_dataStore->save(value);
+		qDebug() << "synced" << value.keyChain << "with" << value.value;
+	});
 }
