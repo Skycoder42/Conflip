@@ -40,16 +40,16 @@ void SyncManager::objectChanged(const QString &key, const QVariant &value)
 {
 	auto rKey = _objectStore->toKey(key);
 
-	//delete file (if present) and unlock
-	auto file = _fileMap.take(rKey);
-	if(file)
-		file->deleteLater();
 	_locks.remove(rKey);
-
 	//if add/update -> load object
 	if(value.isValid()) {
 		auto object = value.value<SettingsObject>();
-		loadObject(object);
+		if(!_fileMap.contains(object.id))
+			loadObject(object);
+	} else {
+		auto file = _fileMap.take(rKey);
+		if(file)
+			file->deleteLater();
 	}
 }
 
@@ -164,8 +164,7 @@ void SyncManager::updateAll(const QUuid &objectId)
 	if(!file)
 	   return;
 
-	auto object = _objectStore->load(objectId);
-	foreach(auto entry, object.entries) {
+	foreach(auto entry, _objectStore->load(objectId).entries) {
 		if(file->isKey(entry.keyChain))
 			storeEntry(entry.keyChain, objectId, file, entry.keyChain);
 		if(entry.recursive)
