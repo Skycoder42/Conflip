@@ -18,6 +18,8 @@ public:
 	QVariant value(const QStringList &keyChain) override;
 	void setValue(const QStringList &keyChain, const QVariant &value) override;
 
+	void watchChanges() override;
+
 private:
 	QSettings *_settings;
 	QFileSystemWatcher *_watcher;

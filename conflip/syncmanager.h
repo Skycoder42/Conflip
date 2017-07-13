@@ -28,7 +28,6 @@ private:
 	QSet<QUuid> _locks;
 
 	void loadObject(SettingsObject object);
-	void completeObjectSetup(const QUuid &objectId);
 	void updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data);
 	void applyRemoteChange(SettingsValue value);
 

@@ -19,6 +19,8 @@ public:
 	virtual QVariant value(const QStringList &keyChain) = 0;
 	virtual void setValue(const QStringList &keyChain, const QVariant &value) = 0;
 
+	virtual void watchChanges() = 0;
+
 signals:
 	void settingsChanged(const QStringList &keyChain = {}, const QVariant &value = {});
 };

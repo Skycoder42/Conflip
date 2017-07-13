@@ -15,7 +15,7 @@ class SettingsValue
 	Q_PROPERTY(QUuid objectId MEMBER objectId)
 	Q_PROPERTY(QStringList keyChain MEMBER keyChain)
 	Q_PROPERTY(QStringList entryChain MEMBER entryChain)
-	Q_PROPERTY(QVariant value MEMBER value)
+	Q_PROPERTY(QString value READ getValue WRITE setValue)
 
 public:
 	SettingsValue();
@@ -29,6 +29,10 @@ public:
 
 	bool operator ==(const SettingsValue &other) const;
 	bool operator !=(const SettingsValue &other) const;
+
+private:
+	QString getValue() const;
+	void setValue(const QString &value);
 };
 
 class SettingsEntry

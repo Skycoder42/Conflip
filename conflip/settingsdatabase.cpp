@@ -1,6 +1,7 @@
 #include "settingsdatabase.h"
 #include "libconflip_global.h"
 
+#include <QDataStream>
 #include <QException>
 
 SettingsObject::SettingsObject() :
@@ -87,6 +88,21 @@ bool SettingsValue::operator ==(const SettingsValue &other) const
 bool SettingsValue::operator !=(const SettingsValue &other) const
 {
 	return id() != other.id();
+}
+
+QString SettingsValue::getValue() const
+{
+	QByteArray buffer;
+	QDataStream stream(&buffer, QIODevice::WriteOnly);
+	stream << value;
+	return QString::fromUtf8(buffer.toBase64());
+}
+
+void SettingsValue::setValue(const QString &value)
+{
+	auto buffer = QByteArray::fromBase64(value.toUtf8());
+	QDataStream stream(buffer);
+	stream >> this->value;
 }
 
 SettingsObjectMerger::SettingsObjectMerger(QObject *parent) :

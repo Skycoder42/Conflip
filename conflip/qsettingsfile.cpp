@@ -6,17 +6,9 @@
 QSettingsFile::QSettingsFile(QSettings *settings, QObject *parent) :
 	SettingsFile(parent),
 	_settings(settings),
-	_watcher(new QFileSystemWatcher(this))
+	_watcher(nullptr)
 {
 	_settings->setParent(this);
-
-	connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
-		emit settingsChanged();
-		_watcher->addPath(file);
-	});
-
-	if(!_watcher->addPath(_settings->fileName()))
-		qWarning() << "Failed to watch for changes on" << _settings->fileName();
 }
 
 bool QSettingsFile::hasChildren(const QStringList &parentChain)
@@ -57,4 +49,18 @@ QVariant QSettingsFile::value(const QStringList &keyChain)
 void QSettingsFile::setValue(const QStringList &keyChain, const QVariant &value)
 {
 	_settings->setValue(keyChain.join(QLatin1Char('/')), value);
+}
+
+void QSettingsFile::watchChanges()
+{
+	_settings->sync();
+
+	_watcher = new QFileSystemWatcher(this);
+	connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
+		emit settingsChanged();
+		_watcher->addPath(file);
+	});
+
+	if(!_watcher->addPath(_settings->fileName()))
+		qWarning() << "Failed to watch for changes on" << _settings->fileName();
 }

@@ -1,5 +1,6 @@
 #include "pluginloader.h"
 #include "syncmanager.h"
+#include <QCoreApplication>
 #include <functional>
 
 SyncManager::SyncManager(QObject *parent) :
@@ -64,32 +65,21 @@ void SyncManager::loadObject(SettingsObject object)
 
 		//load file
 		auto file = PluginLoader::createSettings(object.devicePath(), object.type, this);
+		connect(file, &SettingsFile::settingsChanged,
+				this, std::bind(&SyncManager::updateData, this, objId, std::placeholders::_1, std::placeholders::_2));
 		_fileMap.insert(objId, file);
 
 		//update local state based on remote state
-		_dataStore->objectValues(object).onResult(this, [this, objId](QList<SettingsValue> values){
+		_dataStore->objectValues(object).onResult(this, [this, objId, file](QList<SettingsValue> values) {
 			foreach(auto value, values)
 				applyRemoteChange(value);
-			completeObjectSetup(objId);
+			updateAll(objId);
+			file->watchChanges();
 		});
 	} catch(QException &e) {
 		qWarning() << "Failed to load settings for" << object.devicePath()
 				   << "with error:" << e.what();
 	}
-}
-
-void SyncManager::completeObjectSetup(const QUuid &objectId)
-{
-	auto file = _fileMap.value(objectId);
-	if(!file)
-	   return;
-
-	//connect for changes
-	auto updateFn = std::bind(&SyncManager::updateData, this, objectId, std::placeholders::_1, std::placeholders::_2);
-	connect(file, &SettingsFile::settingsChanged, this, updateFn);
-
-	//load all data from settings
-	updateAll(objectId);
 }
 
 void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data)
@@ -131,7 +121,7 @@ void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain,
 
 		//store value
 		_dataStore->save(value);
-		qDebug() << "synced" << keyChain << "with" << data;
+		qDebug() << "synced" << value.keyChain << "with" << value.value;
 	}
 }
 
@@ -169,7 +159,7 @@ void SyncManager::storeEntry(const QStringList &entryChain, QUuid objectId, Sett
 		value.entryChain = rootChain;
 		value.value = file->value(entryChain);
 		_dataStore->save(value);
-		qDebug() << "updated" << value.keyChain << "to" << value.value;
+		qDebug() << "synced" << value.keyChain << "with" << value.value;
 	}
 }
 
