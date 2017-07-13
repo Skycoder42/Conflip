@@ -22,6 +22,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="backupCheckBox">
+     <property name="text">
+      <string>Create &amp;Backups</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QToolButton" name="toolButton">

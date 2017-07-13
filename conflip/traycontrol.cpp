@@ -1,12 +1,12 @@
 #include "traycontrol.h"
 
 #include <QApplication>
-#include "managesettingsdialog.h"
 
 TrayControl::TrayControl(QObject *parent) :
 	QObject(parent),
 	_tray(new QSystemTrayIcon(QIcon(QStringLiteral(":/icons/tray/main.ico")), this)),
-	_trayMenu(new QMenu())
+	_trayMenu(new QMenu()),
+	_dialog(nullptr)
 {
 	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("configure")),
 						 tr("Manage Synchronization"),
@@ -38,6 +38,16 @@ void TrayControl::trayAction(QSystemTrayIcon::ActivationReason reason)
 
 void TrayControl::manageSync()
 {
-	auto dialog = new ManageSettingsDialog();
-	dialog->open();
+	if(_dialog) {
+		if(_dialog->isMinimized())
+			_dialog->showNormal();
+		else
+			_dialog->show();
+		_dialog->raise();
+		_dialog->activateWindow();
+	} else {
+		_dialog = new ManageSettingsDialog();
+		_dialog->setAttribute(Qt::WA_DeleteOnClose);
+		_dialog->open();
+	}
 }

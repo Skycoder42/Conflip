@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QSystemTrayIcon>
 #include <QScopedPointer>
+#include "managesettingsdialog.h"
 
 class TrayControl : public QObject
 {
@@ -21,6 +22,8 @@ private slots:
 private:
 	QSystemTrayIcon *_tray;
 	QScopedPointer<QMenu> _trayMenu;
+
+	QPointer<ManageSettingsDialog> _dialog;
 };
 
 #endif // TRAYCONTROL_H

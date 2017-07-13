@@ -31,7 +31,7 @@ private:
 	QSet<QString> _skipNextLocal;
 	QSet<QString> _skipNextRemote;
 
-	void loadObject(SettingsObject object);
+	void loadObject(SettingsObject object, bool localReset = true);
 	void updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data);
 	void applyRemoteChange(SettingsValue value);
 

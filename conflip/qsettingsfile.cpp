@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QDebug>
+#include <QFileInfo>
 
 QSettingsFile::QSettingsFile(QSettings *settings, QObject *parent) :
 	SettingsFile(parent),
@@ -49,6 +50,15 @@ QVariant QSettingsFile::value(const QStringList &keyChain)
 void QSettingsFile::setValue(const QStringList &keyChain, const QVariant &value)
 {
 	_settings->setValue(keyChain.join(QLatin1Char('/')), value);
+}
+
+void QSettingsFile::autoBackup()
+{
+	QFileInfo info(_settings->fileName());
+	if(!QFile::copy(_settings->fileName(), _settings->fileName() + QStringLiteral(".bkp"))) {
+		qWarning() << "Unable to create backup for"
+				   << _settings->fileName();
+	}
 }
 
 void QSettingsFile::watchChanges()

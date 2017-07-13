@@ -1,6 +1,7 @@
 #include "pluginloader.h"
 #include "syncmanager.h"
 #include <QCoreApplication>
+#include <QtDataSync/SyncController>
 #include <functional>
 
 SyncManager::SyncManager(QObject *parent) :
@@ -33,7 +34,9 @@ void SyncManager::lockObject(QUuid objId)
 void SyncManager::objectStoreLoaded()
 {
 	foreach(auto object, _objectStore->loadAll())
-		loadObject(object);
+		loadObject(object, false);
+	QtDataSync::SyncController controller;
+	controller.setSyncEnabled(true);
 }
 
 void SyncManager::objectChanged(const QString &key, const QVariant &value)
@@ -75,7 +78,7 @@ void SyncManager::valueChanged(int metaTypeId, const QString &key, bool wasDelet
 	});
 }
 
-void SyncManager::loadObject(SettingsObject object)
+void SyncManager::loadObject(SettingsObject object, bool localReset)
 {
 	try {
 		auto objId = object.id;
@@ -86,13 +89,30 @@ void SyncManager::loadObject(SettingsObject object)
 				this, std::bind(&SyncManager::updateData, this, objId, std::placeholders::_1, std::placeholders::_2));
 		_fileMap.insert(objId, file);
 
-		//update local state based on remote state
-		_dataStore->objectValues(object).onResult(this, [this, objId, file](QList<SettingsValue> values) {
-			foreach(auto value, values)
-				applyRemoteChange(value);
+		if(localReset) {
+			//create automated backup (if supported)
+			QSettings settings;
+			if(settings.value(QStringLiteral("backup"), true).toBool())
+				file->autoBackup();
+
+			//update local state based on remote state
+			_dataStore->objectValues(object).onResult(this, [this, objId, file](QList<SettingsValue> values) {
+				foreach(auto value, values)
+					applyRemoteChange(value);
+				updateAll(objId);
+				file->watchChanges();
+			});
+		} else {
+			//sync the local state first, and after that remote changes
 			updateAll(objId);
-			file->watchChanges();
-		});
+			_dataStore->objectValues(object).onResult(this, [this, objId, file](QList<SettingsValue> values) {
+				auto rSkip = _skipNextLocal;
+				foreach(auto value, values)
+					applyRemoteChange(value);
+				_skipNextLocal = rSkip;//skip all again, when the change signals from update come
+				file->watchChanges();
+			});
+		}
 	} catch(QException &e) {
 		qWarning() << "Failed to load settings for" << object.devicePath()
 				   << "with error:" << e.what();

@@ -3,6 +3,7 @@
 #include <QJsonSerializer>
 #include <QSqlDatabase>
 #include <QtDataSync/Setup>
+#include <QtDataSync/SyncController>
 #include "libconflip_global.h"
 #include "pluginloader.h"
 #include "settingsdatabase.h"
@@ -34,6 +35,8 @@ int main(int argc, char *argv[])
 	QtDataSync::Setup()
 			.setDataMerger(new SettingsObjectMerger())
 			.create();
+	QtDataSync::SyncController controller;
+	controller.setSyncEnabled(false);
 
 	SyncManager manager;
 	TrayControl tray;

@@ -22,6 +22,9 @@ ManageSettingsDialog::ManageSettingsDialog(QWidget *parent) :
 								   ui->action_Remove
 							   });
 
+	QSettings settings;
+	ui->backupCheckBox->setChecked(settings.value(QStringLiteral("backup"), true).toBool());
+
 	_store->loadAll<SettingsObject>().onResult(this, [this](QList<SettingsObject> list){
 		foreach(auto obj, list) {
 			auto item = new QListWidgetItem(obj.devicePath(), ui->listWidget);
@@ -72,4 +75,10 @@ void ManageSettingsDialog::on_action_Remove_triggered()
 		_store->removeObject(item->data(Qt::UserRole).value<SettingsObject>());
 		delete item;
 	}
+}
+
+void ManageSettingsDialog::on_backupCheckBox_clicked(bool checked)
+{
+	QSettings settings;
+	settings.setValue(QStringLiteral("backup"), checked);
 }

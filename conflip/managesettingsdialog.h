@@ -22,6 +22,7 @@ private slots:
 	void on_action_Add_Settings_triggered();
 	void on_action_Edit_triggered();
 	void on_action_Remove_triggered();
+	void on_backupCheckBox_clicked(bool checked);
 
 private:
 	Ui::ManageSettingsDialog *ui;
