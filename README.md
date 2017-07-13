@@ -2,8 +2,6 @@
 A tool to synchronize settings/configurations across multiple machines
 
 ## TODO
-- add option to create backup
-- add sync log (with errors etc -> use QDebug)
 - add generic array support
 - support xml
 - support json

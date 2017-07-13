@@ -11,6 +11,7 @@
 #include "editsettingsobjectdialog.h"
 #include "traycontrol.h"
 #include "syncmanager.h"
+#include "synclogger.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +23,9 @@ int main(int argc, char *argv[])
 	QApplication::setApplicationDisplayName(QStringLiteral(DISPLAY_NAME));
 	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 	QApplication::setQuitOnLastWindowClosed(false);
+
+	//enable file logging
+	SyncLogger::setup(a.arguments().contains(QStringLiteral("--verbose")));
 
 	// register types
 	QJsonSerializer::registerAllConverters<SettingsObject>();

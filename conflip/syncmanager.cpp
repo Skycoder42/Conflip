@@ -174,7 +174,7 @@ void SyncManager::applyRemoteChange(SettingsValue value)
 
 		_skipNextRemote.insert(value.id());
 		file->setValue(value.keyChain, value.value);
-		qDebug() << "updated" << value.keyChain << "to" << value.value;
+		qDebug() << "updated local settings for:" << value.keyChain.join(QLatin1Char('/'));
 	}
 }
 
@@ -221,6 +221,6 @@ void SyncManager::syncIfChanged(SettingsValue value)
 	if(!_skipNextRemote.remove(value.id())) {
 		_skipNextLocal.insert(value.id());
 		_dataStore->save(value);
-		qDebug() << "synced" << value.keyChain << "with" << value.value;
+		qDebug() << "synced changes to remote for:" << value.keyChain.join(QLatin1Char('/'));
 	}
 }

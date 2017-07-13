@@ -1,3 +1,4 @@
+#include "synclogger.h"
 #include "traycontrol.h"
 
 #include <QApplication>
@@ -11,6 +12,11 @@ TrayControl::TrayControl(QObject *parent) :
 	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("configure")),
 						 tr("Manage Synchronization"),
 						 this, &TrayControl::manageSync);
+	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("text-x-log")),
+						 tr("Open Logfile"),
+						 this, [](){
+		SyncLogger::openLogfile();
+	});
 
 	_trayMenu->addSeparator();
 	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("gtk-quit")),
