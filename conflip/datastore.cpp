@@ -14,17 +14,13 @@ SettingsObject DataStore::createNew(const QString &type, const QString &path, co
 	object.syncAll = syncAll;
 
 	//insert object once to prevent unclear states
-	save(object);
-	if(syncAll)
-		return object;
-
-	foreach(auto entryInfo, entries) {
-		SettingsEntry entry;
-		entry.objectId = object.id;
-		entry.keyChain = entryInfo.first;
-		entry.recursive = entryInfo.second;
-		object.entries.insert(entry.id());
-		save(entry);
+	if(!syncAll) {
+		foreach(auto entryInfo, entries) {
+			SettingsEntry entry;
+			entry.keyChain = entryInfo.first;
+			entry.recursive = entryInfo.second;
+			object.entries.append(entry);
+		}
 	}
 
 	//now update with all it's entries
@@ -37,34 +33,24 @@ SettingsObject DataStore::update(SettingsObject object, const QString &path, con
 {
 	object.paths.insert(deviceId(), path);
 	object.syncAll = syncAll;
+	object.entries.clear();
 
-	if(syncAll) {
-		object.entries.clear();
-		save(object);
-		return object;
+	if(!syncAll) {
+		//generate/update new entries
+		foreach(auto entryInfo, entries) {
+			SettingsEntry entry;
+			entry.keyChain = entryInfo.first;
+			entry.recursive = entryInfo.second;
+			object.entries.append(entry);
+		}
+
+		//TODO get entries to delete
+		//auto delEntries = object.entries.subtract(newEntries);
+		//object.entries = newEntries;
 	}
-
-	//generate/update new entries
-	QSet<QUuid> newEntries;
-	foreach(auto entryInfo, entries) {
-		SettingsEntry entry;
-		entry.objectId = object.id;
-		entry.keyChain = entryInfo.first;
-		entry.recursive = entryInfo.second;
-		newEntries.insert(entry.id());
-		save(entry);
-	}
-
-	//get entries to delete
-	auto delEntries = object.entries.subtract(newEntries);
-	object.entries = newEntries;
 
 	//now update with all it's entries
 	save(object);
-
-	//and delete the old entries
-	foreach(auto entry, entries)
-		remove<SettingsEntry>(entry);
 
 	return object;
 }

@@ -8,8 +8,7 @@ SettingsObject::SettingsObject() :
 	type(),
 	paths(),
 	syncAll(false),
-	entries(),
-	values()
+	entries()
 {}
 
 bool SettingsObject::isValid() const
@@ -51,56 +50,41 @@ void SettingsObject::setPaths(const QMap<QString, QString> &value)
 		paths.insert(it.key(), it.value());
 }
 
-QList<QUuid> SettingsObject::getEntries() const
-{
-	return entries.toList();
-}
-
-void SettingsObject::setEntries(const QList<QUuid> &value)
-{
-	entries = QSet<QUuid>::fromList(value);
-}
-
-QList<QUuid> SettingsObject::getValues() const
-{
-	return values.toList();
-}
-
-void SettingsObject::setValues(const QList<QUuid> &value)
-{
-	values = QSet<QUuid>::fromList(value);
-}
-
 SettingsEntry::SettingsEntry() :
-	objectId(),
 	keyChain(),
-	recursive(false)
+	recursive(false),
+	values()
 {}
-
-QUuid SettingsEntry::id() const
-{
-	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
-}
 
 bool SettingsEntry::operator ==(const SettingsEntry &other) const
 {
-	return id() == other.id();
+	return keyChain == other.keyChain;
 }
 
 bool SettingsEntry::operator !=(const SettingsEntry &other) const
 {
-	return id() != other.id();
+	return keyChain != other.keyChain;
+}
+
+QList<QUuid> SettingsEntry::getValues() const
+{
+	return values.toList();
+}
+
+void SettingsEntry::setValues(const QList<QUuid> &value)
+{
+	values = QSet<QUuid>::fromList(value);
 }
 
 SettingsValue::SettingsValue() :
-	objectId(),
+	entryId(),
 	keyChain(),
 	value()
 {}
 
 QUuid SettingsValue::id() const
 {
-	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
+	return QUuid::createUuidV5(entryId, keyChain.join(QLatin1Char('/')));
 }
 
 bool SettingsValue::operator ==(const SettingsValue &other) const
@@ -130,20 +114,21 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 
 			//overwrite own path only
 			auto id = deviceId();
-			ro.paths.insert(id, lo.paths.value(id));
+			ro.paths.insert(id, lo.devicePath());
 
 			// update entries to merge lists and prefer local
-			ro.entries.unite(lo.entries);
-			ro.values.unite(lo.values);
-
-			return _serializer->serialize(ro);
-		} else if(local.contains(QStringLiteral("recursive"))) {
-			auto lo = _serializer->deserialize<SettingsEntry>(local);
-			auto ro = _serializer->deserialize<SettingsEntry>(remote);
-
-			// prefer recursive
-			if(lo.recursive != ro.recursive)
-				ro.recursive = true;
+			foreach(auto entry, lo.entries) {
+				auto roIndex = ro.entries.indexOf(entry);
+				if(roIndex != -1) {
+					auto &roEntry = ro.entries[roIndex];
+					// prefer recursive
+					if(entry.recursive != roEntry.recursive)
+						roEntry.recursive = true;
+					// update entries to merge lists and prefer local
+					roEntry.values.unite(entry.values);
+				} else
+					ro.entries.append(entry);
+			}
 
 			return _serializer->serialize(ro);
 		}

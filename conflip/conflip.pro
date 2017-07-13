@@ -38,7 +38,8 @@ HEADERS += $$PUBLIC_HEADERS \
 	settingsfilemodel.h \
 	datastore.h \
     traycontrol.h \
-    managesettingsdialog.h
+    managesettingsdialog.h \
+    syncmanager.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -52,7 +53,8 @@ SOURCES += \
 	settingsfilemodel.cpp \
 	datastore.cpp \
     traycontrol.cpp \
-    managesettingsdialog.cpp
+    managesettingsdialog.cpp \
+    syncmanager.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui \

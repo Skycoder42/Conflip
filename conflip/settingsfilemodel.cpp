@@ -33,18 +33,11 @@ QList<QPair<QStringList, bool> > SettingsFileModel::extractEntries() const
 void SettingsFileModel::initialize(SettingsObject object)
 {
 	foreach(auto entry, object.entries) {
-		_store->load<SettingsEntry>(entry).onResult(this, [this](SettingsEntry entry){
-			auto item = loadTree(entry.keyChain, _root.data());
-			item->synced = true;
-			item->recursive = entry.recursive;
-			auto index = itemIndex(item);
-			emit dataChanged(index, index);
-		}, [entry](const QException &e){
-			qWarning() << "Skipping entry"
-					   << entry
-					   << "with error"
-					   << e.what();
-		});
+		auto item = loadTree(entry.keyChain, _root.data());
+		item->synced = true;
+		item->recursive = entry.recursive;
+		auto index = itemIndex(item);
+		emit dataChanged(index, index);
 	}
 }
 
