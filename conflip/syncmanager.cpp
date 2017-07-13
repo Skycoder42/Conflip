@@ -166,7 +166,8 @@ void SyncManager::updateAll(const QUuid &objectId)
 
 	auto object = _objectStore->load(objectId);
 	foreach(auto entry, object.entries) {
-		storeEntry(entry.keyChain, objectId, file, entry.keyChain);
+		if(file->isKey(entry.keyChain))
+			storeEntry(entry.keyChain, objectId, file, entry.keyChain);
 		if(entry.recursive)
 			recurseEntry(entry.keyChain, objectId, file, entry.keyChain);
 	}
@@ -174,22 +175,24 @@ void SyncManager::updateAll(const QUuid &objectId)
 
 void SyncManager::storeEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain)
 {
-	if(file->isKey(entryChain)) {
-		SettingsValue value;
-		value.objectId = objectId;
-		value.keyChain = entryChain;
-		value.entryChain = rootChain;
-		value.value = file->value(entryChain);
-		syncIfChanged(value);
-	}
+	SettingsValue value;
+	value.objectId = objectId;
+	value.keyChain = entryChain;
+	value.entryChain = rootChain;
+	value.value = file->value(entryChain);
+	syncIfChanged(value);
 }
 
 void SyncManager::recurseEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain)
 {
+	foreach(auto keys, file->childKeys(entryChain)){
+		auto nChain = entryChain;
+		nChain.append(keys);
+		storeEntry(nChain, objectId, file, rootChain);
+	}
 	foreach(auto group, file->childGroups(entryChain)) {
 		auto nChain = entryChain;
-		nChain.prepend(group);
-		storeEntry(nChain, objectId, file, rootChain);
+		nChain.append(group);
 		recurseEntry(nChain, objectId, file, rootChain);
 	}
 }
