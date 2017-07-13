@@ -93,13 +93,51 @@ void SyncManager::completeObjectSetup(const QUuid &objectId)
 			this, updateFn);
 
 	//load all data from settings
-	updateFn(QStringList(), QVariant());
+	updateAll(objectId);
 }
 
 void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data)
 {
-	qDebug() << "synced" << keyChain << "with" << data;
-	Q_UNIMPLEMENTED();
+	if(keyChain.isEmpty())
+		updateAll(objectId);
+	else {
+		auto file = _fileMap.value(objectId);
+		if(!file)
+		   return;
+
+		//prepare value
+		SettingsValue value;
+		value.objectId = objectId;
+		value.keyChain = keyChain;
+
+		//find an entry that matches
+		auto found = false;
+		foreach(auto entry, _objectStore->load(objectId).entries) {
+			if(entry.recursive)
+				found = (keyChain.mid(0, entry.keyChain.size()) == entry.keyChain);
+			else
+				found = (keyChain == entry.keyChain);
+			if(found) {
+				value.entryChain = entry.keyChain;
+				break;
+			}
+		}
+
+		//value does not match -> do not sync
+		if(!found)
+			return;
+
+		//load data from settings if not valid
+		if(data.isValid())
+			value.value = data;
+		else
+			value.value = file->value(keyChain);
+
+		//store value
+		_dataStore->save(value);
+		//TODO update object
+		qDebug() << "synced" << keyChain << "with" << data;
+	}
 }
 
 void SyncManager::applyRemoteChange(SettingsValue value)
@@ -109,4 +147,9 @@ void SyncManager::applyRemoteChange(SettingsValue value)
 	   return;
 	file->setValue(value.keyChain, value.value);
 	qDebug() << "updated" << value.keyChain << "to" << value.value;
+}
+
+void SyncManager::updateAll(const QUuid &objectId)
+{
+	Q_UNIMPLEMENTED();
 }

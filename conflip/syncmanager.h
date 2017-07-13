@@ -32,6 +32,8 @@ private:
 	void completeObjectSetup(const QUuid &objectId);
 	void updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data);
 	void applyRemoteChange(SettingsValue value);
+
+	void updateAll(const QUuid &objectId);
 };
 
 #endif // SYNCMANAGER_H
