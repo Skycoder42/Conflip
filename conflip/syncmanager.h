@@ -28,6 +28,8 @@ private:
 	QHash<QUuid, SettingsFile*> _fileMap;
 
 	QSet<QUuid> _locks;
+	QSet<QString> _skipNextLocal;
+	QSet<QString> _skipNextRemote;
 
 	void loadObject(SettingsObject object);
 	void updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data);
@@ -37,7 +39,7 @@ private:
 	void storeEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain);
 	void recurseEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain);
 
-	void saveIfChanged(SettingsValue value);
+	void syncIfChanged(SettingsValue value);
 };
 
 #endif // SYNCMANAGER_H

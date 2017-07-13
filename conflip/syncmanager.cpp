@@ -8,7 +8,9 @@ SyncManager::SyncManager(QObject *parent) :
 	_objectStore(new QtDataSync::CachingDataStore<SettingsObject, QUuid>(this)),
 	_dataStore(DataStore::instance()),
 	_fileMap(),
-	_locks()
+	_locks(),
+	_skipNextLocal(),
+	_skipNextRemote()
 {
 	connect(_dataStore, &DataStore::lockObject,
 			this, &SyncManager::lockObject);
@@ -67,8 +69,9 @@ void SyncManager::valueChanged(int metaTypeId, const QString &key, bool wasDelet
 
 	_dataStore->load<SettingsValue>(key).onResult(this, [this](SettingsValue value){
 		//skip locked objects
-		if(!_locks.contains(value.objectId))
+		if(!_locks.contains(value.objectId)) {
 			applyRemoteChange(value);
+		}
 	});
 }
 
@@ -138,17 +141,21 @@ void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain,
 			value.value = file->value(keyChain);
 
 		//store value
-		saveIfChanged(value);
+		syncIfChanged(value);
 	}
 }
 
 void SyncManager::applyRemoteChange(SettingsValue value)
 {
-	auto file = _fileMap.value(value.objectId);
-	if(!file)
-	   return;
-	file->setValue(value.keyChain, value.value);
-	qDebug() << "updated" << value.keyChain << "to" << value.value;
+	if(!_skipNextLocal.remove(value.id())) {
+		auto file = _fileMap.value(value.objectId);
+		if(!file)
+		   return;
+
+		_skipNextRemote.insert(value.id());
+		file->setValue(value.keyChain, value.value);
+		qDebug() << "updated" << value.keyChain << "to" << value.value;
+	}
 }
 
 void SyncManager::updateAll(const QUuid &objectId)
@@ -163,8 +170,6 @@ void SyncManager::updateAll(const QUuid &objectId)
 		if(entry.recursive)
 			recurseEntry(entry.keyChain, objectId, file, entry.keyChain);
 	}
-
-	qDebug() << "updated all";
 }
 
 void SyncManager::storeEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain)
@@ -175,7 +180,7 @@ void SyncManager::storeEntry(const QStringList &entryChain, QUuid objectId, Sett
 		value.keyChain = entryChain;
 		value.entryChain = rootChain;
 		value.value = file->value(entryChain);
-		saveIfChanged(value);
+		syncIfChanged(value);
 	}
 }
 
@@ -189,17 +194,11 @@ void SyncManager::recurseEntry(const QStringList &entryChain, QUuid objectId, Se
 	}
 }
 
-void SyncManager::saveIfChanged(SettingsValue value)
+void SyncManager::syncIfChanged(SettingsValue value)
 {
-	_dataStore->load<SettingsValue>(value.id()).onResult(this, [this, value](SettingsValue oldValue){
-		if(value.value != oldValue.value) {
-			_dataStore->save(value);
-			qDebug() << "synced" << value.keyChain << "with" << value.value;
-		}
-	}, [this, value](const QException &e) {
-		qWarning() << "Failed to load value - saving anyway. Error:"
-				   << e.what();
+	if(!_skipNextRemote.remove(value.id())) {
+		_skipNextLocal.insert(value.id());
 		_dataStore->save(value);
 		qDebug() << "synced" << value.keyChain << "with" << value.value;
-	});
+	}
 }
