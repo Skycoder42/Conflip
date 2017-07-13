@@ -18,6 +18,7 @@ private slots:
 	void trayAction(QSystemTrayIcon::ActivationReason reason);
 
 	void manageSync();
+	void about();
 
 private:
 	QSystemTrayIcon *_tray;
