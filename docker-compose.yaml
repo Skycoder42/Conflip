@@ -1,0 +1,28 @@
+version: "3.0"
+services:
+  postgresql:
+    container_name: conflip_postgresql
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: qtdatasync
+      POSTGRES_PASSWORD: baum42
+      POSTGRES_DB: QtDataSync
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - conflip_postgresql_data:/var/lib/postgresql/data/pgdata
+  datasync:
+    container_name: conflip_datasync
+    image: skycoder42/qdatasyncserver:latest
+    depends_on:
+      - postgresql
+    ports:
+      - "8080:80/tcp"
+    environment:
+      DATASYNC_SECRET: baum42
+      DATABASE_HOST: conflip_postgresql
+      DATABASE_USER: qtdatasync
+      DATABASE_PASSWORD: baum42
+      DATABASE_NAME: QtDataSync
+    restart: always
+volumes:
+  conflip_postgresql_data:

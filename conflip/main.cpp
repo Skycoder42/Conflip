@@ -4,6 +4,7 @@
 #include <QSqlDatabase>
 #include <QtDataSync/Setup>
 #include <QtDataSync/SyncController>
+#include <QtDataSync/WsAuthenticator>
 #include "libconflip_global.h"
 #include "pluginloader.h"
 #include "settingsdatabase.h"
@@ -41,6 +42,13 @@ int main(int argc, char *argv[])
 			.create();
 	QtDataSync::SyncController controller;
 	controller.setSyncEnabled(false);
+	QObject::connect(&controller, &QtDataSync::SyncController::syncStateChanged, [](QtDataSync::SyncController::SyncState state){
+		qDebug() << state;
+	});
+
+	auto auth = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(qApp);
+	auth->setServerSecret(QStringLiteral("baum42"));
+	auth->setRemoteUrl(QStringLiteral("ws://localhost:8080"));
 
 	SyncManager manager;
 	TrayControl tray;
