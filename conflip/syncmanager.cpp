@@ -7,7 +7,6 @@ SyncManager::SyncManager(QObject *parent) :
 	_objectStore(new QtDataSync::CachingDataStore<SettingsObject, QUuid>(this)),
 	_dataStore(DataStore::instance()),
 	_fileMap(),
-	_loadCache(),
 	_locks()
 {
 	connect(_dataStore, &DataStore::lockObject,
@@ -29,52 +28,50 @@ void SyncManager::lockObject(QUuid objId)
 void SyncManager::storeLoaded()
 {
 	foreach(auto object, _objectStore->loadAll())
-		reloadObject(object);
+		loadObject(object);
 }
 
 void SyncManager::dataChanged(const QString &key, const QVariant &value)
 {
 	auto rKey = _objectStore->toKey(key);
-	auto object = value.value<SettingsObject>();
 
-	//unlock & reload
+	//delete file (if present) and unlock
 	auto file = _fileMap.take(rKey);
 	if(file)
 		file->deleteLater();
-
 	_locks.remove(rKey);
-	reloadObject(object);
+
+	//if add/update -> load object
+	if(value.isValid()) {
+		auto object = value.value<SettingsObject>();
+		loadObject(object);
+	}
 }
 
 void SyncManager::dataResetted()
 {
-	_locks.clear();
 	qDeleteAll(_fileMap.values());//TODO deleteAllLater
 	_fileMap.clear();
+	_locks.clear();
 	foreach(auto object, _objectStore->loadAll())
-		reloadObject(object);
+		loadObject(object);
 }
 
-void SyncManager::reloadObject(SettingsObject object)
+void SyncManager::loadObject(SettingsObject object)
 {
 	try {
+		auto objId = object.id;
+
 		//load file
 		auto file = PluginLoader::createSettings(object.devicePath(), object.type, this);
-		_fileMap.insert(object.id, file);
+		_fileMap.insert(objId, file);
 
 		//update local state based on remote state
-		foreach(auto value, object.values) {
-			_loadCache[object.id]++;
-			_dataStore->load<SettingsValue>(value.toString()).onResult(this, [this](SettingsValue value){
+		_dataStore->objectValues(object).onResult(this, [this, objId](QList<SettingsValue> values){
+			foreach(auto value, values)
 				applyRemoteChange(value);
-				if(--_loadCache[value.objectId] == 0)//contine when the last one was loaded
-					completeObjectSetup(value.objectId);
-			});
-		}
-
-		//if no local state -> compelte
-		if(object.values.isEmpty())
-			completeObjectSetup(object.id);
+			completeObjectSetup(objId);
+		});
 	} catch(QException &e) {
 		qWarning() << "Failed to load settings for" << object.devicePath()
 				   << "with error:" << e.what();
@@ -89,8 +86,7 @@ void SyncManager::completeObjectSetup(const QUuid &objectId)
 
 	//connect for changes
 	auto updateFn = std::bind(&SyncManager::updateData, this, objectId, std::placeholders::_1, std::placeholders::_2);
-	connect(file, &SettingsFile::settingsChanged,
-			this, updateFn);
+	connect(file, &SettingsFile::settingsChanged, this, updateFn);
 
 	//load all data from settings
 	updateAll(objectId);
@@ -135,7 +131,6 @@ void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain,
 
 		//store value
 		_dataStore->save(value);
-		//TODO update object
 		qDebug() << "synced" << keyChain << "with" << data;
 	}
 }
@@ -151,5 +146,39 @@ void SyncManager::applyRemoteChange(SettingsValue value)
 
 void SyncManager::updateAll(const QUuid &objectId)
 {
-	Q_UNIMPLEMENTED();
+	auto file = _fileMap.value(objectId);
+	if(!file)
+	   return;
+
+	auto object = _objectStore->load(objectId);
+	foreach(auto entry, object.entries) {
+		storeEntry(entry.keyChain, objectId, file, entry.keyChain);
+		if(entry.recursive)
+			recurseEntry(entry.keyChain, objectId, file, entry.keyChain);
+	}
+
+	qDebug() << "updated all";
+}
+
+void SyncManager::storeEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain)
+{
+	if(file->isKey(entryChain)) {
+		SettingsValue value;
+		value.objectId = objectId;
+		value.keyChain = entryChain;
+		value.entryChain = rootChain;
+		value.value = file->value(entryChain);
+		_dataStore->save(value);
+		qDebug() << "updated" << value.keyChain << "to" << value.value;
+	}
+}
+
+void SyncManager::recurseEntry(const QStringList &entryChain, QUuid objectId, SettingsFile *file, const QStringList &rootChain)
+{
+	foreach(auto group, file->childGroups(entryChain)) {
+		auto nChain = entryChain;
+		nChain.prepend(group);
+		storeEntry(nChain, objectId, file, rootChain);
+		recurseEntry(nChain, objectId, file, rootChain);
+	}
 }

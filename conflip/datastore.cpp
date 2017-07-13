@@ -41,33 +41,9 @@ SettingsObject DataStore::createObject(const QString &type, const QString &path,
 
 SettingsObject DataStore::updateObject(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
 {
-	emit lockObject(object.id);
-
-	object.paths.insert(deviceId(), path);
-	object.syncAll = syncAll;
-	object.entries.clear();
-
-	//discard all old values (they will be recreated based on the new entries)
-	//TODO may not contain newly added ones!!!
-	foreach(auto value, object.values)
-		remove<SettingsValue>(value.toString());
-	object.values.clear();
-
-	if(!syncAll) {
-		//generate/update new entries
-		foreach(auto entryInfo, entries) {
-			SettingsEntry entry;
-			entry.keyChain = entryInfo.first;
-			entry.recursive = entryInfo.second;
-			object.entries.append(entry);
-		}
-	} else
-		object.entries.clear();
-
-	//now update with all it's entries
-	save(object);
-
-	return object;
+	//is actually "recreate"
+	removeObject(object.id);
+	return createObject(object.type, path, entries, syncAll);
 }
 
 void DataStore::removeObject(QUuid objectId)
@@ -79,8 +55,21 @@ void DataStore::removeObject(QUuid objectId)
 
 void DataStore::removeObject(SettingsObject object)
 {
-	emit lockObject(object.id);
-	foreach(auto value, object.values)
-		remove<SettingsValue>(value.toString());
-	remove<SettingsObject>(object.id);
+	auto objId = object.id;
+	emit lockObject(objId);
+	objectValues(object).onResult(this, [this, objId](QList<SettingsValue> values){
+		foreach(auto value, values)
+			remove<SettingsValue>(value.id());
+		remove<SettingsObject>(objId);
+	});
+}
+
+QtDataSync::GenericTask<QList<SettingsValue> > DataStore::objectValues(QUuid objectId)
+{
+	return search<SettingsValue>(objectId.toString() + QStringLiteral("-*"));
+}
+
+QtDataSync::GenericTask<QList<SettingsValue> > DataStore::objectValues(SettingsObject object)
+{
+	return objectValues(object.id);
 }

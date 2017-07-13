@@ -18,6 +18,9 @@ public:
 	void removeObject(QUuid objectId);
 	void removeObject(SettingsObject object);
 
+	QtDataSync::GenericTask<QList<SettingsValue>> objectValues(QUuid objectId);
+	QtDataSync::GenericTask<QList<SettingsValue>> objectValues(SettingsObject object);
+
 signals:
 	void lockObject(QUuid objId);
 };

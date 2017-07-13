@@ -8,8 +8,7 @@ SettingsObject::SettingsObject() :
 	type(),
 	paths(),
 	syncAll(false),
-	entries(),
-	values()
+	entries()
 {}
 
 bool SettingsObject::isValid() const
@@ -51,16 +50,6 @@ void SettingsObject::setPaths(const QMap<QString, QString> &value)
 		paths.insert(it.key(), it.value());
 }
 
-QList<QUuid> SettingsObject::getValues() const
-{
-	return values.toList();
-}
-
-void SettingsObject::setValues(const QList<QUuid> &value)
-{
-	values = QSet<QUuid>::fromList(value);
-}
-
 SettingsEntry::SettingsEntry() :
 	keyChain(),
 	recursive(false)
@@ -83,9 +72,11 @@ SettingsValue::SettingsValue() :
 	value()
 {}
 
-QUuid SettingsValue::id() const
+QString SettingsValue::id() const
 {
-	return QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/')));
+	return objectId.toString() +
+			QLatin1Char('-') +
+			QUuid::createUuidV5(objectId, keyChain.join(QLatin1Char('/'))).toString();
 }
 
 bool SettingsValue::operator ==(const SettingsValue &other) const
@@ -129,7 +120,6 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 				} else
 					ro.entries.append(entry);
 			}
-			ro.values.unite(lo.values);
 
 			return _serializer->serialize(ro);
 		} else if(local.contains(QStringLiteral("objectId"))) //SettingsValue

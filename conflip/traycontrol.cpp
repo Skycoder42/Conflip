@@ -8,7 +8,7 @@ TrayControl::TrayControl(QObject *parent) :
 	_tray(new QSystemTrayIcon(QIcon(QStringLiteral(":/icons/tray/main.ico")), this)),
 	_trayMenu(new QMenu())
 {
-	_trayMenu->addAction(QIcon::fromTheme("configure"),
+	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("configure")),
 						 tr("Manage Synchronization"),
 						 this, &TrayControl::manageSync);
 

@@ -11,7 +11,7 @@ class SettingsValue
 {
 	Q_GADGET
 
-	Q_PROPERTY(QUuid id READ id CONSTANT USER true)
+	Q_PROPERTY(QString id READ id CONSTANT USER true)
 	Q_PROPERTY(QUuid objectId MEMBER objectId)
 	Q_PROPERTY(QStringList keyChain MEMBER keyChain)
 	Q_PROPERTY(QStringList entryChain MEMBER entryChain)
@@ -25,7 +25,7 @@ public:
 	QStringList entryChain;
 	QVariant value;
 
-	QUuid id() const;
+	QString id() const;
 
 	bool operator ==(const SettingsValue &other) const;
 	bool operator !=(const SettingsValue &other) const;
@@ -57,7 +57,6 @@ class SettingsObject
 	Q_PROPERTY(QMap<QString, QString> paths READ getPaths WRITE setPaths)
 	Q_PROPERTY(bool syncAll MEMBER syncAll)
 	Q_PROPERTY(QList<SettingsEntry> entries MEMBER entries)
-	Q_PROPERTY(QList<QUuid> values READ getValues WRITE setValues)
 
 public:
 	SettingsObject();
@@ -67,7 +66,6 @@ public:
 	QHash<QUuid, QString> paths;
 	bool syncAll;
 	QList<SettingsEntry> entries;
-	QSet<QUuid> values;
 
 	bool isValid() const;
 	QString devicePath() const;
@@ -78,9 +76,6 @@ public:
 private:
 	QMap<QString, QString> getPaths() const;
 	void setPaths(const QMap<QString, QString> &value);
-
-	QList<QUuid> getValues() const;
-	void setValues(const QList<QUuid> &value);
 };
 
 class SettingsObjectMerger : public QtDataSync::DataMerger
