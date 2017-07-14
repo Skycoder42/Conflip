@@ -40,15 +40,19 @@ int main(int argc, char *argv[])
 	QtDataSync::Setup()
 			.setDataMerger(new SettingsObjectMerger())
 			.create();
+	//DEBUG
 	QtDataSync::SyncController controller;
-	controller.setSyncEnabled(false);
 	QObject::connect(&controller, &QtDataSync::SyncController::syncStateChanged, [](QtDataSync::SyncController::SyncState state){
 		qDebug() << state;
 	});
 
+	//connect to server
 	auto auth = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(qApp);
-	auth->setServerSecret(QStringLiteral("baum42"));
-	auth->setRemoteUrl(QStringLiteral("ws://localhost:8080"));
+	if(!auth->remoteUrl().isValid()) {
+		auth->setServerSecret(QStringLiteral("baum42"));
+		auth->setRemoteUrl(QStringLiteral("ws://localhost:8080"));
+	} else
+		delete auth;
 
 	SyncManager manager;
 	TrayControl tray;

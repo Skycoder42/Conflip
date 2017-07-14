@@ -35,8 +35,6 @@ void SyncManager::objectStoreLoaded()
 {
 	foreach(auto object, _objectStore->loadAll())
 		loadObject(object, false);
-	QtDataSync::SyncController controller;
-	controller.setSyncEnabled(true);
 }
 
 void SyncManager::objectChanged(const QString &key, const QVariant &value)
