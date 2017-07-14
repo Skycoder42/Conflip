@@ -37,10 +37,10 @@ HEADERS += $$PUBLIC_HEADERS \
 	qsettingsfile.h \
 	settingsfilemodel.h \
 	datastore.h \
-    traycontrol.h \
-    managesettingsdialog.h \
-    syncmanager.h \
-    synclogger.h
+	traycontrol.h \
+	managesettingsdialog.h \
+	syncmanager.h \
+	synclogger.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -53,16 +53,19 @@ SOURCES += \
 	qsettingsfile.cpp \
 	settingsfilemodel.cpp \
 	datastore.cpp \
-    traycontrol.cpp \
-    managesettingsdialog.cpp \
-    syncmanager.cpp \
-    synclogger.cpp
+	traycontrol.cpp \
+	managesettingsdialog.cpp \
+	syncmanager.cpp \
+	synclogger.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui \
-    managesettingsdialog.ui
+	managesettingsdialog.ui
 
 unix {
+	#DEBUG LD_LIBRARY_PATH
+	LIBS += -L$$OUT_PWD
+
 	isEmpty(PREFIX): PREFIX = /usr
 
 	target.path = $$PREFIX/bin

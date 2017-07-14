@@ -23,6 +23,5 @@ services:
       DATABASE_USER: qtdatasync
       DATABASE_PASSWORD: baum42
       DATABASE_NAME: QtDataSync
-    restart: always
 volumes:
   conflip_postgresql_data:
