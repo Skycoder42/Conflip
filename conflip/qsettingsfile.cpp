@@ -54,7 +54,6 @@ void QSettingsFile::setValue(const QStringList &keyChain, const QVariant &value)
 
 void QSettingsFile::autoBackup()
 {
-	QFileInfo info(_settings->fileName());
 	if(!QFile::copy(_settings->fileName(), _settings->fileName() + QStringLiteral(".bkp"))) {
 		qWarning() << "Unable to create backup for"
 				   << _settings->fileName();
