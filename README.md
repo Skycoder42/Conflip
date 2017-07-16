@@ -2,7 +2,7 @@
 A tool to synchronize settings/configurations across multiple machines
 
 ## TODO
-- add generic array support
+- save plugin loading
 - support xml
 - support json
 

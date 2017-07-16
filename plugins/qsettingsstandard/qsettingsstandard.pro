@@ -8,11 +8,11 @@ VERSION = $$CONFLIPVER
 
 DESTDIR = $$OUT_PWD/..
 
-SOURCES += \
-	qsettingsstandardplugin.cpp
-
 HEADERS += \
 	qsettingsstandardplugin.h
+
+SOURCES += \
+	qsettingsstandardplugin.cpp
 
 DISTFILES += qsettingsstandard.json
 
