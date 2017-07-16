@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
 	qsettingsstandard \
-    jsonsettings
+    jsonsettings \
+    xmlsettings
