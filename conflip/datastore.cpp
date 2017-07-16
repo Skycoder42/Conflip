@@ -42,26 +42,23 @@ SettingsObject DataStore::createObject(const QString &type, const QString &path,
 SettingsObject DataStore::updateObject(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
 {
 	//is actually "recreate"
-	removeObject(object.id);
+	removeObject(object);
 	return createObject(object.type, path, entries, syncAll);
 }
 
 void DataStore::removeObject(QUuid objectId)
 {
-	load<SettingsObject>(objectId).onResult(this, [this](SettingsObject o){
-		removeObject(o);
+	emit lockObject(objectId);
+	objectValues(objectId).onResult(this, [this, objectId](QList<SettingsValue> values){
+		foreach(auto value, values)
+			remove<SettingsValue>(value.id());
+		remove<SettingsObject>(objectId);
 	});
 }
 
 void DataStore::removeObject(SettingsObject object)
 {
-	auto objId = object.id;
-	emit lockObject(objId);
-	objectValues(object).onResult(this, [this, objId](QList<SettingsValue> values){
-		foreach(auto value, values)
-			remove<SettingsValue>(value.id());
-		remove<SettingsObject>(objId);
-	});
+	removeObject(object.id);
 }
 
 QtDataSync::GenericTask<QList<SettingsValue> > DataStore::objectValues(QUuid objectId)

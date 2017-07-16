@@ -139,7 +139,7 @@ QJsonObject SettingsObjectMerger::merge(QJsonObject local, QJsonObject remote)
 
 			return _serializer->serialize(ro);
 		} else if(local.contains(QStringLiteral("objectId"))) //SettingsValue
-			return remote;// TODO prefer local or prefer remote state ???
+			return remote;
 	} catch(QException &e) {
 		qWarning() << "Failed to merge with exception:" << e.what();
 	}

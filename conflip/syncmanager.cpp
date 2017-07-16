@@ -56,7 +56,8 @@ void SyncManager::objectChanged(const QString &key, const QVariant &value)
 
 void SyncManager::objectStoreResetted()
 {
-	qDeleteAll(_fileMap.values());//TODO deleteAllLater
+	foreach(auto file, _fileMap)
+		file->deleteLater();
 	_fileMap.clear();
 	_locks.clear();
 	foreach(auto object, _objectStore->loadAll())
