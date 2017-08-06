@@ -36,7 +36,7 @@ public:
 	void watchChanges() override;
 
 protected:
-	virtual QString filePath() = 0;
+	virtual QString filePath() const = 0;
 	virtual void readFile() = 0;//throws SettingsLoadException
 
 private:

@@ -1,11 +1,10 @@
 #ifndef JSONSETTINGSFILE_H
 #define JSONSETTINGSFILE_H
 
-#include <QFileSystemWatcher>
 #include <QJsonObject>
 #include <settingsfile.h>
 
-class JsonSettingsFile : public SettingsFile
+class JsonSettingsFile : public FileBasedSettingsFile
 {
 	Q_OBJECT
 
@@ -19,17 +18,16 @@ public:
 	bool isKey(const QStringList &keyChain) override;
 	QVariant value(const QStringList &keyChain) override;
 	void setValue(const QStringList &keyChain, const QVariant &value) override;
-	void autoBackup() override;
-	void watchChanges() override;
+
+protected:
+	QString filePath() const override;
+	void readFile() override;
 
 private:
 	QString _fileName;
 	bool _binary;
 	QJsonObject _root;
-	QFileSystemWatcher *_watcher;
 
-	void readFile();
-	bool tryReadFile();
 	void writeFile();
 
 	QJsonObject getObject(const QStringList &keyChain);

@@ -65,7 +65,7 @@ void FileSettingsFile::setValue(const QStringList &keyChain, const QVariant &val
 	}
 }
 
-QString FileSettingsFile::filePath()
+QString FileSettingsFile::filePath() const
 {
 	return _path;
 }

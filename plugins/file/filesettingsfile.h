@@ -18,7 +18,7 @@ public:
 	void setValue(const QStringList &keyChain, const QVariant &value) override;
 
 protected:
-	QString filePath() override;
+	QString filePath() const override;
 	void readFile() override;
 
 private:

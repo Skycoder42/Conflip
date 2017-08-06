@@ -5,11 +5,10 @@
 #include <QJsonDocument>
 
 JsonSettingsFile::JsonSettingsFile(const QString &fileName, bool isBinary, QObject *parent) :
-	SettingsFile(parent),
+	FileBasedSettingsFile(parent),
 	_fileName(fileName),
 	_binary(isBinary),
-	_root(),
-	_watcher(nullptr)
+	_root()
 {
 	readFile();
 }
@@ -58,27 +57,9 @@ void JsonSettingsFile::setValue(const QStringList &keyChain, const QVariant &val
 	}
 }
 
-void JsonSettingsFile::autoBackup()
+QString JsonSettingsFile::filePath() const
 {
-	if(!QFile::copy(_fileName, _fileName + QStringLiteral(".bkp"))) {
-		qWarning() << "Unable to create backup for"
-				   << _fileName;
-	}
-}
-
-void JsonSettingsFile::watchChanges()
-{
-	if(tryReadFile()) {
-		_watcher = new QFileSystemWatcher(this);
-		connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
-			if(tryReadFile())
-				emit settingsChanged();
-			_watcher->addPath(file);
-		});
-
-		if(!_watcher->addPath(_fileName))
-			qWarning() << "Failed to watch for changes on" << _fileName;
-	}
+	return _fileName;
 }
 
 void JsonSettingsFile::readFile()
@@ -103,20 +84,6 @@ void JsonSettingsFile::readFile()
 	if(!doc.isObject())
 		throw SettingsLoadException("Only json files with objects as root element are supported");
 	_root = doc.object();
-}
-
-bool JsonSettingsFile::tryReadFile()
-{
-	try {
-		readFile();
-		return true;
-	} catch (QException &e) {
-		qCritical() << "Failed to reload settings file"
-					<< _fileName
-					<< "with error"
-					<< e.what();
-		return false;
-	}
 }
 
 void JsonSettingsFile::writeFile()
