@@ -5,7 +5,7 @@
 #include <QDomDocument>
 #include <settingsfile.h>
 
-class XmlSettingsFile : public SettingsFile
+class XmlSettingsFile : public FileBasedSettingsFile
 {
 	Q_OBJECT
 public:
@@ -15,16 +15,13 @@ public:
 	QStringList childKeys(const QStringList &parentChain) override;
 	QVariant value(const QStringList &keyChain) override;
 	void setValue(const QStringList &keyChain, const QVariant &value) override;
-	void autoBackup() override;
-	void watchChanges() override;
 
 private:
 	QString _fileName;
 	QDomDocument _doc;
-	QFileSystemWatcher *_watcher;
 
-	void readFile();
-	bool tryReadFile();
+	QString filePath() const override;
+	void readFile() override;
 	void writeFile();
 
 	QDomElement getElement(const QStringList &keyChain);

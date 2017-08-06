@@ -4,10 +4,9 @@
 #include <settingsplugin.h>
 
 XmlSettingsFile::XmlSettingsFile(const QString &fileName, QObject *parent) :
-	SettingsFile(parent),
+	FileBasedSettingsFile(parent),
 	_fileName(),
-	_doc(),
-	_watcher(nullptr)
+	_doc()
 {}
 
 QStringList XmlSettingsFile::childGroups(const QStringList &parentChain)
@@ -101,27 +100,9 @@ void XmlSettingsFile::setValue(const QStringList &keyChain, const QVariant &valu
 		element.setAttribute(key, value.toString());
 }
 
-void XmlSettingsFile::autoBackup()
+QString XmlSettingsFile::filePath() const
 {
-	if(!QFile::copy(_fileName, _fileName + QStringLiteral(".bkp"))) {
-		qWarning() << "Unable to create backup for"
-				   << _fileName;
-	}
-}
-
-void XmlSettingsFile::watchChanges()
-{
-	if(tryReadFile()) {
-		_watcher = new QFileSystemWatcher(this);
-		connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
-			if(tryReadFile())
-				emit settingsChanged();
-			_watcher->addPath(file);
-		});
-
-		if(!_watcher->addPath(_fileName))
-			qWarning() << "Failed to watch for changes on" << _fileName;
-	}
+	return _fileName;
 }
 
 void XmlSettingsFile::readFile()
@@ -135,20 +116,6 @@ void XmlSettingsFile::readFile()
 		throw SettingsLoadException(error.toUtf8());
 
 	file.close();
-}
-
-bool XmlSettingsFile::tryReadFile()
-{
-	try {
-		readFile();
-		return true;
-	} catch (QException &e) {
-		qCritical() << "Failed to reload settings file"
-					<< _fileName
-					<< "with error"
-					<< e.what();
-		return false;
-	}
 }
 
 void XmlSettingsFile::writeFile()
