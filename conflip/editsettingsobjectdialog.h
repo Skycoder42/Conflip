@@ -28,6 +28,8 @@ private slots:
 	void on_dataPreviewCheckBox_clicked(bool checked);
 
 private:
+	static const QString FileType;
+
 	Ui::EditSettingsObjectDialog *ui;
 	SettingsFileModel *model;
 	QSortFilterProxyModel *sortModel;
@@ -39,6 +41,7 @@ private:
 	explicit EditSettingsObjectDialog(QWidget *parent = nullptr);
 	~EditSettingsObjectDialog();
 
+	QString currentType() const;
 	void setup();
 	void tryLoadPreview();
 };

@@ -6,6 +6,8 @@
 #include <QFontDatabase>
 #include "pluginloader.h"
 
+const QString EditSettingsObjectDialog::FileType = QStringLiteral("file");
+
 EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::EditSettingsObjectDialog),
@@ -42,6 +44,11 @@ EditSettingsObjectDialog::~EditSettingsObjectDialog()
 	delete ui;
 }
 
+QString EditSettingsObjectDialog::currentType() const
+{
+	return ui->settingsTypeComboBox->currentData().toString();
+}
+
 SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
 {
 	EditSettingsObjectDialog dialog(parent);
@@ -68,14 +75,13 @@ SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidg
 void EditSettingsObjectDialog::accept()
 {
 	QList<QPair<QStringList, bool>> entries;
-	auto type = ui->settingsTypeComboBox->currentData().toString();
-	if(type == QStringLiteral("file"))
+	if(currentType() == FileType)
 		entries.append({{QStringLiteral("data")}, false});
 	else
 		entries = model->extractEntries();
 
 	if(isCreate) {
-		object = store->createObject(type,
+		object = store->createObject(currentType(),
 									 ui->pathIDLineEdit->text(),
 									 entries);
 	} else {
@@ -89,9 +95,8 @@ void EditSettingsObjectDialog::accept()
 
 void EditSettingsObjectDialog::on_openButton_clicked()
 {
-	auto type = ui->settingsTypeComboBox->currentData().toString();
 	auto filter = QStringLiteral("All Files (*)");
-	if(type != QStringLiteral("file"))
+	if(currentType() != FileType)
 		filter = ui->settingsTypeComboBox->currentText() + QStringLiteral(";;") + filter;
 
 	auto path = DialogMaster::getOpenFileName(this,
@@ -109,11 +114,11 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 	if(model)
 		model->deleteLater();
 
+	auto type = currentType();
 	try {
-		auto type = ui->settingsTypeComboBox->currentData().toString();
 		auto file = PluginLoader::createSettings(ui->pathIDLineEdit->text(), type, this);
 
-		if(type == QStringLiteral("file")) {
+		if(type == FileType) {
 			tryLoadPreview();
 			ui->stackedWidget->setCurrentIndex(1);
 		} else {
@@ -130,7 +135,7 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 	} catch(QException &e) {
 		qWarning() << "Failed to load" << ui->pathIDLineEdit->text()
-				   << "for type" << ui->settingsTypeComboBox->currentData().toString()
+				   << "for type" << type
 				   << "with error" << e.what();
 		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 		DialogMaster::warning(this, tr("Failed to load settings for the given file/ID"));
