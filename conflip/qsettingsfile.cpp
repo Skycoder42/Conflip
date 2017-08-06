@@ -5,9 +5,8 @@
 #include <QFileInfo>
 
 QSettingsFile::QSettingsFile(QSettings *settings, QObject *parent) :
-	SettingsFile(parent),
-	_settings(settings),
-	_watcher(nullptr)
+	FileBasedSettingsFile(parent),
+	_settings(settings)
 {
 	_settings->setParent(this);
 }
@@ -52,25 +51,12 @@ void QSettingsFile::setValue(const QStringList &keyChain, const QVariant &value)
 	_settings->setValue(keyChain.join(QLatin1Char('/')), value);
 }
 
-void QSettingsFile::autoBackup()
+QString QSettingsFile::filePath() const
 {
-	if(!QFile::copy(_settings->fileName(), _settings->fileName() + QStringLiteral(".bkp"))) {
-		qWarning() << "Unable to create backup for"
-				   << _settings->fileName();
-	}
+	return _settings->fileName();
 }
 
-void QSettingsFile::watchChanges()
+void QSettingsFile::readFile()
 {
 	_settings->sync();
-
-	_watcher = new QFileSystemWatcher(this);
-	connect(_watcher, &QFileSystemWatcher::fileChanged, this, [this](QString file){
-		_settings->sync();
-		emit settingsChanged();
-		_watcher->addPath(file);
-	});
-
-	if(!_watcher->addPath(_settings->fileName()))
-		qWarning() << "Failed to watch for changes on" << _settings->fileName();
 }

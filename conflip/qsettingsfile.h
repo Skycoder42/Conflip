@@ -2,10 +2,9 @@
 #define QSETTINGSFILE_H
 
 #include "settingsfile.h"
-#include <QFileSystemWatcher>
 #include <QSettings>
 
-class QSettingsFile : public SettingsFile
+class QSettingsFile : public FileBasedSettingsFile
 {
 	Q_OBJECT
 
@@ -18,12 +17,12 @@ public:
 	QVariant value(const QStringList &keyChain) override;
 	void setValue(const QStringList &keyChain, const QVariant &value) override;
 
-	void autoBackup() override;
-	void watchChanges() override;
+protected:
+	QString filePath() const override;
+	void readFile() override;
 
 private:
 	QSettings *_settings;
-	QFileSystemWatcher *_watcher;
 };
 
 #endif // QSETTINGSFILE_H
