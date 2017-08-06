@@ -93,6 +93,12 @@ void EditSettingsObjectDialog::accept()
 	QDialog::accept();
 }
 
+void EditSettingsObjectDialog::on_settingsTypeComboBox_currentIndexChanged(int index)
+{
+	ui->pathIDLineEdit->clear();
+	on_applyButton_clicked();
+}
+
 void EditSettingsObjectDialog::on_openButton_clicked()
 {
 	auto filter = QStringLiteral("All Files (*)");
@@ -111,17 +117,25 @@ void EditSettingsObjectDialog::on_openButton_clicked()
 
 void EditSettingsObjectDialog::on_applyButton_clicked()
 {
-	if(model)
+	if(model) {
+		sortModel->setSourceModel(nullptr);
 		model->deleteLater();
+		model = nullptr;
+	}
 
 	auto type = currentType();
-	try {
-		auto file = PluginLoader::createSettings(ui->pathIDLineEdit->text(), type, this);
+	ui->stackedWidget->setCurrentIndex(type == FileType ? 1 : 0);
 
-		if(type == FileType) {
+	auto path = ui->pathIDLineEdit->text();
+	if(path.isEmpty())
+		return;
+
+	try {
+		auto file = PluginLoader::createSettings(path, type, this);
+
+		if(type == FileType)
 			tryLoadPreview();
-			ui->stackedWidget->setCurrentIndex(1);
-		} else {
+		else {
 			model = new SettingsFileModel(file, this);
 			model->enablePreview(ui->dataPreviewCheckBox->isChecked());
 			sortModel->setSourceModel(model);
@@ -129,12 +143,11 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 
 			if(!isCreate)
 				model->initialize(object);
-			ui->stackedWidget->setCurrentIndex(0);
 		}
 
 		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 	} catch(QException &e) {
-		qWarning() << "Failed to load" << ui->pathIDLineEdit->text()
+		qWarning() << "Failed to load" << path
 				   << "for type" << type
 				   << "with error" << e.what();
 		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
