@@ -3,6 +3,7 @@
 #include <dialogmaster.h>
 #include <QStandardPaths>
 #include <QPushButton>
+#include <QFontDatabase>
 #include "pluginloader.h"
 
 EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
@@ -17,6 +18,7 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	ui->setupUi(this);
 	DialogMaster::masterDialog(this);
 
+	ui->textBrowser->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 	ui->settingsTreeView->addActions({
 										 ui->action_Expand_all,
 										 ui->action_Collapse_all,
@@ -38,19 +40,6 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 EditSettingsObjectDialog::~EditSettingsObjectDialog()
 {
 	delete ui;
-}
-
-void EditSettingsObjectDialog::setup()
-{
-	if(isCreate)
-		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-	else {
-		ui->settingsTypeLabel->setEnabled(false);
-		ui->settingsTypeComboBox->setEnabled(false);
-		ui->pathIDLineEdit->setText(object.devicePath());
-		ui->syncAllBox->setChecked(object.syncAll);
-		on_applyButton_clicked();
-	}
 }
 
 SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
@@ -79,20 +68,20 @@ SettingsObject EditSettingsObjectDialog::editObject(SettingsObject object, QWidg
 void EditSettingsObjectDialog::accept()
 {
 	QList<QPair<QStringList, bool>> entries;
-	auto all = ui->syncAllBox->isChecked();
-	if(!all)
+	auto type = ui->settingsTypeComboBox->currentData().toString();
+	if(type == QStringLiteral("file"))
+		entries.append({{QStringLiteral("data")}, false});
+	else
 		entries = model->extractEntries();
 
 	if(isCreate) {
-		object = store->createObject(ui->settingsTypeComboBox->currentData().toString(),
+		object = store->createObject(type,
 									 ui->pathIDLineEdit->text(),
-									 entries,
-									 all);
+									 entries);
 	} else {
 		object = store->updateObject(object,
 									 ui->pathIDLineEdit->text(),
-									 entries,
-									 all);
+									 entries);
 	}
 
 	QDialog::accept();
@@ -100,10 +89,15 @@ void EditSettingsObjectDialog::accept()
 
 void EditSettingsObjectDialog::on_openButton_clicked()
 {
+	auto type = ui->settingsTypeComboBox->currentData().toString();
+	auto filter = QStringLiteral("All Files (*)");
+	if(type != QStringLiteral("file"))
+		filter = ui->settingsTypeComboBox->currentText() + QStringLiteral(";;") + filter;
+
 	auto path = DialogMaster::getOpenFileName(this,
 											  tr("Open a settings file"),
 											  QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation),
-											  ui->settingsTypeComboBox->currentText() + QStringLiteral(";;All Files (*)"));
+											  filter);
 	if(!path.isNull()) {
 		ui->pathIDLineEdit->setText(path);
 		on_applyButton_clicked();
@@ -114,16 +108,26 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 {
 	if(model)
 		model->deleteLater();
-	try {
-		auto file = PluginLoader::createSettings(ui->pathIDLineEdit->text(), ui->settingsTypeComboBox->currentData().toString(), this);
-		model = new SettingsFileModel(file, this);
-		model->enablePreview(ui->dataPreviewCheckBox->isChecked());
-		sortModel->setSourceModel(model);
-		ui->settingsTreeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 
-		if(!isCreate)
-			model->initialize(object);
+	try {
+		auto type = ui->settingsTypeComboBox->currentData().toString();
+		auto file = PluginLoader::createSettings(ui->pathIDLineEdit->text(), type, this);
+
+		if(type == QStringLiteral("file")) {
+			tryLoadPreview();
+			ui->stackedWidget->setCurrentIndex(1);
+		} else {
+			model = new SettingsFileModel(file, this);
+			model->enablePreview(ui->dataPreviewCheckBox->isChecked());
+			sortModel->setSourceModel(model);
+			ui->settingsTreeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
+			if(!isCreate)
+				model->initialize(object);
+			ui->stackedWidget->setCurrentIndex(0);
+		}
+
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 	} catch(QException &e) {
 		qWarning() << "Failed to load" << ui->pathIDLineEdit->text()
 				   << "for type" << ui->settingsTypeComboBox->currentData().toString()
@@ -137,4 +141,36 @@ void EditSettingsObjectDialog::on_dataPreviewCheckBox_clicked(bool checked)
 {
 	if(model)
 		model->enablePreview(checked);
+	tryLoadPreview();
+}
+
+void EditSettingsObjectDialog::setup()
+{
+	if(isCreate)
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+	else {
+		ui->settingsTypeLabel->setEnabled(false);
+		ui->settingsTypeComboBox->setEnabled(false);
+		ui->pathIDLineEdit->setText(object.devicePath());
+		on_applyButton_clicked();
+	}
+}
+
+void EditSettingsObjectDialog::tryLoadPreview()
+{
+	if(ui->dataPreviewCheckBox->isChecked()) {
+		auto path = ui->pathIDLineEdit->text();
+		if(!path.isEmpty()) {
+			QFile file(path);
+			if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+				ui->textBrowser->setPlainText(QString::fromUtf8(file.readAll()));
+				file.close();
+			} else {
+				qCritical() << "Unable to open file" << path
+							<< "with error:" << file.errorString();
+				ui->textBrowser->setHtml(tr("<font color=\"red\">Unable to open file for reading!</font>"));
+			}
+		}
+	} else
+		ui->textBrowser->clear();
 }

@@ -59,7 +59,6 @@ class SettingsObject
 	Q_PROPERTY(QUuid id MEMBER id USER true)
 	Q_PROPERTY(QString type MEMBER type)
 	Q_PROPERTY(QMap<QString, QString> paths READ getPaths WRITE setPaths)
-	Q_PROPERTY(bool syncAll MEMBER syncAll)
 	Q_PROPERTY(QList<SettingsEntry> entries MEMBER entries)
 
 public:
@@ -68,7 +67,6 @@ public:
 	QUuid id;
 	QString type;
 	QHash<QUuid, QString> paths;
-	bool syncAll;
 	QList<SettingsEntry> entries;
 
 	bool isValid() const;

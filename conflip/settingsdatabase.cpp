@@ -8,7 +8,6 @@ SettingsObject::SettingsObject() :
 	id(),
 	type(),
 	paths(),
-	syncAll(false),
 	entries()
 {}
 

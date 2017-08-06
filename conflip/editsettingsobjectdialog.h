@@ -40,6 +40,7 @@ private:
 	~EditSettingsObjectDialog();
 
 	void setup();
+	void tryLoadPreview();
 };
 
 #endif // EDITSETTINGSOBJECTDIALOG_H

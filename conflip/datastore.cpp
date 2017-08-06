@@ -15,22 +15,19 @@ DataStore *DataStore::instance()
 	return store;
 }
 
-SettingsObject DataStore::createObject(const QString &type, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
+SettingsObject DataStore::createObject(const QString &type, const QString &path, const QList<QPair<QStringList, bool> > &entries)
 {
 	SettingsObject object;
 	object.id = QUuid::createUuid();
 	object.type = type;
 	object.paths.insert(deviceId(), path);
-	object.syncAll = syncAll;
 
 	//insert object once to prevent unclear states
-	if(!syncAll) {
-		foreach(auto entryInfo, entries) {
-			SettingsEntry entry;
-			entry.keyChain = entryInfo.first;
-			entry.recursive = entryInfo.second;
-			object.entries.append(entry);
-		}
+	foreach(auto entryInfo, entries) {
+		SettingsEntry entry;
+		entry.keyChain = entryInfo.first;
+		entry.recursive = entryInfo.second;
+		object.entries.append(entry);
 	}
 
 	//now update with all it's entries
@@ -39,11 +36,11 @@ SettingsObject DataStore::createObject(const QString &type, const QString &path,
 	return object;
 }
 
-SettingsObject DataStore::updateObject(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries, bool syncAll)
+SettingsObject DataStore::updateObject(SettingsObject object, const QString &path, const QList<QPair<QStringList, bool> > &entries)
 {
 	//is actually "recreate"
 	removeObject(object);
-	return createObject(object.type, path, entries, syncAll);
+	return createObject(object.type, path, entries);
 }
 
 void DataStore::removeObject(QUuid objectId)
