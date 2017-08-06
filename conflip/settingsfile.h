@@ -4,6 +4,7 @@
 #include "libconflip_global.h"
 #include <QObject>
 #include <QVariant>
+class QFileSystemWatcher;
 
 class LIBCONFLIP_EXPORT SettingsFile : public QObject
 {
@@ -24,6 +25,24 @@ public:
 
 signals:
 	void settingsChanged(const QStringList &keyChain = {}, const QVariant &value = {});
+};
+
+class LIBCONFLIP_EXPORT FileBasedSettingsFile : public SettingsFile
+{
+public:
+	explicit FileBasedSettingsFile(QObject *parent = nullptr);
+
+	void autoBackup() override;
+	void watchChanges() override;
+
+protected:
+	virtual QString filePath() = 0;
+	virtual void readFile() = 0;//throws SettingsLoadException
+
+private:
+	QFileSystemWatcher *_watcher;
+
+	bool tryReadFile();
 };
 
 #endif // SETTINGSFILE_H
