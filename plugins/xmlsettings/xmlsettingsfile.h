@@ -17,6 +17,8 @@ public:
 	void setValue(const QStringList &keyChain, const QVariant &value) override;
 
 private:
+	static const QString DefaultKey;
+
 	QString _fileName;
 	QDomDocument _doc;
 
@@ -24,7 +26,7 @@ private:
 	void readFile() override;
 	void writeFile();
 
-	QDomElement getElement(const QStringList &keyChain);
+	QDomNode getNode(const QStringList &keyChain);
 };
 
 #endif // XMLSETTINGSFILE_H

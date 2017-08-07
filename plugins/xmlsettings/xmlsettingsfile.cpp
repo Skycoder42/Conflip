@@ -1,103 +1,86 @@
 #include "xmlsettingsfile.h"
 #include <QDebug>
 #include <QFile>
+#include <QRegularExpression>
 #include <settingsplugin.h>
+
+const QString XmlSettingsFile::DefaultKey = QStringLiteral("(default)");
 
 XmlSettingsFile::XmlSettingsFile(const QString &fileName, QObject *parent) :
 	FileBasedSettingsFile(parent),
-	_fileName(),
+	_fileName(fileName),
 	_doc()
-{}
+{
+	readFile();
+}
 
 QStringList XmlSettingsFile::childGroups(const QStringList &parentChain)
 {
 	QHash<QString, int> groups;
 
-	auto child = getElement(parentChain).firstChildElement();
+	auto child = getNode(parentChain).firstChildElement();
 	while(!child.isNull()) {
-		auto grandChild = child.firstChildElement();
-		if(!grandChild.isNull())
-			groups[child.tagName()]++;
+		groups[child.tagName()]++;
 		child = child.nextSiblingElement();
 	}
 
-	for(auto it = groups.begin(); it != groups.end();) {
-		if(it.value() > 1)
-			it = groups.erase(it);
-		else
-			it++;
+	QStringList keys;
+	for(auto it = groups.begin(); it != groups.end(); it++) {
+		for(auto i = 0; i < it.value(); i++)
+			keys.append(QStringLiteral("%1[%2]").arg(it.key()).arg(i));
 	}
-	return groups.keys();
+	return keys;
 }
 
 QStringList XmlSettingsFile::childKeys(const QStringList &parentChain)
 {
-	QSet<QString> children;
-	QSet<QString> skipped;
+	QStringList children;
 
-	auto element = getElement(parentChain);
+	auto element = getNode(parentChain);
 
 	auto attribs = element.attributes();
 	for(auto i = 0; i < attribs.size(); i++)
-		children.insert(attribs.item(i).toAttr().name());
+		children.append(attribs.item(i).toAttr().name());
 
-	auto child = element.firstChildElement();
-	while(!child.isNull()) {
-		if(skipped.contains(child.tagName()))//skipped == group with that name exists -> now becomes "array"
-			children.insert(child.tagName());
-		else if(!child.firstChildElement().isNull())//child has children -> group -> skip
-			skipped.insert(child.tagName());
-
-		child = child.nextSiblingElement();
+	if(element.isElement()) {
+		auto rElement = element.toElement();
+		if(!rElement.text().isEmpty() && rElement.firstChildElement().isNull()) //has text but no child elements
+			children.append(DefaultKey);
 	}
 
-	return children.toList();
+	return children;
 }
 
 QVariant XmlSettingsFile::value(const QStringList &keyChain)
 {
 	auto baseChain = keyChain;
 	auto key = baseChain.takeLast();
-	auto element = getElement(baseChain);
+	auto parentElement = getNode(baseChain).toElement();
 
-	//check if array
-	auto keyElement = element.firstChildElement(key);
-	if(!keyElement.isNull()) { //is array
-		QStringList serData;
-		do {
-			QString data;
-			QTextStream stream(&data, QIODevice::ReadOnly);
-			keyElement.save(stream, 0);
-			stream.flush();
-			serData.append(data);
-
-			keyElement = keyElement.nextSiblingElement(key);
-		} while(!keyElement.isNull());
-		return serData;
-	} else // is not
-		return element.attribute(key);
+	if(key == DefaultKey)
+		return parentElement.text();
+	else
+		return parentElement.attribute(key);
 }
 
 void XmlSettingsFile::setValue(const QStringList &keyChain, const QVariant &value)
 {
 	auto baseChain = keyChain;
 	auto key = baseChain.takeLast();
-	auto element = getElement(baseChain);
+	auto parentElement = getNode(baseChain).toElement();
 
-	if(value.type() == QVariant::StringList) {//is array
-		//delete all old elements
-		auto remElem = element.elementsByTagName(key);
-		for(auto i = 0; i < remElem.size(); i++)
-			element.removeChild(remElem.at(i));
-
-		//re-add new children
-		foreach(auto data, value.toStringList()) {
-			QDomDocument tDoc;
-			if(tDoc.setContent(data))
-				element.appendChild(tDoc.firstChildElement());
+	if(key == DefaultKey) {
+		auto nodes = parentElement.childNodes();
+		for(auto i = 0; i < nodes.size(); i++) {
+			auto node = nodes.at(i);
+			if(node.isText()) {
+				auto text = node.toText();
+				text.setData(value.toString());
+				break;
+			}
 		}
-	} else //is value
-		element.setAttribute(key, value.toString());
+	} else
+		parentElement.setAttribute(key, value.toString());
 }
 
 QString XmlSettingsFile::filePath() const
@@ -133,17 +116,27 @@ void XmlSettingsFile::writeFile()
 	file.close();
 }
 
-QDomElement XmlSettingsFile::getElement(const QStringList &keyChain)
+QDomNode XmlSettingsFile::getNode(const QStringList &keyChain)
 {
-	if(keyChain.isEmpty())
-		return QDomElement();
-	else {
-		QDomNode current = _doc;
-		foreach(auto key, keyChain) {
-			current = current.firstChildElement(key);
-			if(current.isNull())
-				return QDomElement();
-		}
-		return current.toElement();
+	QDomNode current = _doc;
+
+	static QRegularExpression regex(QStringLiteral(R"__(^([^\[]*)\[(\d+)\]$)__"),
+									QRegularExpression::OptimizeOnFirstUsageOption);
+
+	foreach(auto key, keyChain) {
+		auto match = regex.match(key);
+		if(match.hasMatch()) {
+			auto name = match.captured(1);
+			auto index = match.captured(2).toInt();
+
+			current = current.firstChildElement(name);
+			for(auto i = 0; i < index && !current.isNull(); i++)
+				current = current.nextSiblingElement(name);
+		} else
+			current = current.firstChildElement(key);//TODO array!!!
+
+		if(current.isNull())
+			return QDomNode();
 	}
+	return current;
 }
