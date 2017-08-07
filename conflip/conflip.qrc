@@ -1,8 +1,14 @@
 <RCC>
     <qresource prefix="/icons">
         <file alias="main.svg">icons/conflip.svg</file>
+        <file alias="disconnected.svg">icons/conflip_disconnected.svg</file>
+        <file alias="error.svg">icons/conflip_error.svg</file>
+        <file alias="syncing.svg">icons/conflip_syncing.svg</file>
     </qresource>
     <qresource prefix="/icons/tray">
         <file alias="main.ico">icons/conflip.ico</file>
+        <file alias="disconnected.ico">icons/conflip_disconnected.ico</file>
+        <file alias="error.ico">icons/conflip_error.ico</file>
+        <file alias="syncing.ico">icons/conflip_syncing.ico</file>
     </qresource>
 </RCC>

@@ -40,7 +40,8 @@ HEADERS += $$PUBLIC_HEADERS \
 	traycontrol.h \
 	managesettingsdialog.h \
 	syncmanager.h \
-	synclogger.h
+	synclogger.h \
+    changeremotedialog.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -56,11 +57,13 @@ SOURCES += \
 	traycontrol.cpp \
 	managesettingsdialog.cpp \
 	syncmanager.cpp \
-	synclogger.cpp
+	synclogger.cpp \
+    changeremotedialog.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui \
-	managesettingsdialog.ui
+	managesettingsdialog.ui \
+    changeremotedialog.ui
 
 unix {
 	#DEBUG LD_LIBRARY_PATH

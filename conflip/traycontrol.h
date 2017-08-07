@@ -5,7 +5,9 @@
 #include <QObject>
 #include <QSystemTrayIcon>
 #include <QScopedPointer>
+#include <QtDataSync/SyncController>
 #include "managesettingsdialog.h"
+#include "changeremotedialog.h"
 
 class TrayControl : public QObject
 {
@@ -18,13 +20,22 @@ private slots:
 	void trayAction(QSystemTrayIcon::ActivationReason reason);
 
 	void manageSync();
+	void editRemote();
 	void about();
+
+	void syncStateChanged(QtDataSync::SyncController::SyncState syncState);
+	void authError(const QString &error);
 
 private:
 	QSystemTrayIcon *_tray;
 	QScopedPointer<QMenu> _trayMenu;
+	QtDataSync::SyncController *_controller;
 
 	QPointer<ManageSettingsDialog> _dialog;
+	QPointer<ChangeRemoteDialog> _remoteDialog;
+
+	template <typename T>
+	void tryOpen(QPointer<T> &member);
 };
 
 #endif // TRAYCONTROL_H

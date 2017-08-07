@@ -9,6 +9,7 @@ TrayControl::TrayControl(QObject *parent) :
 	QObject(parent),
 	_tray(new QSystemTrayIcon(QIcon(QStringLiteral(":/icons/tray/main.ico")), this)),
 	_trayMenu(new QMenu()),
+	_controller(new QtDataSync::SyncController(this)),
 	_dialog(nullptr)
 {
 	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("configure")),
@@ -20,6 +21,17 @@ TrayControl::TrayControl(QObject *parent) :
 		SyncLogger::openLogfile();
 	});
 
+	auto menu = _trayMenu->addMenu(QIcon::fromTheme(QStringLiteral("view-refresh")),
+								   tr("Synchronization"));
+	menu->addAction(QIcon::fromTheme(QStringLiteral("view-refresh")),
+					tr("Synchronize"),
+					_controller, &QtDataSync::SyncController::triggerSync);
+	menu->addSeparator();
+	menu->addAction(tr("Re-Synchronize"),
+					_controller, &QtDataSync::SyncController::triggerResync);
+	menu->addAction(tr("Change remote"),
+					this, &TrayControl::editRemote);
+
 	_trayMenu->addSeparator();
 	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("help-about")),
 						 tr("About"),
@@ -30,6 +42,11 @@ TrayControl::TrayControl(QObject *parent) :
 
 	connect(_tray, &QSystemTrayIcon::activated,
 			this, &TrayControl::trayAction);
+
+	connect(_controller, &QtDataSync::SyncController::syncStateChanged,
+			this, &TrayControl::syncStateChanged);
+	connect(_controller, &QtDataSync::SyncController::authenticationErrorChanged,
+			this, &TrayControl::authError);
 
 	_tray->setToolTip(QApplication::applicationDisplayName());
 	_tray->setContextMenu(_trayMenu.data());
@@ -49,18 +66,12 @@ void TrayControl::trayAction(QSystemTrayIcon::ActivationReason reason)
 
 void TrayControl::manageSync()
 {
-	if(_dialog) {
-		if(_dialog->isMinimized())
-			_dialog->showNormal();
-		else
-			_dialog->show();
-		_dialog->raise();
-		_dialog->activateWindow();
-	} else {
-		_dialog = new ManageSettingsDialog();
-		_dialog->setAttribute(Qt::WA_DeleteOnClose);
-		_dialog->open();
-	}
+	tryOpen(_dialog);
+}
+
+void TrayControl::editRemote()
+{
+	tryOpen(_remoteDialog);
 }
 
 void TrayControl::about()
@@ -91,4 +102,62 @@ void TrayControl::about()
 	auto btn = DialogMaster::messageBox(info);
 	if(btn == QMessageBox::Help)
 		QApplication::aboutQt();
+}
+
+void TrayControl::syncStateChanged(QtDataSync::SyncController::SyncState syncState)
+{
+	switch (syncState) {
+		break;
+	case QtDataSync::SyncController::Disconnected:
+		_tray->setIcon(QIcon(QStringLiteral(":/icons/tray/disconnected.ico")));
+		_tray->setToolTip(tr("%1: Server not connected")
+						  .arg(QApplication::applicationDisplayName()));
+		break;
+	case QtDataSync::SyncController::Loading:
+	case QtDataSync::SyncController::Syncing:
+		_tray->setIcon(QIcon(QStringLiteral(":/icons/tray/syncing.ico")));
+		_tray->setToolTip(tr("%1: Synchronizing changes…")
+						  .arg(QApplication::applicationDisplayName()));
+		break;
+	case QtDataSync::SyncController::Synced:
+		_tray->setIcon(QIcon(QStringLiteral(":/icons/tray/main.ico")));
+		_tray->setToolTip(tr("%1: Synchronized")
+						  .arg(QApplication::applicationDisplayName()));
+		break;
+	case QtDataSync::SyncController::SyncedWithErrors:
+		_tray->setIcon(QIcon(QStringLiteral(":/icons/tray/error.ico")));
+		_tray->setToolTip(tr("%1: Synchronization Error! Check the log")
+						  .arg(QApplication::applicationDisplayName()));
+		break;
+	default:
+		Q_UNREACHABLE();
+	}
+}
+
+void TrayControl::authError(const QString &error)
+{
+	if(error.isNull())
+		return;
+
+	qCritical() << "Authentication failed with error" << error;
+	DialogMaster::critical(nullptr,
+						   error,
+						   tr("Authentication Failed!"));
+}
+
+template<typename T>
+void TrayControl::tryOpen(QPointer<T> &member)
+{
+	if(member) {
+		if(member->isMinimized())
+			member->showNormal();
+		else
+			member->show();
+		member->raise();
+		member->activateWindow();
+	} else {
+		member = new T();
+		member->setAttribute(Qt::WA_DeleteOnClose);
+		member->open();
+	}
 }
