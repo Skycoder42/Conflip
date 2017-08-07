@@ -27,7 +27,9 @@ QStringList XmlSettingsFile::childGroups(const QStringList &parentChain)
 	QStringList keys;
 	for(auto it = groups.begin(); it != groups.end(); it++) {
 		for(auto i = 0; i < it.value(); i++)
-			keys.append(QStringLiteral("%1[%2]").arg(it.key()).arg(i));
+			keys.append(QStringLiteral("%1 [%2]")
+						.arg(it.key())
+						.arg(i, 3, 10, QLatin1Char('0')));
 	}
 	return keys;
 }
@@ -120,7 +122,7 @@ QDomNode XmlSettingsFile::getNode(const QStringList &keyChain)
 {
 	QDomNode current = _doc;
 
-	static QRegularExpression regex(QStringLiteral(R"__(^([^\[]*)\[(\d+)\]$)__"),
+	static QRegularExpression regex(QStringLiteral(R"__(^([^\[]*) \[(\d+)\]$)__"),
 									QRegularExpression::OptimizeOnFirstUsageOption);
 
 	foreach(auto key, keyChain) {

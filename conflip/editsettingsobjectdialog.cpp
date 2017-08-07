@@ -45,6 +45,8 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	}
 	ui->settingsTypeComboBox->setCurrentIndex(0);
 
+	sortModel->setSortLocaleAware(true);
+	sortModel->setSortCaseSensitivity(Qt::CaseInsensitive);
 	ui->settingsTreeView->setModel(sortModel);
 }
 
@@ -156,6 +158,7 @@ void EditSettingsObjectDialog::loadFile()
 			model = new SettingsFileModel(file, this);
 			model->enablePreview(ui->dataPreviewCheckBox->isChecked());
 			sortModel->setSourceModel(model);
+			sortModel->sort(0, Qt::AscendingOrder);
 			ui->settingsTreeView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
 			if(!isCreate)
