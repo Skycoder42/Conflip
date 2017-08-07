@@ -13,6 +13,7 @@ public:
 
 	QSettings::Format registerFormat(const QString &type) override;
 	QString displayName(const QString &type) const override;
+	QStringList fileFilters(const QString &type) const override;
 };
 
 #endif // QSETTINGSSTANDARDPLUGIN_H

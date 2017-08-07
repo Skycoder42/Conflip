@@ -16,6 +16,7 @@ public:
 	static void loadPlugins();
 
 	static QMap<QString, QString> typeNames();
+	static QMap<QString, QStringList> fileFilters();
 	static SettingsFile *createSettings(const QString &path, const QString &type, QObject *parent = nullptr);
 
 private:

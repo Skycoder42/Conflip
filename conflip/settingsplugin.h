@@ -30,6 +30,7 @@ public:
 
 	virtual SettingsFile *createSettings(const QString &path, const QString &type, QObject *parent = nullptr) = 0;
 	virtual QString displayName(const QString &type) const = 0;
+	virtual QStringList fileFilters(const QString &type) const = 0;
 };
 
 #endif // SETTINGSPLUGIN_H

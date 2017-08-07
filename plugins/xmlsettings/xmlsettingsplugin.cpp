@@ -16,7 +16,18 @@ SettingsFile *XmlSettingsPlugin::createSettings(const QString &path, const QStri
 QString XmlSettingsPlugin::displayName(const QString &type) const
 {
 	if(type == QStringLiteral("xml"))
-		return tr("XML-Files (*.xml)");
+		return tr("XML");
 	else
 		return QString();
+}
+
+QStringList XmlSettingsPlugin::fileFilters(const QString &type) const
+{
+	if(type == QStringLiteral("xml")) {
+		return {
+			tr("XML-Files (*.xml)"),
+			tr("XML Variants (*.*xml*)")
+		};
+	} else
+		return QStringList();
 }

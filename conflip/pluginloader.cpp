@@ -51,7 +51,7 @@ PluginLoader::PluginLoader(QObject *parent) :
 
 void PluginLoader::loadPlugins()
 {
-	Q_UNUSED(pluginLoader)
+	pluginLoader();
 }
 
 QMap<QString, QString> PluginLoader::typeNames()
@@ -59,6 +59,14 @@ QMap<QString, QString> PluginLoader::typeNames()
 	QMap<QString, QString> res;
 	for(auto it = pluginLoader->_plugins.constBegin(); it != pluginLoader->_plugins.constEnd(); it++)
 		res.insert(it.key(), it.value()->displayName(it.key()));
+	return res;
+}
+
+QMap<QString, QStringList> PluginLoader::fileFilters()
+{
+	QMap<QString, QStringList> res;
+	for(auto it = pluginLoader->_plugins.constBegin(); it != pluginLoader->_plugins.constEnd(); it++)
+		res.insert(it.key(), it.value()->fileFilters(it.key()));
 	return res;
 }
 

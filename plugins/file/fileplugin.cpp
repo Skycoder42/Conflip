@@ -20,3 +20,9 @@ QString FilePlugin::displayName(const QString &type) const
 	else
 		return QString();
 }
+
+QStringList FilePlugin::fileFilters(const QString &type) const
+{
+	Q_UNUSED(type)
+	return {}; //no types, because file works as fallback type
+}

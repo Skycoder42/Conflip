@@ -18,9 +18,19 @@ SettingsFile *JsonSettingsPlugin::createSettings(const QString &path, const QStr
 QString JsonSettingsPlugin::displayName(const QString &type) const
 {
 	if(type == QStringLiteral("json"))
-		return tr("Json-Files (*.json)");
+		return tr("Json");
 	else if(type == QStringLiteral("qbjs"))
-		return tr("Qt Binary Json-Files (*.qbjs)");
+		return tr("Binary Json (Qt)");
 	else
 		return QString();
+}
+
+QStringList JsonSettingsPlugin::fileFilters(const QString &type) const
+{
+	if(type == QStringLiteral("json"))
+		return {tr("Json-Files (*.json)")};
+	else if(type == QStringLiteral("qbjs"))
+		return {tr("Qt Binary Json-Files (*.qbjs)")};
+	else
+		return QStringList();
 }

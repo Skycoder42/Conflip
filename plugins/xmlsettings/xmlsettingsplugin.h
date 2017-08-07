@@ -13,6 +13,7 @@ public:
 
 	SettingsFile *createSettings(const QString &path, const QString &type, QObject *parent) override;
 	QString displayName(const QString &type) const override;
+	QStringList fileFilters(const QString &type) const override;
 };
 
 #endif // XMLSETTINGSPLUGIN_H
