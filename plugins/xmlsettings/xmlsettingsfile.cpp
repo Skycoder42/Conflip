@@ -135,7 +135,7 @@ QDomNode XmlSettingsFile::getNode(const QStringList &keyChain)
 			for(auto i = 0; i < index && !current.isNull(); i++)
 				current = current.nextSiblingElement(name);
 		} else
-			current = current.firstChildElement(key);//TODO array!!!
+			current = current.firstChildElement(key);
 
 		if(current.isNull())
 			return QDomNode();
