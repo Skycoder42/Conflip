@@ -32,9 +32,10 @@ FileBasedSettingsFile::FileBasedSettingsFile(QObject *parent) :
 void FileBasedSettingsFile::autoBackup()
 {
 	auto path = filePath();
-	if(QFile::exists(path))
+	auto bkp = path + QStringLiteral(".bkp");
+	if(QFile::exists(bkp))
 		qInfo() << "backup already exists for" << path;
-	else if(!QFile::copy(path, path + QStringLiteral(".bkp"))) {
+	else if(!QFile::copy(path, bkp)) {
 		qWarning() << "Unable to create backup for"
 				   << path;
 	}

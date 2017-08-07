@@ -122,7 +122,6 @@ void EditSettingsObjectDialog::on_openButton_clicked()
 	if(!path.isNull()) {
 		ui->pathIDLineEdit->setText(path);
 		auto index = indexMap.value(remapping.value(filter, FileType), 0);
-		qDebug() << index;
 		ui->settingsTypeComboBox->setCurrentIndex(index);
 		clearPreview();
 	}
@@ -176,6 +175,7 @@ void EditSettingsObjectDialog::setup()
 	if(isCreate)
 		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 	else {
+		ui->settingsTypeComboBox->setCurrentIndex(indexMap.value(object.type, 0));
 		ui->settingsTypeComboBox->setEnabled(false);
 		ui->pathIDLineEdit->setText(object.devicePath());
 		on_applyButton_clicked();
