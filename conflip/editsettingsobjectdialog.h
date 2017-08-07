@@ -23,7 +23,6 @@ public:
 	void accept() override;
 
 private slots:
-	void on_settingsTypeComboBox_currentIndexChanged(int index);
 	void on_openButton_clicked();
 	void on_applyButton_clicked();
 	void on_dataPreviewCheckBox_clicked(bool checked);
@@ -32,6 +31,7 @@ private:
 	static const QString FileType;
 
 	Ui::EditSettingsObjectDialog *ui;
+	QHash<QString, int> indexMap;
 	SettingsFileModel *model;
 	QSortFilterProxyModel *sortModel;
 	DataStore *store;
@@ -44,7 +44,8 @@ private:
 
 	QString currentType() const;
 	void setup();
-	void tryLoadPreview();
+	void tryLoadPreview(bool checked);
+	void clearPreview();
 };
 
 #endif // EDITSETTINGSOBJECTDIALOG_H
