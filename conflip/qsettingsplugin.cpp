@@ -19,6 +19,8 @@ SettingsFile *QSettingsPlugin::createSettings(const QString &path, const QString
 			throw SettingsLoadException(settings->status() == QSettings::AccessError ?
 											"Access Denied" :
 											"Malformed File");
+		if(!settings->isWritable())
+			throw SettingsLoadException("Settings found, but no permission to write is given!");
 		return new QSettingsFile(settings, parent);
 	}
 }

@@ -32,6 +32,11 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 	connect(ui->action_Collapse_all, &QAction::triggered,
 			ui->settingsTreeView, &QTreeView::collapseAll);
 
+	connect(ui->applyButton, &QToolButton::clicked,
+			this, &EditSettingsObjectDialog::loadFile);
+	connect(ui->settingsTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+			this, &EditSettingsObjectDialog::loadFile);
+
 	auto types = PluginLoader::typeNames();
 	auto index = 0;
 	for(auto it = types.constBegin(); it != types.constEnd(); it++) {
@@ -46,11 +51,6 @@ EditSettingsObjectDialog::EditSettingsObjectDialog(QWidget *parent) :
 EditSettingsObjectDialog::~EditSettingsObjectDialog()
 {
 	delete ui;
-}
-
-QString EditSettingsObjectDialog::currentType() const
-{
-	return ui->settingsTypeComboBox->currentData().toString();
 }
 
 SettingsObject EditSettingsObjectDialog::createObject(QWidget *parent)
@@ -122,12 +122,22 @@ void EditSettingsObjectDialog::on_openButton_clicked()
 	if(!path.isNull()) {
 		ui->pathIDLineEdit->setText(path);
 		auto index = indexMap.value(remapping.value(filter, FileType), 0);
-		ui->settingsTypeComboBox->setCurrentIndex(index);
-		clearPreview();
+		if(index != ui->settingsTypeComboBox->currentIndex())
+			ui->settingsTypeComboBox->setCurrentIndex(index);
+		else
+			loadFile();
 	}
 }
 
-void EditSettingsObjectDialog::on_applyButton_clicked()
+void EditSettingsObjectDialog::on_dataPreviewCheckBox_clicked(bool checked)
+{
+	if(model)
+		model->enablePreview(checked);
+	else
+		tryLoadPreview(checked);
+}
+
+void EditSettingsObjectDialog::loadFile()
 {
 	clearPreview();
 	auto type = currentType();
@@ -162,12 +172,9 @@ void EditSettingsObjectDialog::on_applyButton_clicked()
 	}
 }
 
-void EditSettingsObjectDialog::on_dataPreviewCheckBox_clicked(bool checked)
+QString EditSettingsObjectDialog::currentType() const
 {
-	if(model)
-		model->enablePreview(checked);
-	else
-		tryLoadPreview(checked);
+	return ui->settingsTypeComboBox->currentData().toString();
 }
 
 void EditSettingsObjectDialog::setup()
@@ -178,7 +185,7 @@ void EditSettingsObjectDialog::setup()
 		ui->settingsTypeComboBox->setCurrentIndex(indexMap.value(object.type, 0));
 		ui->settingsTypeComboBox->setEnabled(false);
 		ui->pathIDLineEdit->setText(object.devicePath());
-		on_applyButton_clicked();
+		loadFile();
 	}
 }
 

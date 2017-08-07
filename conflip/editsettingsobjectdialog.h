@@ -24,8 +24,9 @@ public:
 
 private slots:
 	void on_openButton_clicked();
-	void on_applyButton_clicked();
 	void on_dataPreviewCheckBox_clicked(bool checked);
+
+	void loadFile();
 
 private:
 	static const QString FileType;
