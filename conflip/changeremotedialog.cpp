@@ -5,6 +5,8 @@
 #include <dialogmaster.h>
 #include <qurlvalidator.h>
 
+#include "../../__private/conflip-datasync-secret.h"
+
 ChangeRemoteDialog::ChangeRemoteDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ChangeRemoteDialog),
@@ -47,7 +49,7 @@ void ChangeRemoteDialog::on_buttonBox_clicked(QAbstractButton *button)
 	if(ui->buttonBox->standardButton(button) == QDialogButtonBox::RestoreDefaults) {
 		ui->remoteURLLineEdit->setText(QStringLiteral("wss://apps.skycoder42.de/conflip/"));
 		ui->serverSecretCheckBox->setChecked(true);
-		ui->serverSecretLineEdit->setText(QStringLiteral("baum42")); //TODO debug
+		ui->serverSecretLineEdit->setText(QString::fromUtf8(DATASYNC_SERVER_SECRET));
 		accept();
 	}
 }

@@ -14,6 +14,8 @@
 #include "syncmanager.h"
 #include "synclogger.h"
 
+#include "../../__private/conflip-datasync-secret.h"
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
@@ -44,8 +46,8 @@ int main(int argc, char *argv[])
 	//connect to server
 	auto auth = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(qApp);
 	if(!auth->remoteUrl().isValid()) {
-		ui->remoteURLLineEdit->setText(QStringLiteral("wss://apps.skycoder42.de/conflip/"));
-		auth->setServerSecret(QStringLiteral("baum42")); //TODO debug
+		auth->setRemoteUrl(QStringLiteral("wss://apps.skycoder42.de/conflip/"));
+		auth->setServerSecret(QString::fromUtf8(DATASYNC_SERVER_SECRET));
 	} else
 		delete auth;
 
