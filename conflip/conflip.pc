@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/bin
+includedir=${prefix}/include/conflip
+
+Name: Conflip
+Description: A tool to synchronize settings/configurations across multiple machines
+Version: 1.0.0
+Requires: Qt5Core
+Libs: -L${libdir} -l:conflip
+Cflags: -I${includedir}

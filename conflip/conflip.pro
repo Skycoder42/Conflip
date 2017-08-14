@@ -66,7 +66,8 @@ FORMS += \
 	changeremotedialog.ui
 
 DISTFILES += conflip_de.ts \
-	conflip_template.ts
+	conflip_template.ts \
+	conflip.pc
 
 TRANSLATIONS += conflip_de.ts \
 	conflip_template.ts
@@ -79,10 +80,13 @@ unix {
 
 	target.path = $$PREFIX/bin
 
-	tHeaders.path = $$PREFIX/include
+	tHeaders.path = $$PREFIX/include/conflip
 	tHeaders.files = $$PUBLIC_HEADERS
 
-	INSTALLS += target tHeaders
+	pcFile.path = $$PREFIX/lib/pkgconfig/
+	pcFile.files = conflip.pc
+
+	INSTALLS += target tHeaders pcFile
 }
 
 RESOURCES += \

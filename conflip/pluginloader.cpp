@@ -3,14 +3,10 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QLibraryInfo>
+#include <QTranslator>
 #include <QDebug>
 #include <QGlobalStatic>
-#ifndef QT_NO_DEBUG
 #include <QCoreApplication>
-#include <QTranslator>
-#else
-#include <QLibraryInfo>
-#endif
 
 Q_GLOBAL_STATIC(PluginLoader, pluginLoader)
 
