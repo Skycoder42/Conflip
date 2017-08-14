@@ -22,8 +22,6 @@ DEFINES += "BUNDLE=\"\\\"$$QMAKE_TARGET_BUNDLE_PREFIX\\\"\""
 
 DEFINES += CONFLIP_LIBRARY
 
-include(vendor/vendor.pri)
-
 PUBLIC_HEADERS += \
 	settingsplugin.h \
 	libconflip_global.h \
@@ -72,6 +70,8 @@ DISTFILES += conflip_de.ts \
 TRANSLATIONS += conflip_de.ts \
 	conflip_template.ts
 
+include(vendor/vendor.pri)
+
 unix {
 	#DEBUG LD_LIBRARY_PATH
 	LIBS += -L$$OUT_PWD
@@ -83,10 +83,15 @@ unix {
 	tHeaders.path = $$PREFIX/include/conflip
 	tHeaders.files = $$PUBLIC_HEADERS
 
-	pcFile.path = $$PREFIX/lib/pkgconfig/
+	pcFile.path = $$PREFIX/lib/pkgconfig
 	pcFile.files = conflip.pc
 
-	INSTALLS += target tHeaders pcFile
+	trInstall.path = $$[QT_INSTALL_TRANSLATIONS]
+	trInstall.files = $$OUT_PWD/conflip_de.qm \
+		$$PWD/conflip_template.ts
+	trInstall.CONFIG += no_check_exist
+
+	INSTALLS += target tHeaders pcFile trInstall
 }
 
 RESOURCES += \

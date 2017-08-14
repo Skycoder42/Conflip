@@ -31,7 +31,13 @@ DEPENDPATH += $$PWD/../../conflip
 
 unix {
 	target.path = $$[QT_INSTALL_PLUGINS]/conflip
-	INSTALLS += target
+
+	trInstall.path = $$[QT_INSTALL_TRANSLATIONS]
+	trInstall.files = $$OUT_PWD/conflip_xml_de.qm \
+		$$PWD/conflip_xml_template.ts
+	trInstall.CONFIG += no_check_exist
+
+	INSTALLS += target trInstall
 }
 
 # include ts stuff
