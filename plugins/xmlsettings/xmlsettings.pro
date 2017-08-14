@@ -15,7 +15,9 @@ SOURCES += \
 	xmlsettingsplugin.cpp \
 	xmlsettingsfile.cpp
 
-DISTFILES += xmlsettings.json
+DISTFILES += xmlsettings.json \
+	conflip_xml_de.ts \
+	conflip_xml_template.ts
 
 TRANSLATIONS += conflip_xml_de.ts \
 	conflip_xml_template.ts

@@ -65,6 +65,9 @@ FORMS += \
 	managesettingsdialog.ui \
 	changeremotedialog.ui
 
+DISTFILES += conflip_de.ts \
+	conflip_template.ts
+
 TRANSLATIONS += conflip_de.ts \
 	conflip_template.ts
 

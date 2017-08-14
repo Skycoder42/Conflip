@@ -6,42 +6,42 @@
     <message>
         <location filename="qsettingsstandardplugin.cpp" line="+21"/>
         <source>Config</source>
-        <translation type="unfinished"></translation>
+        <translation>Config</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Registry</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrierung</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>PList</source>
-        <translation type="unfinished"></translation>
+        <translation>P-List</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Ini</source>
-        <translation type="unfinished"></translation>
+        <translation>Ini</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Config-Files (*.conf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Config-Dateien (*.conf)</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Registry-Files (*.reg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrierungs-Dateien (*.reg)</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>PList-Files (*.plist)</source>
-        <translation type="unfinished"></translation>
+        <translation>P-List-Dateien (*.plist)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Ini-Files (*.ini)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ini-Dateien (*.ini)</translation>
     </message>
 </context>
 </TS>

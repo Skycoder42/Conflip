@@ -6,17 +6,17 @@
     <message>
         <location filename="xmlsettingsplugin.cpp" line="+19"/>
         <source>XML</source>
-        <translation type="unfinished"></translation>
+        <translation>XML</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>XML-Files (*.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>XML-Dateien (*.xml)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>XML Variants (*.*xml*)</source>
-        <translation type="unfinished"></translation>
+        <translation>XML Varianten (*.*xml*)</translation>
     </message>
 </context>
 </TS>

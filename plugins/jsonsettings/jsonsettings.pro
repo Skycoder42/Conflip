@@ -15,7 +15,9 @@ SOURCES += \
 	jsonsettingsplugin.cpp \
 	jsonsettingsfile.cpp
 
-DISTFILES += jsonsettings.json
+DISTFILES += jsonsettings.json \
+	conflip_json_de.ts \
+	conflip_json_template.ts
 
 TRANSLATIONS += conflip_json_de.ts \
 	conflip_json_template.ts

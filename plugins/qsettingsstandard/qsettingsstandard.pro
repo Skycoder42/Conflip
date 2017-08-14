@@ -14,7 +14,9 @@ HEADERS += \
 SOURCES += \
 	qsettingsstandardplugin.cpp
 
-DISTFILES += qsettingsstandard.json
+DISTFILES += qsettingsstandard.json \
+	conflip_qsettings_standard_de.ts \
+	conflip_qsettings_standard_template.ts
 
 TRANSLATIONS += conflip_qsettings_standard_de.ts \
 	conflip_qsettings_standard_template.ts

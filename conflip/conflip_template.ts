@@ -5,7 +5,7 @@
     <name>ChangeRemoteDialog</name>
     <message>
         <location filename="changeremotedialog.ui" line="+14"/>
-        <source>Dialog</source>
+        <source>Change Remote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -6,22 +6,22 @@
     <message>
         <location filename="jsonsettingsplugin.cpp" line="+21"/>
         <source>Json</source>
-        <translation type="unfinished"></translation>
+        <translation>Json</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Binary Json (Qt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Binäres Json (Qt)</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Json-Files (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>Json-Dateien (*.json)</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt Binary Json-Files (*.qbjs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Qts Binäre Json Dateien (*.qbjs)</translation>
     </message>
 </context>
 </TS>

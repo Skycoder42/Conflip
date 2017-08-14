@@ -6,7 +6,7 @@
     <message>
         <location filename="fileplugin.cpp" line="+19"/>
         <source>Whole Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Ganze Dateien</translation>
     </message>
 </context>
 </TS>

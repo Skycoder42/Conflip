@@ -16,7 +16,9 @@ SOURCES += \
 	fileplugin.cpp \
 	filesettingsfile.cpp
 
-DISTFILES += file.json
+DISTFILES += file.json \
+	conflip_file_de.ts \
+	conflip_file_template.ts
 
 TRANSLATIONS += conflip_file_de.ts \
 	conflip_file_template.ts
