@@ -1,3 +1,4 @@
 {
-	"Keys" : [ "ini", "native" ]
+	"Keys" : [ "ini", "native" ],
+	"Translations": "conflip_qsettings_standard"
 }

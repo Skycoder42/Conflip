@@ -2,10 +2,12 @@
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QLibraryInfo>
 #include <QDebug>
 #include <QGlobalStatic>
 #ifndef QT_NO_DEBUG
 #include <QCoreApplication>
+#include <QTranslator>
 #else
 #include <QLibraryInfo>
 #endif
@@ -32,9 +34,25 @@ PluginLoader::PluginLoader(QObject *parent) :
 			if(loader->load()) {
 				auto instance = qobject_cast<SettingsPlugin*>(loader->instance());
 				if(instance) {
-					auto keys = meta[QStringLiteral("MetaData")].toObject()[QStringLiteral("Keys")].toArray();
+					auto metadata = meta[QStringLiteral("MetaData")].toObject();
+					auto keys = metadata[QStringLiteral("Keys")].toArray();
 					foreach (auto key, keys)
 						_plugins.insert(key.toString(), instance);
+
+					auto ts = metadata[QStringLiteral("Translations")].toString();
+					if(!ts.isEmpty()) {
+						auto translator = new QTranslator(instance);
+						if(translator->load(QLocale(),
+											ts,
+											QStringLiteral("_"),
+											QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+							qApp->installTranslator(translator);
+						else {
+							qWarning() << "Failed to load translations for" << ts;
+							delete translator;
+						}
+					}
+
 					if(!keys.isEmpty())
 						continue;
 					qWarning() << "Plugin" << plg << "has no associated keys";

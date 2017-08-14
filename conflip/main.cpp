@@ -1,7 +1,9 @@
 #include <QApplication>
 #include <QIcon>
 #include <QJsonSerializer>
+#include <QLibraryInfo>
 #include <QSqlDatabase>
+#include <QTranslator>
 #include <QtDataSync/Setup>
 #include <QtDataSync/SyncController>
 #include <QtDataSync/WsAuthenticator>
@@ -27,7 +29,7 @@ int main(int argc, char *argv[])
 	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.svg")));
 	QApplication::setQuitOnLastWindowClosed(false);
 
-	//enable file logging
+	// enable file logging
 	SyncLogger::setup(a.arguments().contains(QStringLiteral("--verbose")));
 
 	// register types
@@ -35,15 +37,27 @@ int main(int argc, char *argv[])
 	QJsonSerializer::registerAllConverters<SettingsEntry>();
 	QJsonSerializer::registerAllConverters<SettingsValue>();
 
+	// load translations
+	auto translator = new QTranslator(&a);
+	if(translator->load(QLocale(),
+						QStringLiteral("conflip"),
+						QStringLiteral("_"),
+						QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+		a.installTranslator(translator);
+	else {
+		qWarning() << "Failed to load translations";
+		delete translator;
+	}
+
 	// load plugins
 	PluginLoader::loadPlugins();
 
-	//setup datasync
+	// setup datasync
 	QtDataSync::Setup()
 			.setDataMerger(new SettingsObjectMerger())
 			.create();
 
-	//connect to server
+	// connect to server
 	auto auth = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(qApp);
 	if(!auth->remoteUrl().isValid()) {
 		auth->setRemoteUrl(QStringLiteral("wss://apps.skycoder42.de/conflip/"));
