@@ -41,7 +41,7 @@ HEADERS += $$PUBLIC_HEADERS \
 	managesettingsdialog.h \
 	syncmanager.h \
 	synclogger.h \
-    changeremotedialog.h
+	changeremotedialog.h
 
 SOURCES += \
 	settingsplugin.cpp \
@@ -58,12 +58,15 @@ SOURCES += \
 	managesettingsdialog.cpp \
 	syncmanager.cpp \
 	synclogger.cpp \
-    changeremotedialog.cpp
+	changeremotedialog.cpp
 
 FORMS += \
 	editsettingsobjectdialog.ui \
 	managesettingsdialog.ui \
-    changeremotedialog.ui
+	changeremotedialog.ui
+
+TRANSLATIONS += conflip_de.ts \
+	conflip_template.ts
 
 unix {
 	#DEBUG LD_LIBRARY_PATH

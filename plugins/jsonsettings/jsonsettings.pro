@@ -9,13 +9,16 @@ DESTDIR = $$OUT_PWD/..
 
 HEADERS += \
 	jsonsettingsplugin.h \
-    jsonsettingsfile.h
+	jsonsettingsfile.h
 
 SOURCES += \
 	jsonsettingsplugin.cpp \
-    jsonsettingsfile.cpp
+	jsonsettingsfile.cpp
 
 DISTFILES += jsonsettings.json
+
+TRANSLATIONS += conflip_json_de.ts \
+	conflip_json_template.ts
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../conflip/release/ -l:conflip
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../conflip/debug/ -l:conflip
@@ -28,3 +31,6 @@ unix {
 	target.path = $$[QT_INSTALL_PLUGINS]/conflip
 	INSTALLS += target
 }
+
+# include ts stuff
+include(../../conflip/vendor/de/skycoder42/qpm-translate/de_skycoder42_qpm-translate.pri)
