@@ -11,7 +11,7 @@ outdir=$(readlink -f ${2:?Invalid commands. Syntax: arch.sh <version> <outdir>})
 pkgdir=$(mktemp -d)
 
 pushd conflip
-echo qpm install
+qpm install
 popd
 
 pushd $(mktemp -d)

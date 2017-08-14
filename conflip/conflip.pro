@@ -78,12 +78,12 @@ unix {
 
 	isEmpty(PREFIX): PREFIX = /usr
 
-	target.path = $$PREFIX/bin
+	target.path = $$[QT_INSTALL_BINS]
 
-	tHeaders.path = $$PREFIX/include/conflip
+	tHeaders.path = $$[QT_INSTALL_HEADERS]/../conflip
 	tHeaders.files = $$PUBLIC_HEADERS
 
-	pcFile.path = $$PREFIX/lib/pkgconfig
+	pcFile.path = $$[QT_INSTALL_LIBS]/pkgconfig
 	pcFile.files = conflip.pc
 
 	trInstall.path = $$[QT_INSTALL_TRANSLATIONS]
