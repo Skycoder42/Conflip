@@ -23,6 +23,7 @@ private slots:
 	void importId();
 	void exportId();
 	void editRemote();
+	void resetId();
 	void about();
 
 	void syncStateChanged(QtDataSync::SyncController::SyncState syncState);

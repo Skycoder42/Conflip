@@ -40,6 +40,8 @@ TrayControl::TrayControl(QObject *parent) :
 					_controller, &QtDataSync::SyncController::triggerResync);
 	menu->addAction(tr("Change remote"),
 					this, &TrayControl::editRemote);
+	menu->addAction(tr("Reset Identity"),
+					this, &TrayControl::resetId);
 
 	_trayMenu->addSeparator();
 	_trayMenu->addAction(QIcon::fromTheme(QStringLiteral("help-about")),
@@ -133,6 +135,27 @@ void TrayControl::exportId()
 void TrayControl::editRemote()
 {
 	tryOpen(_remoteDialog);
+}
+
+void TrayControl::resetId()
+{
+	if(DialogMaster::question(nullptr,
+							  tr("Do you really want to reset your identity? "
+								 "This will delete all your synchronized data "
+								 "(But not your actual settings files)"))
+	   == QMessageBox::No)
+		return;
+
+	auto authenticator = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(this);
+	auto task = authenticator->resetUserIdentity();
+	task.onResult([authenticator](){
+		DialogMaster::information(nullptr, tr("Identity successfully resetted."), tr("Reset Identity"));
+		authenticator->deleteLater();
+	}, [authenticator](const QException &e) {
+		qCritical() << "Identity reset failed with error:" << e.what();
+		DialogMaster::critical(nullptr, tr("Failed to reset identity."), tr("Reset Identity"));
+		authenticator->deleteLater();
+	});
 }
 
 void TrayControl::about()
