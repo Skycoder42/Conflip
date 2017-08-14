@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=Conflip
+Comment=A tool to synchronize settings/configurations across multiple machines.
+Exec=conflip
+Icon=conflip
+Terminal=false
+Categories=Utility;Network;
