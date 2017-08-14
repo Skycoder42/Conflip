@@ -20,6 +20,8 @@ private slots:
 	void trayAction(QSystemTrayIcon::ActivationReason reason);
 
 	void manageSync();
+	void importId();
+	void exportId();
 	void editRemote();
 	void about();
 

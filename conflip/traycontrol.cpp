@@ -3,6 +3,8 @@
 #include "traycontrol.h"
 
 #include <QApplication>
+#include <QStandardPaths>
+#include <QtDataSync/Setup>
 #include <dialogmaster.h>
 
 TrayControl::TrayControl(QObject *parent) :
@@ -26,6 +28,13 @@ TrayControl::TrayControl(QObject *parent) :
 	menu->addAction(QIcon::fromTheme(QStringLiteral("view-refresh")),
 					tr("Synchronize"),
 					_controller, &QtDataSync::SyncController::triggerSync);
+	menu->addSeparator();
+	menu->addAction(QIcon::fromTheme(QStringLiteral("document-import")),
+					tr("Import Identity"),
+					this, &TrayControl::importId);
+	menu->addAction(QIcon::fromTheme(QStringLiteral("document-export")),
+					tr("Export Identity"),
+					this, &TrayControl::exportId);
 	menu->addSeparator();
 	menu->addAction(tr("Re-Synchronize"),
 					_controller, &QtDataSync::SyncController::triggerResync);
@@ -67,6 +76,58 @@ void TrayControl::trayAction(QSystemTrayIcon::ActivationReason reason)
 void TrayControl::manageSync()
 {
 	tryOpen(_dialog);
+}
+
+void TrayControl::importId()
+{
+	auto path = DialogMaster::getOpenFileName(nullptr,
+											  tr("Import Identity"),
+											  QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+											  tr("Datasync Identity (*.dsi);;All Files (*)"));
+	if(!path.isNull()) {
+		auto file = new QFile(path);
+		if(!file->open(QIODevice::ReadOnly)) {
+			qCritical() << "Failed to open file for import with error:" << file->errorString();
+			DialogMaster::critical(nullptr, tr("Failed to open file!"), tr("Import Identity"));
+			return;
+		}
+
+		auto authenticator = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(this);
+		auto task = authenticator->importUserData(file);
+		task.onResult([authenticator, file](){
+			DialogMaster::information(nullptr, tr("Identity successfully loaded."), tr("Import Identity"));
+			authenticator->deleteLater();
+			file->close();
+			file->deleteLater();
+		}, [authenticator, file](const QException &e) {
+			qCritical() << "Identity import failed with error:" << e.what();
+			DialogMaster::critical(nullptr, tr("Failed to import identity. Make shure the file is a valid dsi file."), tr("Import Identity"));
+			authenticator->deleteLater();
+			file->close();
+			file->deleteLater();
+		});
+	}
+}
+
+void TrayControl::exportId()
+{
+	auto path = DialogMaster::getSaveFileName(nullptr,
+											  tr("Export Identity"),
+											  QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+											  tr("Datasync Identity (*.dsi);;All Files (*)"));
+	if(!path.isNull()) {
+		QFile file(path);
+		if(!file.open(QIODevice::WriteOnly)) {
+			qCritical() << "Failed to open file for import with error:" << file.errorString();
+			DialogMaster::critical(nullptr, tr("Failed to open file!"), tr("Export Identity"));
+			return;
+		}
+
+		auto authenticator = QtDataSync::Setup::authenticatorForSetup<QtDataSync::WsAuthenticator>(this);
+		authenticator->exportUserData(&file);
+		authenticator->deleteLater();
+		file.close();
+	}
 }
 
 void TrayControl::editRemote()
@@ -139,7 +200,7 @@ void TrayControl::authError(const QString &error)
 	if(error.isNull())
 		return;
 
-	qCritical() << "Authentication failed with error" << error;
+	qCritical() << "Authentication failed with error:" << error;
 	DialogMaster::critical(nullptr,
 						   error,
 						   tr("Authentication Failed!"));
