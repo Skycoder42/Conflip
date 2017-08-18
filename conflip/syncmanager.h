@@ -28,8 +28,6 @@ private:
 	QHash<QUuid, SettingsFile*> _fileMap;
 
 	QSet<QUuid> _locks;
-	QSet<QString> _skipNextLocal;
-	QSet<QString> _skipNextRemote;
 
 	void loadObject(SettingsObject object, bool localReset = true);
 	void updateData(const QUuid &objectId, const QStringList &keyChain, const QVariant &data);

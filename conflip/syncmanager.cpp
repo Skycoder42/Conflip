@@ -4,14 +4,14 @@
 #include <QtDataSync/SyncController>
 #include <functional>
 
+//TODO delete entries of invalid objects
+
 SyncManager::SyncManager(QObject *parent) :
 	QObject(parent),
 	_objectStore(new QtDataSync::CachingDataStore<SettingsObject, QUuid>(this)),
 	_dataStore(DataStore::instance()),
 	_fileMap(),
-	_locks(),
-	_skipNextLocal(),
-	_skipNextRemote()
+	_locks()
 {
 	connect(_dataStore, &DataStore::lockObject,
 			this, &SyncManager::lockObject);
@@ -105,10 +105,8 @@ void SyncManager::loadObject(SettingsObject object, bool localReset)
 			//sync the local state first, and after that remote changes
 			updateAll(objId);
 			_dataStore->objectValues(object).onResult(this, [this, objId, file](QList<SettingsValue> values) {
-				auto rSkip = _skipNextLocal;
 				foreach(auto value, values)
 					applyRemoteChange(value);
-				_skipNextLocal = rSkip;//skip all again, when the change signals from update come
 				file->watchChanges();
 			});
 		}
@@ -166,12 +164,12 @@ void SyncManager::updateData(const QUuid &objectId, const QStringList &keyChain,
 
 void SyncManager::applyRemoteChange(SettingsValue value)
 {
-	if(!_skipNextLocal.remove(value.id())) {
-		auto file = _fileMap.value(value.objectId);
-		if(!file)
-		   return;
+	auto file = _fileMap.value(value.objectId);
+	if(!file)
+	   return;
 
-		_skipNextRemote.insert(value.id());
+	auto prevValue = file->value(value.keyChain);
+	if(!prevValue.isValid() || prevValue != value.value) { //only update if the value has changed
 		file->setValue(value.keyChain, value.value);
 		qDebug() << "updated local settings for:" << value.keyChain.join(QLatin1Char('/'));
 	}
@@ -217,9 +215,14 @@ void SyncManager::recurseEntry(const QStringList &entryChain, QUuid objectId, Se
 
 void SyncManager::syncIfChanged(SettingsValue value)
 {
-	if(!_skipNextRemote.remove(value.id())) {
-		_skipNextLocal.insert(value.id());
+	_dataStore->load<SettingsValue>(value.id()).onResult([this, value](SettingsValue oldValue){
+		if(value != oldValue) {
+			_dataStore->save(value);
+			qDebug() << "synced changes to remote for:" << value.keyChain.join(QLatin1Char('/'));
+		}
+	}, [this, value](const QException &){
+		//assume key does not exist
 		_dataStore->save(value);
 		qDebug() << "synced changes to remote for:" << value.keyChain.join(QLatin1Char('/'));
-	}
+	});
 }
