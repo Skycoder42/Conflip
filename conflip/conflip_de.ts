@@ -16,7 +16,7 @@
     <message>
         <location line="+10"/>
         <source>wss://example.com/conflip/</source>
-        <translation></translation>
+        <translation>wss://example.com/conflip/</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -122,7 +122,7 @@
     <message>
         <location line="+3"/>
         <source>Ctrl+Ins</source>
-        <translation></translation>
+        <translation>Ctrl+Ins</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -132,7 +132,7 @@
     <message>
         <location line="+3"/>
         <source>Ctrl+E</source>
-        <translation></translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -142,7 +142,7 @@
     <message>
         <location line="+3"/>
         <source>Del</source>
-        <translation></translation>
+        <translation>Del</translation>
     </message>
     <message>
         <location filename="managesettingsdialog.cpp" line="+36"/>
