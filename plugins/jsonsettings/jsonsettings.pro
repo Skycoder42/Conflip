@@ -4,6 +4,7 @@ CONFIG += plugin
 QT       += core gui widgets
 
 TARGET = json
+VERSION = $$CONFLIPVER
 
 DESTDIR = $$OUT_PWD/..
 

@@ -4,6 +4,7 @@ CONFIG += plugin
 QT       += core gui widgets xml
 
 TARGET = xml
+VERSION = $$CONFLIPVER
 
 DESTDIR = $$OUT_PWD/..
 

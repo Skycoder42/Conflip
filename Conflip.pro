@@ -6,7 +6,8 @@ SUBDIRS += \
 	plugins
 
 DISTFILES += README.md \
-	docker-compose.yaml
+	docker-compose.yaml \
+	.qmake.conf
 
 qpmlupdate.target = lupdate
 qpmlupdate.CONFIG += recursive
