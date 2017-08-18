@@ -4,8 +4,6 @@
 #include <QtDataSync/SyncController>
 #include <functional>
 
-//TODO delete entries of invalid objects
-
 SyncManager::SyncManager(QObject *parent) :
 	QObject(parent),
 	_objectStore(new QtDataSync::CachingDataStore<SettingsObject, QUuid>(this)),
