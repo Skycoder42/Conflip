@@ -1,0 +1,115 @@
+{
+	"entries": [
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/symlink_file.txt",
+			"mode": 0,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_file.txt",
+			"mode": 1,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/symlink_file_sensitive.txt",
+			"mode": 0,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": false
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_file_sensitive.txt",
+			"mode": 1,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": false
+		},
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/symlink_pattern_*.txt",
+			"mode": 0,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_pattern_*.txt",
+			"mode": 1,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		
+		
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/basic_symlink",
+			"mode": 0,
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/hidden_symlink/*",
+			"mode": 0,
+			"extras": [],
+			"includeHidden": false,
+			"caseSensitive": true
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/hidden_copy/*",
+			"mode": 1,
+			"extras": [],
+			"includeHidden": false,
+			"caseSensitive": true
+		},
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/pattern_symlink/*/subdir/*.txt",
+			"mode": 0,
+			"extras": [
+				"special/subdir",
+				".*\\.x\\.txt$"
+			],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/pattern_copy/*/subdir/*.txt",
+			"mode": 1,
+			"extras": [
+				"subdir/file2.txt",
+				".*\\.x\\.txt$"
+			],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/recurse_symlink/**/*.txt",
+			"mode": 0,
+			"extras": [
+				"exclude_absolute",
+				"exclude_pattern_\\d+"
+			],
+			"includeHidden": true,
+			"caseSensitive": true
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/recurse_copy/**/*.txt",
+			"mode": 1,
+			"extras": [
+				"exclude_absolute",
+				"exclude_pattern_\\d+"
+			],
+			"includeHidden": true,
+			"caseSensitive": true
+		}
+	]
+}
