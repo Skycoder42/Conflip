@@ -11,7 +11,9 @@ TARGET = conflipd
 SOURCES += \
 		main.cpp \
 	syncengine.cpp \
-    pathresolver.cpp
+    pathresolver.cpp \
+    pathsynchelper.cpp \
+    synchelper.cpp
 
 DISTFILES += \
 	conflip.service.in
@@ -41,4 +43,6 @@ DEPENDPATH += $$PWD/../lib
 
 HEADERS += \
 	syncengine.h \
-    pathresolver.h
+    pathresolver.h \
+    pathsynchelper.h \
+    synchelper.h

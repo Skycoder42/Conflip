@@ -1,5 +1,7 @@
 #include "pathresolver.h"
 
+#include <QStandardPaths>
+
 PathResolver::PathResolver(QObject *parent) :
 	QObject(parent),
 	_scanHidden(true)
@@ -7,6 +9,9 @@ PathResolver::PathResolver(QObject *parent) :
 
 QStringList PathResolver::resolvePath(const SyncEntry &entry) const
 {
+	if(entry.mode == SyncEntry::GConfMode)
+		return {entry.pathPattern};
+
 	auto pathList = entry.pathPattern.split(QLatin1Char('/'), QString::SkipEmptyParts);
 	_scanHidden = entry.includeHidden;
 	auto cd = createDir(QStringLiteral("/"));
@@ -32,6 +37,9 @@ QStringList PathResolver::findFiles(const QDir &cd, QStringList pathList) const
 		}
 
 		return resList;
+	} else if(element == QLatin1Char('~')) {
+		auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+		return findFiles(createDir(home), pathList);
 	} else {
 		QStringList resList;
 
@@ -54,8 +62,9 @@ QStringList PathResolver::findFiles(const QDir &cd, QStringList pathList) const
 QDir PathResolver::createDir(const QString &path) const
 {
 	QDir dir(path);
-	QDir::Filters filters = QDir::AllEntries | QDir::NoDotAndDotDot |
-				   QDir::Readable | QDir::Writable | QDir::CaseSensitive;
+	QDir::Filters filters = QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Readable;
+	if(_caseSensitive)
+		filters |= QDir::CaseSensitive;
 	if(_scanHidden)
 		filters |= QDir::Hidden;
 	dir.setFilter(filters);

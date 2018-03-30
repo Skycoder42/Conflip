@@ -13,6 +13,7 @@ class SyncEntry
 	Q_PROPERTY(QStringList extras MEMBER extras)
 	Q_PROPERTY(PathMode mode MEMBER mode)
 	Q_PROPERTY(bool	includeHidden MEMBER includeHidden)
+	Q_PROPERTY(bool	caseSensitive MEMBER caseSensitive)
 
 public:
 	enum PathMode {
@@ -27,6 +28,7 @@ public:
 	QStringList extras;
 	PathMode mode = SymlinkMode;
 	bool includeHidden = true;
+	bool caseSensitive = true;
 
 	bool operator==(const SyncEntry &other) const;
 	bool operator!=(const SyncEntry &other) const;

@@ -8,6 +8,7 @@
 #include <QDir>
 
 #include "pathresolver.h"
+#include "synchelper.h"
 
 class SyncEngine : public QObject
 {
@@ -29,7 +30,10 @@ private:
 	QJsonSerializer *_serializer;
 	PathResolver *_resolver;
 
+	QHash<SyncEntry::PathMode, SyncHelper*> _helpers;
+
 	QDir _workingDir;
+	bool _skipNextUpdate;
 };
 
 #endif // SYNCENGINE_H
