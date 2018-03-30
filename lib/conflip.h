@@ -3,11 +3,9 @@
 
 #include "lib_conflip_global.h"
 
-class LIBCONFLIPSHARED_EXPORT Conflip
+namespace Conflip
 {
 
-public:
-	Conflip();
 };
 
 #endif // CONFLIP_H

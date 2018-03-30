@@ -1,0 +1,11 @@
+[Unit]
+Description=Conflip Daemon
+
+[Service]
+Type=simple
+ExecStart=%{INSTALL_BINS}/conflipd --systemd-log
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
