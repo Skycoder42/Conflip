@@ -25,6 +25,7 @@ private:
 	bool shouldSync(const QByteArray &group, const QByteArray &key, const QByteArrayList &extras) const;
 
 	void log(const QFileInfo &file, const char *msg, bool dbg = false) const;
+	void log(const QFileInfo &file, const char *msg, const QByteArray &cGroup, const QByteArray &key, bool dbg = false) const;
 };
 
 #endif // INISYNCHELPER_H

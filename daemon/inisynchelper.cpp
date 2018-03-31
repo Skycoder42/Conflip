@@ -57,10 +57,11 @@ void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, c
 			} else if(sLine.startsWith('[') && sLine.endsWith(']')) {
 				// copy all unsynced entries left in the group
 				auto written = false;
-				for(auto remEntry : workMapping[cGroup]) {
-					srcWrite.write(remEntry);
+				for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
+					srcWrite.write(it.value());
 					srcNeedsSave = true;
 					written = true;
+					log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
 				}
 				workMapping.remove(cGroup);
 				if(written) {
@@ -90,10 +91,12 @@ void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, c
 							if(srcIsNewer) {
 								updateMapping[cGroup].insert(key, line);
 								syncNeedsSave = true;
+								log(srcInfo, "Updated entry in sync from src", cGroup, key);
 							// update src from sync
 							} else {
 								line = workValue;
 								srcNeedsSave = true;
+								log(srcInfo, "Updated entry in src from sync", cGroup, key);
 							}
 						}
 						// remove anyways, has been handeled
@@ -102,6 +105,7 @@ void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, c
 					} else if(shouldSync(cGroup, key, extraBytes)) {
 						updateMapping[cGroup].insert(key, line);
 						syncNeedsSave = true;
+						log(srcInfo, "Added new entry from src to sync", cGroup, key);
 					}
 					// else: do nothing (aka just copy the line)
 				}
@@ -113,9 +117,10 @@ void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, c
 
 		// copy all unsynced entries left in the final group
 		if(!cGroup.isNull()) {
-			for(auto remEntry : workMapping[cGroup]) {
-				srcWrite.write(remEntry);
+			for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
+				srcWrite.write(it.value());
 				srcNeedsSave = true;
+				log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
 			}
 			workMapping.remove(cGroup);
 		}
@@ -129,17 +134,15 @@ void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, c
 		if(!srcWrite.commit())
 			throw SyncException("Failed to save src file with error: " +
 								srcWrite.errorString().toUtf8());
-		log(srcInfo, "Updated source file with changes from sync");
 	} else {
 		srcWrite.cancelWriting();
 		log(srcInfo, "No new synced changes, not update src", true);
 	}
 
 	// step 5: write the sync if needed
-	if(syncNeedsSave) {
+	if(syncNeedsSave)
 		writeMapping(syncInfo, updateMapping);
-		log(srcInfo, "Updated sync file with changes from src");
-	} else
+	else
 		log(srcInfo, "No new src changes, not update sync", true);
 }
 
@@ -219,4 +222,10 @@ bool IniSyncHelper::shouldSync(const QByteArray &group, const QByteArray &key, c
 void IniSyncHelper::log(const QFileInfo &file, const char *msg, bool dbg) const
 {
 	(dbg ? qDebug() : qInfo()).noquote() << "PATH-SYNC:" << file.absoluteFilePath() << "=>" << msg;
+}
+
+void IniSyncHelper::log(const QFileInfo &file, const char *msg, const QByteArray &cGroup, const QByteArray &key, bool dbg) const
+{
+	(dbg ? qDebug() : qInfo()).noquote() << "PATH-SYNC:" << file.absoluteFilePath()
+										 << "=>" << msg << ('[' + cGroup + '\\' + key + ']');
 }
