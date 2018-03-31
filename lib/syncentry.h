@@ -22,7 +22,7 @@ public:
 		SymlinkMode = 0,
 		CopyMode = 1,
 		IniMode = 2,
-		GConfMode = 3
+		DConfMode = 3
 	};
 	Q_ENUM(PathMode)
 

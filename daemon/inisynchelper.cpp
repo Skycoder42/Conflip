@@ -10,14 +10,14 @@ IniSyncHelper::IniSyncHelper(QObject *parent) :
 void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse)
 {
 	if(mode != SyncEntry::IniMode)
-	   throw SyncException("Unsupported path mode");
+		throw SyncException("Unsupported path mode");
 
 	QFileInfo srcInfo, syncInfo;
 	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("ini"), path);
 
-	QByteArrayList extraBytes;
+	QByteArrayList subKeys;
 	for(auto extra : extras)
-		extraBytes.append(extra.toUtf8());
+		subKeys.append(extra.toUtf8());
 
 	// step 1: read and map the current sync state
 	auto srcIsNewer = isFirstUse ? false : srcInfo.lastModified() > syncInfo.lastModified();
@@ -98,11 +98,12 @@ void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, c
 								srcNeedsSave = true;
 								log(srcInfo, "Updated entry in src from sync", cGroup, key);
 							}
-						}
+						} else
+							log(srcInfo, "Skipping unchanged entry", cGroup, key, true);
 						// remove anyways, has been handeled
 						workMapping[cGroup].remove(key);
 					// check if wanted to be synced
-					} else if(shouldSync(cGroup, key, extraBytes)) {
+					} else if(shouldSync(cGroup, key, subKeys)) {
 						updateMapping[cGroup].insert(key, line);
 						syncNeedsSave = true;
 						log(srcInfo, "Added new entry from src to sync", cGroup, key);
@@ -221,11 +222,11 @@ bool IniSyncHelper::shouldSync(const QByteArray &group, const QByteArray &key, c
 
 void IniSyncHelper::log(const QFileInfo &file, const char *msg, bool dbg) const
 {
-	(dbg ? qDebug() : qInfo()).noquote() << "PATH-SYNC:" << file.absoluteFilePath() << "=>" << msg;
+	(dbg ? qDebug() : qInfo()).noquote() << "INI-SYNC:" << file.absoluteFilePath() << "=>" << msg;
 }
 
 void IniSyncHelper::log(const QFileInfo &file, const char *msg, const QByteArray &cGroup, const QByteArray &key, bool dbg) const
 {
-	(dbg ? qDebug() : qInfo()).noquote() << "PATH-SYNC:" << file.absoluteFilePath()
+	(dbg ? qDebug() : qInfo()).noquote() << "INI-SYNC:" << file.absoluteFilePath()
 										 << "=>" << msg << ('[' + cGroup + '\\' + key + ']');
 }

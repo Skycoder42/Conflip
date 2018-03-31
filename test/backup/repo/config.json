@@ -123,7 +123,27 @@
 				"advanced"
 			],
 			"includeHidden": true,
-			"caseSensitive": true,
+			"caseSensitive": true
+		},
+		
+		
+		
+		{
+			"pathPattern": "/org/gnome/feedreader/",
+			"mode": 3,
+			"extras": [
+				"article",
+				"content-grabber",
+				"drop-articles-after",
+				"feedlist",
+				"max-articles",
+				"mediaplayer",
+				"only-feeds",
+				"sync",
+				"tweaks"
+			],
+			"includeHidden": true,
+			"caseSensitive": true
 		}
 	]
 }

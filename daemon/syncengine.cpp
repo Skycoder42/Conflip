@@ -5,6 +5,7 @@
 #include <chrono>
 #include <settings.h>
 #include "conflipdatabase.h"
+#include "dconfsynchelper.h"
 #include "inisynchelper.h"
 #include "pathsynchelper.h"
 using namespace std::chrono;
@@ -33,6 +34,7 @@ SyncEngine::SyncEngine(QObject *parent) :
 	_helpers.insert(SyncEntry::SymlinkMode, pathHelper);
 	_helpers.insert(SyncEntry::CopyMode, pathHelper);
 	_helpers.insert(SyncEntry::IniMode, new IniSyncHelper(this));
+	_helpers.insert(SyncEntry::DConfMode, new DConfSyncHelper(this));
 }
 
 int SyncEngine::start()
@@ -99,7 +101,6 @@ void SyncEngine::triggerSync()
 				} catch(SyncException &e) {
 					qCritical() << "ERROR:" << path
 								<< "=>" << e.what();
-					return; //DEBUG remove
 					continue;
 				}
 				// if sync successful and not first used yet -> mark first used
@@ -119,7 +120,7 @@ void SyncEngine::triggerSync()
 
 			_serializer->serializeTo(&writeFile, database);
 			_skipNextUpdate = true;
-			writeFile.commit();
+			writeFile.commit(); //TODO print error
 		}
 	} catch (QJsonSerializerException &e) {
 		qCritical() << "Failed to parse" << readFile.fileName()

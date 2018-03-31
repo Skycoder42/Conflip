@@ -9,6 +9,21 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 
+	if(false) { //TODO implement
+		qSetMessagePattern(QStringLiteral("%{if-fatal}<0>%{endif}"
+										  "%{if-critical}<2>%{endif}"
+										  "%{if-warning}<4>%{endif}"
+										  "%{if-info}<6>%{endif}"
+										  "%{if-debug}<7>%{endif}"
+										  "%{if-category}%{category}: %{endif}"
+										  "%{message}"));
+	} else {
+		qSetMessagePattern(QStringLiteral("[%{time} %{type}]\t"
+										  "%{if-category}%{category}: %{endif}"
+										  "%{message}"));
+	}
+
+
 	SyncEngine engine;
 	auto res = engine.start();
 	if(res == EXIT_SUCCESS)

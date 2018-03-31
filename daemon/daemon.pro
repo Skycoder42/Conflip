@@ -11,10 +11,12 @@ TARGET = conflipd
 SOURCES += \
 		main.cpp \
 	syncengine.cpp \
-    pathresolver.cpp \
-    pathsynchelper.cpp \
-    synchelper.cpp \
-    inisynchelper.cpp
+	pathresolver.cpp \
+	pathsynchelper.cpp \
+	synchelper.cpp \
+	inisynchelper.cpp \
+    dconfsynchelper.cpp \
+    dconfaccess.cpp
 
 DISTFILES += \
 	conflip.service.in
@@ -35,6 +37,9 @@ linux {
 }
 
 # libs
+CONFIG += link_pkgconfig
+PKGCONFIG += dconf
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lib/release/ -lconflip
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lib/debug/ -lconflip
 else:unix: LIBS += -L$$OUT_PWD/../lib/ -lconflip
@@ -44,7 +49,9 @@ DEPENDPATH += $$PWD/../lib
 
 HEADERS += \
 	syncengine.h \
-    pathresolver.h \
-    pathsynchelper.h \
-    synchelper.h \
-    inisynchelper.h
+	pathresolver.h \
+	pathsynchelper.h \
+	synchelper.h \
+	inisynchelper.h \
+    dconfsynchelper.h \
+    dconfaccess.h
