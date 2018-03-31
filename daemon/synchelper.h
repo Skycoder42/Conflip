@@ -2,6 +2,7 @@
 #define SYNCHELPER_H
 
 #include <QDir>
+#include <QFileInfo>
 #include <QException>
 #include <QObject>
 #include "syncentry.h"
@@ -13,12 +14,11 @@ public:
 
 	void setSyncDir(const QDir &dir);
 
-	virtual void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras) = 0;
+	virtual void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse) = 0;
 
 protected:
 	QDir syncDir() const;
-	bool isFirstUse(const QString &path) const;
-	void markFirstUsed(const QString &path);
+	std::tuple<QFileInfo, QFileInfo> generatePaths(const QString &prefix, const QString &path) const;
 
 private:
 	QDir _syncDir;

@@ -6,14 +6,20 @@ bool SyncEntry::operator==(const SyncEntry &other) const
 {
 	return pathPattern == other.pathPattern &&
 			extras == other.extras &&
-			mode == other.mode;
+			mode == other.mode &&
+			includeHidden == other.includeHidden &&
+			caseSensitive == other.caseSensitive &&
+			syncedMachines == other.syncedMachines;
 }
 
 bool SyncEntry::operator!=(const SyncEntry &other) const
 {
 	return pathPattern != other.pathPattern ||
 			extras != other.extras ||
-			mode != other.mode;
+			mode != other.mode ||
+			includeHidden != other.includeHidden ||
+			caseSensitive != other.caseSensitive ||
+			syncedMachines != other.syncedMachines;
 }
 
 QDebug operator<<(QDebug debug, const SyncEntry &entry)

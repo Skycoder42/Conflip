@@ -14,13 +14,13 @@ class PathSyncHelper : public QObject, public SyncHelper
 public:
 	explicit PathSyncHelper(QObject *parent = nullptr);
 
-	void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras) override;
+	void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse) override;
 
 private:
 	mutable QCache<QString, QRegularExpression> _regexCache;
 
-	void syncAsSymlink(const QFileInfo &src, const QFileInfo &sync);
-	void syncAsCopy(const QFileInfo &src, const QFileInfo &sync);
+	void syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse);
+	void syncAsCopy(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse);
 
 	QByteArray hashFile(const QFileInfo &file) const;
 	void log(const QFileInfo &file, const char *msg, bool dbg = false) const;

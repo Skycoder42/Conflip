@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QUuid>
 class QDebug;
 
 class SyncEntry
@@ -14,13 +15,14 @@ class SyncEntry
 	Q_PROPERTY(PathMode mode MEMBER mode)
 	Q_PROPERTY(bool	includeHidden MEMBER includeHidden)
 	Q_PROPERTY(bool	caseSensitive MEMBER caseSensitive)
+	Q_PROPERTY(QList<QUuid> syncedMachines MEMBER syncedMachines)
 
 public:
 	enum PathMode {
-		SymlinkMode,
-		CopyMode,
-		QSettingsMode,
-		GConfMode
+		SymlinkMode = 0,
+		CopyMode = 1,
+		IniMode = 2,
+		GConfMode = 3
 	};
 	Q_ENUM(PathMode)
 
@@ -29,6 +31,7 @@ public:
 	PathMode mode = SymlinkMode;
 	bool includeHidden = true;
 	bool caseSensitive = true;
+	QList<QUuid> syncedMachines;
 
 	bool operator==(const SyncEntry &other) const;
 	bool operator!=(const SyncEntry &other) const;

@@ -13,7 +13,8 @@ SOURCES += \
 	syncengine.cpp \
     pathresolver.cpp \
     pathsynchelper.cpp \
-    synchelper.cpp
+    synchelper.cpp \
+    inisynchelper.cpp
 
 DISTFILES += \
 	conflip.service.in
@@ -45,4 +46,5 @@ HEADERS += \
 	syncengine.h \
     pathresolver.h \
     pathsynchelper.h \
-    synchelper.h
+    synchelper.h \
+    inisynchelper.h

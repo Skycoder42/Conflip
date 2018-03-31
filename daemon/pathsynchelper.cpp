@@ -1,6 +1,5 @@
 #include "pathsynchelper.h"
 #include <QRegularExpression>
-#include <QStandardPaths>
 #include <QDebug>
 #include <QDateTime>
 #include <QCryptographicHash>
@@ -10,7 +9,7 @@ PathSyncHelper::PathSyncHelper(QObject *parent) :
 	_regexCache(100000)
 {}
 
-void PathSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras)
+void PathSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse)
 {
 	for(auto extra : extras) {
 		auto regex = _regexCache.object(extra);
@@ -25,43 +24,22 @@ void PathSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, 
 			return;
 	}
 
-	const static auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-	auto basePath = QFileInfo(path).dir().absolutePath();
-	auto targetDir = syncDir();
-	if(basePath.startsWith(home))
-		basePath = QStringLiteral("user/") + QDir(home).relativeFilePath(basePath);
-	else
-		basePath = QStringLiteral("system/") + basePath;
-	targetDir = QDir::cleanPath(targetDir.absoluteFilePath(basePath));
-
-	QFileInfo srcInfo(path);
-	srcInfo.setCaching(false);
-	QFileInfo syncInfo(targetDir.absoluteFilePath(srcInfo.fileName()));
-	syncInfo.setCaching(false);
-
-	//create parent dirs
-	if(!srcInfo.dir().exists()) {
-		if(!srcInfo.dir().mkpath(QStringLiteral(".")))
-			throw SyncException("Failed to create source directory");
-	}
-	if(!syncInfo.dir().exists()) {
-		if(!syncInfo.dir().mkpath(QStringLiteral(".")))
-			throw SyncException("Failed to create sync directory");
-	}
+	QFileInfo srcInfo, syncInfo;
+	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("files"), path);
 
 	switch(mode) {
 	case SyncEntry::SymlinkMode:
-		syncAsSymlink(srcInfo, syncInfo);
+		syncAsSymlink(srcInfo, syncInfo, isFirstUse);
 		break;
 	case SyncEntry::CopyMode:
-		syncAsCopy(srcInfo, syncInfo);
+		syncAsCopy(srcInfo, syncInfo, isFirstUse);
 		break;
 	default:
 		throw SyncException("Unsupported path mode");
 	}
 }
 
-void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync)
+void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)
 {
 	// if syncfile does not exist - create it
 	if(!sync.exists()) {
@@ -84,7 +62,6 @@ void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync)
 		//verify it points to dst
 		if(src.symLinkTarget() == sync.absoluteFilePath()) {
 			log(src, "Symlink is intact", true);
-			markFirstUsed(src.absoluteFilePath());
 			return; //all ok
 		} else {
 			//assume it's because the sync folder change it's location and replace it
@@ -96,13 +73,13 @@ void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync)
 
 	// check if exists
 	if(src.exists()) {
-		if(isFirstUse(src.absoluteFilePath())) {
+		if(isFirstUse) {
 			if(!QFile::remove(src.absoluteFilePath()))
 				throw SyncException("Failed to remove original file for first sync");
 		} else {
 			qWarning().noquote() << "PATH-SYNC:" << src.absoluteFilePath()
 								 << "=> Symlink sync conflict - switching over to copy mode";
-			syncAsCopy(src, sync);
+			syncAsCopy(src, sync, false); //assume no first use -> copy modified src
 			throw NotASymlinkException();
 		}
 	}
@@ -111,10 +88,9 @@ void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync)
 	if(!QFile::link(sync.absoluteFilePath(), src.absoluteFilePath()))
 		throw SyncException("Failed to create symlink");
 	log(src, "Created symlink");
-	markFirstUsed(src.absoluteFilePath());
 }
 
-void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync)
+void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)
 {
 	// if syncfile does not exist - create it
 	if(!sync.exists()) {
@@ -124,19 +100,17 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync)
 		if(!QFile::copy(src.absoluteFilePath(), sync.absoluteFilePath()))
 			throw SyncException("Failed to copy source to sync");
 		log(src, "Copied source to sync folder");
-		markFirstUsed(src.absoluteFilePath());
 		return;
 	}
 
 	// check if exists
 	if(src.exists()) {
-		if(isFirstUse(src.absoluteFilePath())) {
+		if(isFirstUse) {
 			if(!QFile::remove(src.absoluteFilePath()))
 				throw SyncException("Failed to remove original file for first sync");
 		} else {
 			if(hashFile(src) == hashFile(sync)) {
 				log(src, "Files are the same", true);
-				markFirstUsed(src.absoluteFilePath());
 				return; //files are the same
 			}
 
@@ -148,7 +122,6 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync)
 				if(!QFile::copy(src.absoluteFilePath(), sync.absoluteFilePath()))
 					throw SyncException("Failed to copy src to sync");
 				log(src, "Copied source to sync folder");
-				markFirstUsed(src.absoluteFilePath());
 				return;
 			} else { //delete to enter not exist state
 				if(!QFile::remove(src.absoluteFilePath()))
@@ -161,7 +134,6 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync)
 	if(!QFile::copy(sync.absoluteFilePath(), src.absoluteFilePath()))
 		throw SyncException("Failed to copy sync to src");
 	log(src, "Copied from sync folder to source");
-	markFirstUsed(src.absoluteFilePath());
 }
 
 QByteArray PathSyncHelper::hashFile(const QFileInfo &file) const

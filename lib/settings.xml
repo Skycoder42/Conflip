@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Settings name="Settings" prefix="LIBCONFLIPSHARED_EXPORT">
 	<Include>lib_conflip_global.h</Include>
-	<Include>QSet</Include>
+	<Include>QUuid</Include>
 
 	<Node key="engine">
 		<Entry key="dir" type="QString"/>
 		<Entry key="interval" type="int" default="60"/>
-		<Entry key="knownEntries" type="QSet&lt;QString&gt;"/>
+		<Entry key="machineid" type="QUuid"/>
 	</Node>
 </Settings>

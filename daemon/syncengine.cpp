@@ -5,6 +5,7 @@
 #include <chrono>
 #include <settings.h>
 #include "conflipdatabase.h"
+#include "inisynchelper.h"
 #include "pathsynchelper.h"
 using namespace std::chrono;
 
@@ -20,6 +21,9 @@ SyncEngine::SyncEngine(QObject *parent) :
 	_workingDir(),
 	_skipNextUpdate(false)
 {
+	if(!Settings::instance()->engine.machineid.isSet())
+		Settings::instance()->engine.machineid = QUuid::createUuid();
+
 	connect(_timer, &QTimer::timeout,
 			this, &SyncEngine::triggerSync);
 	connect(_watcher, &QFileSystemWatcher::fileChanged,
@@ -28,6 +32,7 @@ SyncEngine::SyncEngine(QObject *parent) :
 	auto pathHelper = new PathSyncHelper(this);
 	_helpers.insert(SyncEntry::SymlinkMode, pathHelper);
 	_helpers.insert(SyncEntry::CopyMode, pathHelper);
+	_helpers.insert(SyncEntry::IniMode, new IniSyncHelper(this));
 }
 
 int SyncEngine::start()
@@ -84,8 +89,9 @@ void SyncEngine::triggerSync()
 
 			auto paths = _resolver->resolvePath(entry);
 			for(auto path : paths) {
+				auto isFirst = !entry.syncedMachines.contains(Settings::instance()->engine.machineid);
 				try {
-					helper->performSync(path, entry.mode, entry.extras);
+					helper->performSync(path, entry.mode, entry.extras, isFirst);
 				} catch(NotASymlinkException &e) {
 					Q_UNUSED(e)
 					entry.mode = SyncEntry::CopyMode;
@@ -94,6 +100,12 @@ void SyncEngine::triggerSync()
 					qCritical() << "ERROR:" << path
 								<< "=>" << e.what();
 					return; //DEBUG remove
+					continue;
+				}
+				// if sync successful and not first used yet -> mark first used
+				if(isFirst) {
+					entry.syncedMachines.append(Settings::instance()->engine.machineid);
+					changed = true;
 				}
 			}
 		}

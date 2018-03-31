@@ -110,6 +110,20 @@
 			],
 			"includeHidden": true,
 			"caseSensitive": true
+		},
+		
+		
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/ini/test?.*",
+			"mode": 2,
+			"extras": [
+				"general\\key",
+				"general\\users",
+				"advanced"
+			],
+			"includeHidden": true,
+			"caseSensitive": true,
 		}
 	]
 }
