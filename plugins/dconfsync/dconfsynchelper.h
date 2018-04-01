@@ -5,7 +5,7 @@
 #include <QJsonSerializer>
 #include <QObject>
 #include <QSettings>
-#include "synchelper.h"
+#include <synchelper.h>
 
 class DConfEntry
 {
@@ -25,15 +25,17 @@ private:
 	void setType(const QString &value);
 };
 
-class DConfSyncHelper : public QObject, public SyncHelper
+class DConfSyncHelper : public SyncHelper
 {
 	Q_OBJECT
-	Q_INTERFACES(SyncHelper)
 
 public:
+	static const QString ModeDConf;
+
 	explicit DConfSyncHelper(QObject *parent = nullptr);
 
-	void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse) override;
+	bool pathIsPattern(const QString &mode) const override;
+	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
 
 private:
 	using DConfMap = QMap<QByteArray, DConfEntry>;

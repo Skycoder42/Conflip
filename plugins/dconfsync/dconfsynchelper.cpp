@@ -4,16 +4,23 @@
 #include <QSaveFile>
 #include <QStandardPaths>
 
+const QString DConfSyncHelper::ModeDConf = QStringLiteral("dconf");
+
 DConfSyncHelper::DConfSyncHelper(QObject *parent) :
-	QObject(parent),
+	SyncHelper(parent),
 	_serializer(new QJsonSerializer(this))
 {
 	QJsonSerializer::registerAllConverters<DConfEntry>();
 }
 
-void DConfSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse)
+bool DConfSyncHelper::pathIsPattern(const QString &mode) const
 {
-	if(mode != SyncEntry::DConfMode)
+	return false;
+}
+
+void DConfSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
+{
+	if(mode != ModeDConf)
 		throw SyncException("Unsupported path mode");
 	if(!path.startsWith('/') || !path.endsWith('/'))
 		throw SyncException("DConf path must start and end with a /");

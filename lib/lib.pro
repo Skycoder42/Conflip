@@ -11,12 +11,15 @@ HEADERS += \
 	conflip.h \
 	lib_conflip_global.h \
     syncentry.h \
-    conflipdatabase.h
+    conflipdatabase.h \
+    synchelper.h \
+    synchelperplugin.h
 
 SOURCES += \
 	conflip.cpp \
     syncentry.cpp \
-    conflipdatabase.cpp
+    conflipdatabase.cpp \
+    synchelper.cpp
 
 SETTINGS_GENERATORS += \
 	settings.xml

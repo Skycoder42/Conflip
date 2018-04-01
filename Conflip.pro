@@ -2,10 +2,12 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
 	lib \
+	plugins \
 	daemon \
 	gui
 
-daemon.depends += lib
+plugins.depends += lib
+daemon.depends += lib plugins
 gui.depends += lib
 
 DISTFILES += .qmake.conf

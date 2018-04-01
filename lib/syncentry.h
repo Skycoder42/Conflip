@@ -6,29 +6,23 @@
 #include <QUuid>
 class QDebug;
 
-class SyncEntry
+#include "lib_conflip_global.h"
+
+class LIBCONFLIPSHARED_EXPORT SyncEntry
 {
 	Q_GADGET
 
 	Q_PROPERTY(QString pathPattern MEMBER pathPattern)
 	Q_PROPERTY(QStringList extras MEMBER extras)
-	Q_PROPERTY(PathMode mode MEMBER mode)
+	Q_PROPERTY(QString mode MEMBER mode)
 	Q_PROPERTY(bool	includeHidden MEMBER includeHidden)
 	Q_PROPERTY(bool	caseSensitive MEMBER caseSensitive)
 	Q_PROPERTY(QList<QUuid> syncedMachines MEMBER syncedMachines)
 
 public:
-	enum PathMode {
-		SymlinkMode = 0,
-		CopyMode = 1,
-		IniMode = 2,
-		DConfMode = 3
-	};
-	Q_ENUM(PathMode)
-
 	QString pathPattern;
 	QStringList extras;
-	PathMode mode = SymlinkMode;
+	QString mode;
 	bool includeHidden = true;
 	bool caseSensitive = true;
 	QList<QUuid> syncedMachines;
@@ -37,6 +31,6 @@ public:
 	bool operator!=(const SyncEntry &other) const;
 };
 
-QDebug operator<<(QDebug debug, const SyncEntry &entry);
+LIBCONFLIPSHARED_EXPORT QDebug operator<<(QDebug debug, const SyncEntry &entry);
 
 #endif // SYNCENTRY_H

@@ -3,13 +3,20 @@
 #include <QDateTime>
 #include <QSaveFile>
 
+const QString IniSyncHelper::ModeIni = QStringLiteral("ini");
+
 IniSyncHelper::IniSyncHelper(QObject *parent) :
-	QObject(parent)
+	SyncHelper(parent)
 {}
 
-void IniSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse)
+bool IniSyncHelper::pathIsPattern(const QString &mode) const
 {
-	if(mode != SyncEntry::IniMode)
+	return true;
+}
+
+void IniSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
+{
+	if(mode != ModeIni)
 		throw SyncException("Unsupported path mode");
 
 	QFileInfo srcInfo, syncInfo;

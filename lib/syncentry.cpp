@@ -25,13 +25,12 @@ bool SyncEntry::operator!=(const SyncEntry &other) const
 QDebug operator<<(QDebug debug, const SyncEntry &entry)
 {
 	QDebugStateSaver state(debug);
-	QByteArray modeStr = QMetaEnum::fromType<SyncEntry::PathMode>().valueToKey(entry.mode);
 	if(entry.extras.isEmpty()) {
 		debug.noquote().nospace() << entry.pathPattern
-								  << ":" << modeStr;
+								  << ":" << entry.mode;
 	} else {
 		debug.noquote().nospace() << entry.pathPattern
-								  << ":" << modeStr
+								  << ":" << entry.mode
 								  << "->[" << entry.extras.join(QStringLiteral(", ")) << "]";
 	}
 	return debug;

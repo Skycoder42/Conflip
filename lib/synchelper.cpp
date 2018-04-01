@@ -1,7 +1,9 @@
 #include "synchelper.h"
 #include <QStandardPaths>
 
-SyncHelper::~SyncHelper() = default;
+SyncHelper::SyncHelper(QObject *parent) :
+	QObject(parent)
+{}
 
 void SyncHelper::setSyncDir(const QDir &dir)
 {

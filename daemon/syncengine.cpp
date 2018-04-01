@@ -3,12 +3,14 @@
 #include <QDebug>
 #include <QSaveFile>
 #include <chrono>
+#include <qpluginfactory.h>
+#include <conflipdatabase.h>
 #include <settings.h>
-#include "conflipdatabase.h"
-#include "dconfsynchelper.h"
-#include "inisynchelper.h"
-#include "pathsynchelper.h"
+#include "synchelperplugin.h"
+
 using namespace std::chrono;
+
+Q_GLOBAL_PLUGIN_OBJECT_FACTORY(SyncHelperPlugin, SyncHelper, "conflip", helperFactory)
 
 const QString SyncEngine::ConfigFileName(QStringLiteral("config.json"));
 
@@ -29,12 +31,6 @@ SyncEngine::SyncEngine(QObject *parent) :
 			this, &SyncEngine::triggerSync);
 	connect(_watcher, &QFileSystemWatcher::fileChanged,
 			this, &SyncEngine::triggerSync);
-
-	auto pathHelper = new PathSyncHelper(this);
-	_helpers.insert(SyncEntry::SymlinkMode, pathHelper);
-	_helpers.insert(SyncEntry::CopyMode, pathHelper);
-	_helpers.insert(SyncEntry::IniMode, new IniSyncHelper(this));
-	_helpers.insert(SyncEntry::DConfMode, new DConfSyncHelper(this));
 }
 
 int SyncEngine::start()
@@ -86,17 +82,21 @@ void SyncEngine::triggerSync()
 		auto changed = false;
 
 		for(auto &entry : database.entries) {
-			auto helper = _helpers.value(entry.mode);
+			auto helper = getHelper(entry.mode);
 			Q_ASSERT_X(helper, Q_FUNC_INFO, "No helper defined for entry mode");
 
-			auto paths = _resolver->resolvePath(entry);
+			QStringList paths;
+			if(helper->pathIsPattern(entry.mode))
+				paths = _resolver->resolvePath(entry);
+			else
+				paths = QStringList { entry.pathPattern };
 			for(auto path : paths) {
 				auto isFirst = !entry.syncedMachines.contains(Settings::instance()->engine.machineid);
 				try {
 					helper->performSync(path, entry.mode, entry.extras, isFirst);
 				} catch(NotASymlinkException &e) {
 					Q_UNUSED(e)
-					entry.mode = SyncEntry::CopyMode;
+					entry.mode = QStringLiteral("copy"); //TODO meh
 					changed = true;
 				} catch(SyncException &e) {
 					qCritical() << "ERROR:" << path
@@ -127,4 +127,25 @@ void SyncEngine::triggerSync()
 					<< "with error:\n" << e.what();
 		return;
 	}
+}
+
+SyncHelper *SyncEngine::getHelper(const QString &type)
+{
+	auto helper = _helpers.value(type);
+	if(!helper) {
+		try {
+			helper = helperFactory->createInstance(type, this);
+			if(!helper) {
+				qCritical() << "No plugin found to load helper of type" << type;
+				return nullptr;
+			}
+			helper->setSyncDir(_workingDir);
+			_helpers.insert(type, helper);
+		} catch(QPluginLoadException &e) {
+			qCritical() << "Failed to load plugin for type" << type
+						<< "with error:" << e.what();
+			return nullptr;
+		}
+	}
+	return helper;
 }

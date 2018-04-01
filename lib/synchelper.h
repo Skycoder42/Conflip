@@ -6,15 +6,17 @@
 #include <QException>
 #include <QObject>
 #include "syncentry.h"
+#include "lib_conflip_global.h"
 
-class SyncHelper
+class LIBCONFLIPSHARED_EXPORT SyncHelper : public QObject
 {
 public:
-	virtual ~SyncHelper();
+	SyncHelper(QObject *parent = nullptr);
 
 	void setSyncDir(const QDir &dir);
 
-	virtual void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse) = 0;
+	virtual bool pathIsPattern(const QString &mode) const = 0;
+	virtual void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) = 0;
 
 protected:
 	QDir syncDir() const;
@@ -24,7 +26,7 @@ private:
 	QDir _syncDir;
 };
 
-class SyncException : public QException
+class LIBCONFLIPSHARED_EXPORT SyncException : public QException
 {
 public:
 	SyncException(QByteArray what);
@@ -37,7 +39,6 @@ private:
 	const QByteArray _what;
 };
 
-#define SyncHelperIid "de.skycoder42.conflip.SyncHelper"
-Q_DECLARE_INTERFACE(SyncHelper, SyncHelperIid)
+class NotASymlinkException {}; //TODO find better way to do that
 
 #endif // SYNCHELPER_H

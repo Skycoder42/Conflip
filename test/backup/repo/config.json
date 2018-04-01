@@ -2,14 +2,14 @@
 	"entries": [
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/symlink_file.txt",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_file.txt",
-			"mode": 1,
+			"mode": "copy",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": true
@@ -17,14 +17,14 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/symlink_file_sensitive.txt",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": false
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_file_sensitive.txt",
-			"mode": 1,
+			"mode": "copy",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": false
@@ -32,14 +32,14 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/symlink_pattern_*.txt",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_pattern_*.txt",
-			"mode": 1,
+			"mode": "copy",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": true
@@ -49,7 +49,7 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/basic_symlink",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
 			"caseSensitive": true
@@ -57,14 +57,14 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/hidden_symlink/*",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [],
 			"includeHidden": false,
 			"caseSensitive": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/hidden_copy/*",
-			"mode": 1,
+			"mode": "copy",
 			"extras": [],
 			"includeHidden": false,
 			"caseSensitive": true
@@ -72,7 +72,7 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/pattern_symlink/*/subdir/*.txt",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [
 				"special/subdir",
 				".*\\.x\\.txt$"
@@ -82,7 +82,7 @@
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/pattern_copy/*/subdir/*.txt",
-			"mode": 1,
+			"mode": "copy",
 			"extras": [
 				"subdir/file2.txt",
 				".*\\.x\\.txt$"
@@ -93,7 +93,7 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/recurse_symlink/**/*.txt",
-			"mode": 0,
+			"mode": "symlink",
 			"extras": [
 				"exclude_absolute",
 				"exclude_pattern_\\d+"
@@ -103,7 +103,7 @@
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/recurse_copy/**/*.txt",
-			"mode": 1,
+			"mode": "copy",
 			"extras": [
 				"exclude_absolute",
 				"exclude_pattern_\\d+"
@@ -116,7 +116,7 @@
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/ini/test?.*",
-			"mode": 2,
+			"mode": "ini",
 			"extras": [
 				"general\\key",
 				"general\\users",
@@ -130,7 +130,7 @@
 		
 		{
 			"pathPattern": "/org/gnome/feedreader/",
-			"mode": 3,
+			"mode": "dconf",
 			"extras": [
 				"article",
 				"content-grabber",

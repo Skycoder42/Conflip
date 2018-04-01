@@ -4,12 +4,20 @@
 #include <QDateTime>
 #include <QCryptographicHash>
 
+const QString PathSyncHelper::ModeSymlink = QStringLiteral("symlink");
+const QString PathSyncHelper::ModeCopy = QStringLiteral("copy");
+
 PathSyncHelper::PathSyncHelper(QObject *parent) :
-	QObject(parent),
+	SyncHelper(parent),
 	_regexCache(100000)
 {}
 
-void PathSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse)
+bool PathSyncHelper::pathIsPattern(const QString &mode) const
+{
+	return true;
+}
+
+void PathSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
 {
 	for(auto extra : extras) {
 		auto regex = _regexCache.object(extra);
@@ -27,16 +35,12 @@ void PathSyncHelper::performSync(const QString &path, SyncEntry::PathMode mode, 
 	QFileInfo srcInfo, syncInfo;
 	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("files"), path);
 
-	switch(mode) {
-	case SyncEntry::SymlinkMode:
+	if(mode == ModeSymlink)
 		syncAsSymlink(srcInfo, syncInfo, isFirstUse);
-		break;
-	case SyncEntry::CopyMode:
+	else if(mode == ModeCopy)
 		syncAsCopy(srcInfo, syncInfo, isFirstUse);
-		break;
-	default:
+	else
 		throw SyncException("Unsupported path mode");
-	}
 }
 
 void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)

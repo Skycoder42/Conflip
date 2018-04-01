@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 
+	//TODO support slicing via parameter
 	if(false) { //TODO implement
 		qSetMessagePattern(QStringLiteral("%{if-fatal}<0>%{endif}"
 										  "%{if-critical}<2>%{endif}"

@@ -4,8 +4,9 @@
 #include <QObject>
 #include <QList>
 #include "syncentry.h"
+#include "lib_conflip_global.h"
 
-class ConflipDatabase
+class LIBCONFLIPSHARED_EXPORT ConflipDatabase
 {
 	Q_GADGET
 

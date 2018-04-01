@@ -6,9 +6,9 @@
 #include <QFileSystemWatcher>
 #include <QJsonSerializer>
 #include <QDir>
+#include <synchelper.h>
 
 #include "pathresolver.h"
-#include "synchelper.h"
 
 class SyncEngine : public QObject
 {
@@ -30,10 +30,12 @@ private:
 	QJsonSerializer *_serializer;
 	PathResolver *_resolver;
 
-	QHash<SyncEntry::PathMode, SyncHelper*> _helpers;
+	QHash<QString, SyncHelper*> _helpers;
 
 	QDir _workingDir;
 	bool _skipNextUpdate;
+
+	SyncHelper *getHelper(const QString &type);
 };
 
 #endif // SYNCENGINE_H

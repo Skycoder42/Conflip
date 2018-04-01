@@ -9,9 +9,6 @@ PathResolver::PathResolver(QObject *parent) :
 
 QStringList PathResolver::resolvePath(const SyncEntry &entry) const
 {
-	if(entry.mode == SyncEntry::DConfMode)
-		return {entry.pathPattern};
-
 	auto pathList = entry.pathPattern.split(QLatin1Char('/'), QString::SkipEmptyParts);
 	_scanHidden = entry.includeHidden;
 	auto cd = createDir(QStringLiteral("/"));

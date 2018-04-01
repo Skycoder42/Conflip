@@ -4,17 +4,20 @@
 #include <QCache>
 #include <QObject>
 #include <QRegularExpression>
-#include "synchelper.h"
+#include <synchelper.h>
 
-class PathSyncHelper : public QObject, public SyncHelper
+class PathSyncHelper : public SyncHelper
 {
 	Q_OBJECT
-	Q_INTERFACES(SyncHelper)
 
 public:
+	static const QString ModeSymlink;
+	static const QString ModeCopy;
+
 	explicit PathSyncHelper(QObject *parent = nullptr);
 
-	void performSync(const QString &path, SyncEntry::PathMode mode, const QStringList &extras, bool isFirstUse) override;
+	bool pathIsPattern(const QString &mode) const override;
+	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
 
 private:
 	mutable QCache<QString, QRegularExpression> _regexCache;
@@ -25,7 +28,5 @@ private:
 	QByteArray hashFile(const QFileInfo &file) const;
 	void log(const QFileInfo &file, const char *msg, bool dbg = false) const;
 };
-
-class NotASymlinkException {};
 
 #endif // PATHSYNCHELPER_H

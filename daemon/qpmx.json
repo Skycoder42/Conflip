@@ -1,9 +1,9 @@
 {
     "dependencies": [
         {
-            "package": "de.skycoder42.qpathedit",
+            "package": "de.skycoder42.qpluginfactory",
             "provider": "qpm",
-            "version": "2.2.0"
+            "version": "1.2.3"
         }
     ],
     "license": {
