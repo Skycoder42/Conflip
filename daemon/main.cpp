@@ -1,4 +1,5 @@
 #include <QCoreApplication>
+#include <QCommandLineParser>
 #include "syncengine.h"
 
 int main(int argc, char *argv[])
@@ -9,8 +10,26 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName(QStringLiteral(COMPANY));
 	QCoreApplication::setOrganizationDomain(QStringLiteral(BUNDLE));
 
-	//TODO support slicing via parameter
-	if(false) { //TODO implement
+	QCommandLineParser parser;
+	parser.setApplicationDescription(QStringLiteral("The daemon to perform configuration synchronisations"));
+
+	parser.addHelpOption();
+	parser.addVersionOption();
+	parser.addOption({
+						 QStringLiteral("systemd-log"),
+						 QStringLiteral("Log in a format that systemd can easily interpret without redundant information")
+					 });
+	parser.addOption({
+						 {QStringLiteral("s"), QStringLiteral("slice")},
+						 QStringLiteral("Run in slice mode. The instance will use it's own settings based on the <slice> passed."),
+						 QStringLiteral("slice")
+					 });
+	parser.process(a);
+
+	if(parser.isSet(QStringLiteral("slice")))
+		QCoreApplication::setApplicationName(QStringLiteral("conflip@%1").arg(parser.value(QStringLiteral("slice"))));
+
+	if(parser.isSet(QStringLiteral("systemd-log"))) {
 		qSetMessagePattern(QStringLiteral("%{if-fatal}<0>%{endif}"
 										  "%{if-critical}<2>%{endif}"
 										  "%{if-warning}<4>%{endif}"

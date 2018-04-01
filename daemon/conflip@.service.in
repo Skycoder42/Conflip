@@ -3,7 +3,7 @@ Description=Conflip Daemon
 
 [Service]
 Type=simple
-ExecStart=%{INSTALL_BINS}/conflipd --systemd-log
+ExecStart=%{INSTALL_BINS}/conflipd --systemd-log --slice %I
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-abnormal
 

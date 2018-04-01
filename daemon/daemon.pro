@@ -18,7 +18,8 @@ SOURCES += \
 	pathresolver.cpp
 
 DISTFILES += \
-	conflip.service.in
+	conflip.service.in \
+	conflip@.service.in
 
 # install
 linux {
@@ -27,10 +28,14 @@ linux {
 	create_service.depends += $$PWD/conflip.service.in
 	create_service.commands += sed "s:%{INSTALL_BINS}:$$INSTALL_BINS:g" $$PWD/conflip.service.in > conflip.service
 
-	QMAKE_EXTRA_TARGETS += create_service
-	PRE_TARGETDEPS += conflip.service
+	create_service_slice.target = conflip@.service
+	create_service_slice.depends += $$PWD/conflip@.service.in
+	create_service_slice.commands += sed "s:%{INSTALL_BINS}:$$INSTALL_BINS:g" $$PWD/conflip@.service.in > conflip@.service
 
-	install_service.files += $$OUT_PWD/conflip.service
+	QMAKE_EXTRA_TARGETS += create_service create_service_slice
+	PRE_TARGETDEPS += conflip.service conflip@.service
+
+	install_service.files += $$OUT_PWD/conflip.service $$OUT_PWD/conflip@.service
 	install_service.CONFIG += no_check_exist
 	install_service.path = $$INSTALL_LIBS/systemd/user/
 	INSTALLS += install_service

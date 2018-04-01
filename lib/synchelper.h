@@ -39,6 +39,6 @@ private:
 	const QByteArray _what;
 };
 
-class NotASymlinkException {}; //TODO find better way to do that
+class NotASymlinkException {};
 
 #endif // SYNCHELPER_H

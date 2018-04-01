@@ -96,7 +96,7 @@ void SyncEngine::triggerSync()
 					helper->performSync(path, entry.mode, entry.extras, isFirst);
 				} catch(NotASymlinkException &e) {
 					Q_UNUSED(e)
-					entry.mode = QStringLiteral("copy"); //TODO meh
+					entry.mode = QStringLiteral("copy");
 					changed = true;
 				} catch(SyncException &e) {
 					qCritical() << "ERROR:" << path
@@ -120,7 +120,10 @@ void SyncEngine::triggerSync()
 
 			_serializer->serializeTo(&writeFile, database);
 			_skipNextUpdate = true;
-			writeFile.commit(); //TODO print error
+			if(!writeFile.commit()) {
+				qCritical() << "Failed to update file" << writeFile.fileName()
+							<< "with error:" << qUtf8Printable(writeFile.errorString());
+			}
 		}
 	} catch (QJsonSerializerException &e) {
 		qCritical() << "Failed to parse" << readFile.fileName()
