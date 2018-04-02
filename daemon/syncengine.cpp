@@ -81,35 +81,10 @@ void SyncEngine::triggerSync()
 		readFile.close();
 		auto changed = false;
 
-		for(auto &entry : database.entries) {
-			auto helper = getHelper(entry.mode);
-			Q_ASSERT_X(helper, Q_FUNC_INFO, "No helper defined for entry mode");
-
-			QStringList paths;
-			if(helper->pathIsPattern(entry.mode))
-				paths = _resolver->resolvePath(entry);
-			else
-				paths = QStringList { entry.pathPattern };
-			for(auto path : paths) {
-				auto isFirst = !entry.syncedMachines.contains(Settings::instance()->engine.machineid);
-				try {
-					helper->performSync(path, entry.mode, entry.extras, isFirst);
-				} catch(NotASymlinkException &e) {
-					Q_UNUSED(e)
-					entry.mode = QStringLiteral("copy");
-					changed = true;
-				} catch(SyncException &e) {
-					qCritical() << "ERROR:" << path
-								<< "=>" << e.what();
-					continue;
-				}
-				// if sync successful and not first used yet -> mark first used
-				if(isFirst) {
-					entry.syncedMachines.append(Settings::instance()->engine.machineid);
-					changed = true;
-				}
-			}
-		}
+		// synchronize entries
+		syncEntries(database.entries, changed);
+		//unsync
+		removeUnsynced(database.unsynced, changed);
 
 		if(changed) {
 			QSaveFile writeFile(readFile.fileName());
@@ -151,4 +126,71 @@ SyncHelper *SyncEngine::getHelper(const QString &type)
 		}
 	}
 	return helper;
+}
+
+void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
+{
+	for(auto &entry : entries) {
+		auto helper = getHelper(entry.mode);
+		Q_ASSERT_X(helper, Q_FUNC_INFO, "No helper defined for entry mode");
+
+		QStringList paths;
+		if(helper->pathIsPattern(entry.mode))
+			paths = _resolver->resolvePath(entry);
+		else
+			paths = QStringList { entry.pathPattern };
+		for(auto path : paths) {
+			auto isFirst = !entry.syncedMachines.contains(Settings::instance()->engine.machineid);
+			try {
+				helper->performSync(path, entry.mode, entry.extras, isFirst);
+			} catch(NotASymlinkException &e) {
+				Q_UNUSED(e)
+				entry.mode = QStringLiteral("copy");
+				changed = true;
+			} catch(SyncException &e) {
+				qCritical() << "ERROR:" << path
+							<< "=>" << e.what();
+				continue;
+			}
+			// if sync successful and not first used yet -> mark first used
+			if(isFirst) {
+				entry.syncedMachines.append(Settings::instance()->engine.machineid);
+				changed = true;
+			}
+		}
+	}
+}
+
+void SyncEngine::removeUnsynced(QList<SyncEntry> &entries, bool &changed)
+{
+	for(auto it = entries.begin(); it != entries.end();) {
+		if(!it->syncedMachines.contains(Settings::instance()->engine.machineid))
+			continue;
+
+		auto helper = getHelper(it->mode);
+		Q_ASSERT_X(helper, Q_FUNC_INFO, "No helper defined for entry mode");
+
+		QStringList paths;
+		if(helper->pathIsPattern(it->mode))
+			paths = _resolver->resolvePath(*it);
+		else
+			paths = QStringList { it->pathPattern };
+		for(auto path : paths) {
+			try {
+				helper->undoSync(path, it->mode);
+			} catch(SyncException &e) {
+				qCritical() << "ERROR:" << path
+							<< "=>" << e.what();
+				return;
+				continue;
+			}
+		}
+
+		it->syncedMachines.removeAll(Settings::instance()->engine.machineid);
+		if(it->syncedMachines.isEmpty())
+			it = entries.erase(it);
+		else
+			it++;
+		changed = true;
+	}
 }

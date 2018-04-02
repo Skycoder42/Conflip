@@ -17,10 +17,12 @@ public:
 
 	virtual bool pathIsPattern(const QString &mode) const = 0;
 	virtual void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) = 0;
+	virtual void undoSync(const QString &path, const QString &mode) = 0;
 
 protected:
 	QDir syncDir() const;
 	std::tuple<QFileInfo, QFileInfo> generatePaths(const QString &prefix, const QString &path) const;
+	void removeSyncPath(const QString &prefix, const QString &path, const QByteArray &logPrefix);
 
 private:
 	QDir _syncDir;

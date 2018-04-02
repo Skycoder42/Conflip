@@ -11,9 +11,11 @@ class LIBCONFLIPSHARED_EXPORT ConflipDatabase
 	Q_GADGET
 
 	Q_PROPERTY(QList<SyncEntry> entries MEMBER entries)
+	Q_PROPERTY(QList<SyncEntry> unsynced MEMBER unsynced)
 
 public:
 	QList<SyncEntry> entries;
+	QList<SyncEntry> unsynced;
 };
 
 #endif // CONFLIPDATABASE_H

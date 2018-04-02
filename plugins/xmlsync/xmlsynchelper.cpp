@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QSaveFile>
 
-const QString XmlSyncHelper::XmlMode = QStringLiteral("xml");
+const QString XmlSyncHelper::ModeXml = QStringLiteral("xml");
 
 XmlSyncHelper::XmlSyncHelper(QObject *parent) :
 	SyncHelper(parent)
@@ -17,7 +17,7 @@ bool XmlSyncHelper::pathIsPattern(const QString &mode) const
 
 void XmlSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
 {
-	if(mode != XmlMode)
+	if(mode != ModeXml)
 		throw SyncException("Unsupported path mode");
 
 	QFileInfo srcInfo, syncInfo;
@@ -140,6 +140,13 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 		saveDocument(srcInfo, srcDoc);
 	if(syncNeedsUpdate)
 		saveDocument(syncInfo, syncDoc);
+}
+
+void XmlSyncHelper::undoSync(const QString &path, const QString &mode)
+{
+	if(mode != ModeXml)
+		throw SyncException("Unsupported path mode");
+	removeSyncPath(QStringLiteral("xml"), path, "XML-SYNC");
 }
 
 void XmlSyncHelper::updateText(QDomElement srcElement, QDomElement syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)

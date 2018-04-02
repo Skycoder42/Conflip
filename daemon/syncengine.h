@@ -36,6 +36,8 @@ private:
 	bool _skipNextUpdate;
 
 	SyncHelper *getHelper(const QString &type);
+	void syncEntries(QList<SyncEntry> &entries, bool &changed);
+	void removeUnsynced(QList<SyncEntry> &entries, bool &changed);
 };
 
 #endif // SYNCENGINE_H

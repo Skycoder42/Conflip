@@ -155,6 +155,13 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 		log(srcInfo, "No new src changes, not update sync", true);
 }
 
+void IniSyncHelper::undoSync(const QString &path, const QString &mode)
+{
+	if(mode != ModeIni)
+		throw SyncException("Unsupported path mode");
+	removeSyncPath(QStringLiteral("ini"), path, "INI-SYNC");
+}
+
 IniSyncHelper::IniEntryMapping IniSyncHelper::createMapping(const QFileInfo &file) const
 {
 	if(!file.exists())

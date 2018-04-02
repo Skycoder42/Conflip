@@ -107,6 +107,19 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 		log(path, "No new src changes, not update sync", true);
 }
 
+void DConfSyncHelper::undoSync(const QString &path, const QString &mode)
+{
+	if(mode != ModeDConf)
+		throw SyncException("Unsupported path mode");
+	QString cnfPath = QStringLiteral("dconf") + path + QStringLiteral("dconf.json");
+	QFileInfo syncInfo(QDir::cleanPath(syncDir().absoluteFilePath(cnfPath)));
+	if(syncInfo.exists()) {
+		if(!QFile::remove(syncInfo.absoluteFilePath()))
+			throw SyncException("Failed to remove synced file");
+		log(path, "Removed file from synchronisation");
+	}
+}
+
 QSharedPointer<QSettings> DConfSyncHelper::loadSettings(const QString &path)
 {
 	QDir cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);

@@ -7,7 +7,7 @@ XmlSyncHelperPlugin::XmlSyncHelperPlugin(QObject *parent) :
 
 SyncHelper *XmlSyncHelperPlugin::createInstance(const QString &provider, QObject *parent)
 {
-	if(provider == XmlSyncHelper::XmlMode)
+	if(provider == XmlSyncHelper::ModeXml)
 		return new XmlSyncHelper(parent);
 	else
 		return nullptr;

@@ -44,6 +44,18 @@ void PathSyncHelper::performSync(const QString &path, const QString &mode, const
 		throw SyncException("Unsupported path mode");
 }
 
+void PathSyncHelper::undoSync(const QString &path, const QString &mode)
+{
+	if(mode == ModeSymlink) {
+		QFileInfo srcInfo, syncInfo;
+		std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("files"), path);
+		unlink(srcInfo, syncInfo);
+	} else if(mode == ModeCopy)
+		removeSyncPath(QStringLiteral("files"), path, "PATH-SYNC");
+	else
+		throw SyncException("Unsupported path mode");
+}
+
 void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)
 {
 	// if syncfile does not exist - create it
@@ -139,6 +151,30 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync, boo
 	if(!QFile::copy(sync.absoluteFilePath(), src.absoluteFilePath()))
 		throw SyncException("Failed to copy sync to src");
 	log(src, "Copied from sync folder to source");
+}
+
+void PathSyncHelper::unlink(const QFileInfo &src, const QFileInfo &sync)
+{
+	//only do if valid symlink
+	if(!src.isSymLink())
+		return;
+	if(src.symLinkTarget() != sync.absoluteFilePath())
+		return;
+
+	if(!QFile::remove(src.absoluteFilePath()))
+		throw SyncException("Failed to remove old symlink");
+
+	if(!QFile::rename(sync.absoluteFilePath(), src.absoluteFilePath())) {
+		// move fails for different devices -> copy and delete instead
+		if(!QFile::copy(sync.absoluteFilePath(), src.absoluteFilePath()))
+			throw SyncException("Failed to move or copy-move sync to src");
+		if(!QFile::remove(sync.absoluteFilePath())) {
+			qWarning().noquote() << "PATH-SYNC:" << src.absoluteFilePath()
+								 << "=> Failed to remove sync file after restoring original file";
+		}
+	}
+
+	log(src, "Removed file from synchronisation");
 }
 
 QByteArray PathSyncHelper::hashFile(const QFileInfo &file) const

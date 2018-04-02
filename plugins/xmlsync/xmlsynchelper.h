@@ -9,12 +9,13 @@ class XmlSyncHelper : public SyncHelper
 	Q_OBJECT
 
 public:
-	static const QString XmlMode;
+	static const QString ModeXml;
 
 	explicit XmlSyncHelper(QObject *parent = nullptr);
 
 	bool pathIsPattern(const QString &mode) const override;
 	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
+	void undoSync(const QString &path, const QString &mode) override;
 
 private:
 	void updateText(QDomElement srcElement, QDomElement syncElement,

@@ -1,5 +1,6 @@
 #include "synchelper.h"
 #include <QStandardPaths>
+#include <QDebug>
 
 SyncHelper::SyncHelper(QObject *parent) :
 	QObject(parent)
@@ -43,6 +44,26 @@ std::tuple<QFileInfo, QFileInfo> SyncHelper::generatePaths(const QString &prefix
 	}
 
 	return {srcInfo, syncInfo};
+}
+
+void SyncHelper::removeSyncPath(const QString &prefix, const QString &path, const QByteArray &logPrefix)
+{
+	const static auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+	auto basePath = QFileInfo{path}.absoluteFilePath();
+	auto targetDir = syncDir();
+	if(basePath.startsWith(home))
+		basePath = prefix + QStringLiteral("/user/") + QDir(home).relativeFilePath(basePath);
+	else
+		basePath = prefix + QStringLiteral("/system/") + basePath;
+	QFileInfo targetInfo { QDir::cleanPath(targetDir.absoluteFilePath(basePath)) };
+
+	QFile tFile(targetInfo.absoluteFilePath());
+	if(tFile.exists()) {
+		if(!tFile.remove())
+			throw SyncException("Failed to remove synced file");
+		qInfo().noquote().nospace() << logPrefix << ": " << targetInfo.absoluteFilePath()
+									<< " => Removed file from synchronisation";
+	}
 }
 
 
