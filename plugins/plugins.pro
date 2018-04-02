@@ -3,4 +3,5 @@ TEMPLATE = subdirs
 SUBDIRS += \
     pathsync \
     inisync \
-    dconfsync
+    dconfsync \
+    xmlsync

@@ -14,6 +14,7 @@ PathSyncHelper::PathSyncHelper(QObject *parent) :
 
 bool PathSyncHelper::pathIsPattern(const QString &mode) const
 {
+	Q_UNUSED(mode)
 	return true;
 }
 

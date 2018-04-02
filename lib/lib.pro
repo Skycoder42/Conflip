@@ -10,16 +10,16 @@ DEFINES += CONFLIP_LIBRARY
 HEADERS += \
 	conflip.h \
 	lib_conflip_global.h \
-    syncentry.h \
-    conflipdatabase.h \
-    synchelper.h \
-    synchelperplugin.h
+	syncentry.h \
+	conflipdatabase.h \
+	synchelper.h \
+	synchelperplugin.h
 
 SOURCES += \
 	conflip.cpp \
-    syncentry.cpp \
-    conflipdatabase.cpp \
-    synchelper.cpp
+	syncentry.cpp \
+	conflipdatabase.cpp \
+	synchelper.cpp
 
 SETTINGS_GENERATORS += \
 	settings.xml
@@ -35,3 +35,4 @@ for(header, SETTINGSGENERATOR_BUILD_HEADERS) {
 	!exists($$theader):system($$QMAKE_COPY_FILE $$shell_quote($$shell_path($$header)) $$shell_quote($$shell_path($$theader)))
 }
 
+# TODO create pc file

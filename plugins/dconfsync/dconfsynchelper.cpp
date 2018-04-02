@@ -15,6 +15,7 @@ DConfSyncHelper::DConfSyncHelper(QObject *parent) :
 
 bool DConfSyncHelper::pathIsPattern(const QString &mode) const
 {
+	Q_UNUSED(mode)
 	return false;
 }
 

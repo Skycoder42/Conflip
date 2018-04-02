@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+<root>
+    <simple>Test</simple>
+    <attribs another="666" baum="42"/>
+    <all b="2" c="3" a="1"/>
+    <nochild b="2" c="3" a="1">
+        <child>no</child>
+    </nochild>
+    <attrsub prop="test">Text</attrsub>
+    <nosub prop="test">Text</nosub>
+    <sub>
+        <element prop="yes">
+            <child>one</child>
+            <child>two</child>
+            <child>three</child>
+        </element>
+        <group>
+            <child>one</child>
+            <child>two</child>
+            <child>three</child>
+        </group>
+    </sub>
+</root>

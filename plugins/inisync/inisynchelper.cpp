@@ -11,6 +11,7 @@ IniSyncHelper::IniSyncHelper(QObject *parent) :
 
 bool IniSyncHelper::pathIsPattern(const QString &mode) const
 {
+	Q_UNUSED(mode)
 	return true;
 }
 

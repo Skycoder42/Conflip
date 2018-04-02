@@ -144,6 +144,25 @@
 			],
 			"includeHidden": true,
 			"caseSensitive": true
+		},
+		
+		
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/xml/test?.xml",
+			"mode": "xml",
+			"extras": [
+				"simple/~",
+				"attribs/=baum",
+				"all",
+				"nochild/=",
+				"attrsub/#",
+				"nosub",
+				"sub/element",
+				"sub/group/"
+			],
+			"includeHidden": true,
+			"caseSensitive": true
 		}
 	]
 }
