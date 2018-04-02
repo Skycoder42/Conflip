@@ -66,10 +66,16 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 				// copy all unsynced entries left in the group
 				auto written = false;
 				for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
-					srcWrite.write(it.value());
-					srcNeedsSave = true;
-					written = true;
-					log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
+					//only handle lines that should be synced
+					if(shouldSync(cGroup, it.key(), subKeys)) {
+						srcWrite.write(it.value());
+						srcNeedsSave = true;
+						written = true;
+						log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
+					} else if(updateMapping[cGroup].remove(it.key()) > 0) {
+						syncNeedsSave = true;
+						log(srcInfo, "Removed non-syncable entrie from sync", cGroup, it.key());
+					}
 				}
 				workMapping.remove(cGroup);
 				if(written) {
@@ -89,34 +95,40 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 				auto index = line.indexOf('=');
 				if(index >= 0) { // line is syncable
 					auto key = line.mid(0, index);
-
-					// check if already synced
-					auto workValue = workMapping[cGroup].value(key);
-					if(!workValue.isNull()) {
-						// only sync if actually different
-						if(workValue != line) {
-							// update sync from source
-							if(srcIsNewer) {
-								updateMapping[cGroup].insert(key, line);
-								syncNeedsSave = true;
-								log(srcInfo, "Updated entry in sync from src", cGroup, key);
-							// update src from sync
-							} else {
-								line = workValue;
-								srcNeedsSave = true;
-								log(srcInfo, "Updated entry in src from sync", cGroup, key);
-							}
-						} else
-							log(srcInfo, "Skipping unchanged entry", cGroup, key, true);
-						// remove anyways, has been handeled
-						workMapping[cGroup].remove(key);
-					// check if wanted to be synced
-					} else if(shouldSync(cGroup, key, subKeys)) {
-						updateMapping[cGroup].insert(key, line);
+					//check if should sync
+					if(shouldSync(cGroup, key, subKeys)) {
+						// check if already synced
+						auto workValue = workMapping[cGroup].value(key);
+						if(!workValue.isNull()) {
+							// only sync if actually different
+							if(workValue != line) {
+								// update sync from source
+								if(srcIsNewer) {
+									updateMapping[cGroup].insert(key, line);
+									syncNeedsSave = true;
+									log(srcInfo, "Updated entry in sync from src", cGroup, key);
+								// update src from sync
+								} else {
+									line = workValue;
+									srcNeedsSave = true;
+									log(srcInfo, "Updated entry in src from sync", cGroup, key);
+								}
+							} else
+								log(srcInfo, "Skipping unchanged entry", cGroup, key, true);
+							// remove anyways, has been handeled
+							workMapping[cGroup].remove(key);
+						// if not existing, sync it
+						} else {
+							updateMapping[cGroup].insert(key, line);
+							syncNeedsSave = true;
+							log(srcInfo, "Added new entry from src to sync", cGroup, key);
+						}
+					// else: do nothing (aka just copy the line) but remove from sync if existing
+					} else if(updateMapping[cGroup].remove(key) > 0) {
+						workMapping[cGroup].remove(key); //has been handeled
 						syncNeedsSave = true;
-						log(srcInfo, "Added new entry from src to sync", cGroup, key);
+						log(srcInfo, "Removed non-syncable entrie from sync", cGroup, key);
 					}
-					// else: do nothing (aka just copy the line)
 				}
 			}
 
@@ -127,9 +139,14 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 		// copy all unsynced entries left in the final group
 		if(!cGroup.isNull()) {
 			for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
-				srcWrite.write(it.value());
-				srcNeedsSave = true;
-				log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
+				if(shouldSync(cGroup, it.key(), subKeys)) {
+					srcWrite.write(it.value());
+					srcNeedsSave = true;
+					log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
+				} else if(updateMapping[cGroup].remove(it.key()) > 0) {
+					syncNeedsSave = true;
+					log(srcInfo, "Removed non-syncable entrie from sync", cGroup, it.key());
+				}
 			}
 			workMapping.remove(cGroup);
 		}

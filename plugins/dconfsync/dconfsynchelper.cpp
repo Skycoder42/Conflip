@@ -93,6 +93,22 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 
 	//step 3: sync all unhandeld sync changes
 	for(auto it = workingMap.constBegin(); it != workingMap.constEnd(); it++) {
+		//check if the key should still be synced
+		auto keep = false;
+		for(auto subKey : subKeys) {
+			if(it.key().startsWith(subKey)) {
+				keep = true;
+				break;
+			}
+		}
+		// if not -> remove it and dont sync it
+		if(!keep) {
+			updateMap.remove(it.key());
+			syncNeedsSave = true;
+			log(path, "Removed non-syncable entrie from sync", it.key());
+			continue;
+		}
+
 		QByteArray msg;
 		if(!dconf.writeData(it.key(), it->type, it->data, &msg))
 			throw SyncException("Failed to save from sync to src with error: " + msg);

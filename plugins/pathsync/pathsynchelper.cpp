@@ -29,8 +29,10 @@ void PathSyncHelper::performSync(const QString &path, const QString &mode, const
 			_regexCache.insert(extra, regex);
 		}
 
-		if(regex->match(path).hasMatch())
+		if(regex->match(path).hasMatch()) {
+			undoSync(path, mode); //if it was ever synced, stop syncing it now
 			return;
+		}
 	}
 
 	QFileInfo srcInfo, syncInfo;
