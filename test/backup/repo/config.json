@@ -115,7 +115,7 @@
 		
 		
 		{
-			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/ini/test?.*",
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/ini/test.ini",
 			"mode": "ini",
 			"extras": [
 				"general\\key",
@@ -149,7 +149,7 @@
 		
 		
 		{
-			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/xml/test?.xml",
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/xml/test.xml",
 			"mode": "xml",
 			"extras": [
 				"simple/~",

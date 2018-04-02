@@ -22,7 +22,7 @@ private:
 	using IniEntryMapping = QHash<QByteArray, IniGroupMapping>;
 
 	IniEntryMapping createMapping(const QFileInfo &file) const;
-	void writeMapping(QIODevice *device, const IniEntryMapping &mapping, bool firstLine, bool &needSave) const;
+	void writeMapping(QIODevice *device, const IniEntryMapping &mapping, bool firstLine, bool &needSave, const QString &logStr = {}) const;
 	void writeMapping(const QFileInfo &file, const IniEntryMapping &mapping);
 	bool shouldSync(const QByteArray &group, const QByteArray &key, const QByteArrayList &extras) const;
 

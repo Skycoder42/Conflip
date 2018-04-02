@@ -155,7 +155,7 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 	}
 
 	// step 4: write all unhandeled synced groups and then save the src file if neccessary
-	writeMapping(&srcWrite, workMapping, writeFirstLine, srcNeedsSave);
+	writeMapping(&srcWrite, workMapping, writeFirstLine, srcNeedsSave, srcInfo.absoluteFilePath());
 	if(srcNeedsSave) {
 		if(!srcWrite.commit())
 			throw SyncException("Failed to save src file with error: " +
@@ -208,7 +208,7 @@ IniSyncHelper::IniEntryMapping IniSyncHelper::createMapping(const QFileInfo &fil
 	return mapping;
 }
 
-void IniSyncHelper::writeMapping(QIODevice *device, const IniSyncHelper::IniEntryMapping &mapping, bool firstLine, bool &needSave) const
+void IniSyncHelper::writeMapping(QIODevice *device, const IniSyncHelper::IniEntryMapping &mapping, bool firstLine, bool &needSave, const QString &logStr) const
 {
 	for(auto it = mapping.constBegin(); it != mapping.constEnd(); it++) {
 		// write the group
@@ -219,9 +219,12 @@ void IniSyncHelper::writeMapping(QIODevice *device, const IniSyncHelper::IniEntr
 			device->write("\n[" + it.key() + "]\n");
 
 		// write all entries
-		for(auto entry : it.value()) {
-			device->write(entry);
+		auto subMap = it.value();
+		for(auto jt = subMap.constBegin(); jt != subMap.constEnd(); jt++) {
+			device->write(jt.value());
 			needSave = true;
+			if(!logStr.isNull())
+				log(logStr, "Updated entry in src from sync", it.key(), jt.key());
 		}
 	}
 }
