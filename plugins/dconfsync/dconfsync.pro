@@ -19,6 +19,9 @@ SOURCES += \
 
 DISTFILES += dconfsync.json
 
+target.path = $$INSTALL_PLUGINS/conflip
+INSTALLS += target
+
 include(../../lib.pri)
 
 CONFIG += link_pkgconfig

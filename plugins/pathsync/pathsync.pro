@@ -17,4 +17,7 @@ SOURCES += \
 
 DISTFILES += pathsync.json
 
+target.path = $$INSTALL_PLUGINS/conflip
+INSTALLS += target
+
 include(../../lib.pri)
