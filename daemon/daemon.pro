@@ -18,7 +18,8 @@ SOURCES += \
 	pathresolver.cpp
 
 DISTFILES += \
-	conflip.service.in
+	conflip.service.in \
+	qpmx.json
 
 # install
 linux {

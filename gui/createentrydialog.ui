@@ -78,7 +78,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="caseSensitiveLabel">
      <property name="text">
-      <string>&amp;Case Sensitive</string>
+      <string>&amp;Case Sensitive:</string>
      </property>
      <property name="buddy">
       <cstring>caseSensitiveCheckBox</cstring>
@@ -153,7 +153,7 @@
     <string>&amp;Add Extra</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Ins</string>
+    <string notr="true">Ctrl+Ins</string>
    </property>
   </action>
   <action name="action_Remove_Extra">
@@ -165,7 +165,7 @@
     <string>&amp;Remove Extra</string>
    </property>
    <property name="shortcut">
-    <string>Del</string>
+    <string notr="true">Del</string>
    </property>
   </action>
   <action name="actionSelect_File">

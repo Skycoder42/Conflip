@@ -135,7 +135,7 @@
     <string>Add Entry</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Ins</string>
+    <string notr="true">Ctrl+Ins</string>
    </property>
   </action>
   <action name="action_Reload_Daemon">
@@ -147,7 +147,7 @@
     <string>Re&amp;load Daemon</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string notr="true">Ctrl+R</string>
    </property>
   </action>
   <action name="action_Exit">
@@ -159,7 +159,7 @@
     <string>E&amp;xit</string>
    </property>
    <property name="shortcut">
-    <string>Alt+F4</string>
+    <string notr="true">Alt+F4</string>
    </property>
   </action>
   <action name="action_About">
@@ -192,7 +192,7 @@
     <string>Remove Entry</string>
    </property>
    <property name="shortcut">
-    <string>Del</string>
+    <string notr="true">Del</string>
    </property>
   </action>
   <action name="action_Edit_Entry">

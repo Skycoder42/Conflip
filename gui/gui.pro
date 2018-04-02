@@ -5,28 +5,33 @@ QT += core gui widgets jsonserializer
 TARGET = conflip
 
 HEADERS += \
-		mainwindow.h \
+	mainwindow.h \
 	createentrydialog.h
 
 SOURCES += \
-		main.cpp \
-		mainwindow.cpp \
+	main.cpp \
+	mainwindow.cpp \
 	createentrydialog.cpp
 
 FORMS += \
-		mainwindow.ui \
+	mainwindow.ui \
 	createentrydialog.ui
+
+TRANSLATIONS += conflip_de.ts \
+	conflip_template.ts
 
 DISTFILES += qpmx.json \
 	conflip.svg \
-	conflip.desktop
+	conflip.desktop \
+	$$TRANSLATIONS
 
 target.path = $$INSTALL_BINS
+qpmx_ts_target.path = $$INSTALL_TRANSLATIONS
 install_icons.files += conflip.svg
 install_icons.path = $$INSTALL_SHARE/icons/hicolor/scalable/apps
 install_desktop.files = conflip.desktop
 install_desktop.path = $$INSTALL_SHARE/applications/
-INSTALLS += target install_icons install_desktop
+INSTALLS += target qpmx_ts_target install_icons install_desktop
 
 include(../lib.pri)
 
