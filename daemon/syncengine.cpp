@@ -3,14 +3,12 @@
 #include <QDebug>
 #include <QSaveFile>
 #include <chrono>
-#include <qpluginfactory.h>
+#include <QCtrlSignals>
 #include <conflipdatabase.h>
+#include <conflip.h>
 #include <settings.h>
-#include "synchelperplugin.h"
 
 using namespace std::chrono;
-
-Q_GLOBAL_PLUGIN_OBJECT_FACTORY(SyncHelperPlugin, SyncHelper, "conflip", helperFactory)
 
 const QString SyncEngine::ConfigFileName(QStringLiteral("config.json"));
 
@@ -31,6 +29,11 @@ SyncEngine::SyncEngine(QObject *parent) :
 			this, &SyncEngine::triggerSync);
 	connect(_watcher, &QFileSystemWatcher::fileChanged,
 			this, &SyncEngine::triggerSync);
+
+	QCtrlSignalHandler::instance()->setAutoQuitActive(true);
+	connect(QCtrlSignalHandler::instance(), &QCtrlSignalHandler::ctrlSignal,
+			this, &SyncEngine::signalTriggered);
+	QCtrlSignalHandler::instance()->registerForSignal(SIGHUP);
 }
 
 int SyncEngine::start()
@@ -107,19 +110,30 @@ void SyncEngine::triggerSync()
 	}
 }
 
+void SyncEngine::signalTriggered(int signal)
+{
+	switch (signal) {
+	case SIGHUP:
+		triggerSync();
+		break;
+	default:
+		break;
+	}
+}
+
 SyncHelper *SyncEngine::getHelper(const QString &type)
 {
 	auto helper = _helpers.value(type);
 	if(!helper) {
 		try {
-			helper = helperFactory->createInstance(type, this);
+			helper = Conflip::loadHelper(type, this);
 			if(!helper) {
 				qCritical() << "No plugin found to load helper of type" << type;
 				return nullptr;
 			}
 			helper->setSyncDir(_workingDir);
 			_helpers.insert(type, helper);
-		} catch(QPluginLoadException &e) {
+		} catch(QException &e) {
 			qCritical() << "Failed to load plugin for type" << type
 						<< "with error:" << e.what();
 			return nullptr;

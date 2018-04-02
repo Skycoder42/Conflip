@@ -4,10 +4,10 @@
  <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
-	<x>0</x>
-	<y>0</y>
-	<width>480</width>
-	<height>408</height>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>408</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,59 +21,66 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-	<item>
-	 <widget class="QPathEdit" name="pathedit">
-	  <property name="style">
-	   <enum>QPathEdit::JoinedButton</enum>
-	  </property>
-	  <property name="pathMode">
-	   <enum>QPathEdit::ExistingFolder</enum>
-	  </property>
-	  <property name="dialogOptions">
-	   <set>QFileDialog::ShowDirsOnly</set>
-	  </property>
-	  <property name="editable">
-	   <bool>true</bool>
-	  </property>
-	  <property name="placeholder">
-	   <string>Select a directory to synchronize to</string>
-	  </property>
-	 </widget>
-	</item>
-	<item>
-	 <widget class="QTreeView" name="treeView"/>
-	</item>
+    <item>
+     <widget class="QPathEdit" name="pathedit">
+      <property name="style">
+       <enum>QPathEdit::JoinedButton</enum>
+      </property>
+      <property name="pathMode">
+       <enum>QPathEdit::ExistingFolder</enum>
+      </property>
+      <property name="dialogOptions">
+       <set>QFileDialog::ShowDirsOnly</set>
+      </property>
+      <property name="editable">
+       <bool>true</bool>
+      </property>
+      <property name="placeholder">
+       <string>Select a directory to synchronize to</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTreeView" name="treeView">
+      <property name="contextMenuPolicy">
+       <enum>Qt::ActionsContextMenu</enum>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
-	<rect>
-	 <x>0</x>
-	 <y>0</y>
-	 <width>480</width>
-	 <height>23</height>
-	</rect>
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>480</width>
+     <height>23</height>
+    </rect>
    </property>
    <widget class="QMenu" name="menu_File">
-	<property name="title">
-	 <string>&amp;File</string>
-	</property>
-	<addaction name="action_Reload_Daemon"/>
-	<addaction name="separator"/>
-	<addaction name="action_Exit"/>
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="action_Reload_Daemon"/>
+    <addaction name="separator"/>
+    <addaction name="action_Exit"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
-	<property name="title">
-	 <string>&amp;Edit</string>
-	</property>
-	<addaction name="action_Add_Target"/>
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="action_Add_Entry"/>
+    <addaction name="action_Edit_Entry"/>
+    <addaction name="separator"/>
+    <addaction name="action_Remove_Entry"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
-	<property name="title">
-	 <string>&amp;Help</string>
-	</property>
-	<addaction name="action_About"/>
-	<addaction name="actionAbout_Qt"/>
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="action_About"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
@@ -81,63 +88,99 @@
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
-	<enum>TopToolBarArea</enum>
+    <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-	<bool>false</bool>
+    <bool>false</bool>
    </attribute>
-   <addaction name="action_Add_Target"/>
+   <addaction name="action_Add_Entry"/>
+   <addaction name="action_Edit_Entry"/>
    <addaction name="separator"/>
    <addaction name="action_Reload_Daemon"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="action_Add_Target">
+  <action name="action_Add_Entry">
    <property name="icon">
-	<iconset theme="list-add"/>
+    <iconset theme="list-add">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-	<string>&amp;Add Target</string>
+    <string>&amp;Add Entry</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Entry</string>
    </property>
    <property name="shortcut">
-	<string>Ctrl+Ins</string>
+    <string>Ctrl+Ins</string>
    </property>
   </action>
   <action name="action_Reload_Daemon">
    <property name="icon">
-	<iconset theme="view-refresh"/>
+    <iconset theme="view-refresh">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-	<string>&amp;Reload Daemon</string>
+    <string>Re&amp;load Daemon</string>
    </property>
    <property name="shortcut">
-	<string>Ctrl+R</string>
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="action_Exit">
    <property name="icon">
-	<iconset theme="gtk-quit"/>
+    <iconset theme="gtk-quit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-	<string>&amp;Exit</string>
+    <string>E&amp;xit</string>
    </property>
    <property name="shortcut">
-	<string>Alt+F4</string>
+    <string>Alt+F4</string>
    </property>
   </action>
   <action name="action_About">
    <property name="icon">
-	<iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-	<string>&amp;About</string>
+    <string>&amp;About</string>
    </property>
   </action>
   <action name="actionAbout_Qt">
    <property name="icon">
-	<iconset theme="qt"/>
+    <iconset theme="qt">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-	<string>About &amp;Qt</string>
+    <string>About &amp;Qt</string>
+   </property>
+  </action>
+  <action name="action_Remove_Entry">
+   <property name="icon">
+    <iconset theme="list-remove">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Remove Entry</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove Entry</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="action_Edit_Entry">
+   <property name="icon">
+    <iconset theme="gtk-edit">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Edit Entry</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>

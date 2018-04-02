@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 										  "%{message}"));
 	}
 
-
 	SyncEngine engine;
 	auto res = engine.start();
 	if(res == EXIT_SUCCESS)

@@ -5,19 +5,28 @@ QT += core gui widgets
 TARGET = conflip
 
 HEADERS += \
-		mainwindow.h
+		mainwindow.h \
+    createentrydialog.h
 
 SOURCES += \
 		main.cpp \
-		mainwindow.cpp
+		mainwindow.cpp \
+    createentrydialog.cpp
 
 FORMS += \
-		mainwindow.ui
+		mainwindow.ui \
+    createentrydialog.ui
 
-DISTFILES += qpmx.json
+DISTFILES += qpmx.json \
+	conflip.svg \
+	conflip.desktop
 
 target.path = $$INSTALL_BINS
-INSTALLS += target
+install_icons.files += conflip.svg
+install_icons.path = $$INSTALL_SHARE/icons/hicolor/scalable/apps
+install_desktop.files = conflip.desktop
+install_desktop.path = $$INSTALL_SHARE/applications/
+INSTALLS += target install_icons install_desktop
 
 include(../lib.pri)
 

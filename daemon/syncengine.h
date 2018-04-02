@@ -21,6 +21,7 @@ public:
 
 private slots:
 	void triggerSync();
+	void signalTriggered(int signal);
 
 private:
 	static const QString ConfigFileName;

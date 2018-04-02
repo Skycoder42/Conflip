@@ -1,0 +1,17 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=Conflip
+GenericName=Settings Synchronization
+Comment=A tool to synchronize settings/configurations across multiple machines
+Categories=Utility;Qt;
+Exec=conflip
+Icon=conflip
+Terminal=false
+Actions=Synchronize;
+
+[Desktop Action Synchronize]
+Exec=systemctl --user reload conflip.service
+Name=Trigger Synchronization
+Icon=view-refresh

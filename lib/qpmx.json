@@ -1,9 +1,14 @@
 {
     "dependencies": [
         {
-            "package": "https://github.com/skycoder42/qsettingsgenerator.git",
-            "provider": "git",
+            "package": "de.skycoder42.qsettingsgenerator",
+            "provider": "qpm",
             "version": "1.4.0"
+        },
+        {
+            "package": "de.skycoder42.qpluginfactory",
+            "provider": "qpm",
+            "version": "1.2.3"
         }
     ],
     "license": {
