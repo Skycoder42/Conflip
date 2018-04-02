@@ -1,21 +1,21 @@
 TEMPLATE = app
 
-QT += core gui widgets
+QT += core gui widgets jsonserializer
 
 TARGET = conflip
 
 HEADERS += \
 		mainwindow.h \
-    createentrydialog.h
+	createentrydialog.h
 
 SOURCES += \
 		main.cpp \
 		mainwindow.cpp \
-    createentrydialog.cpp
+	createentrydialog.cpp
 
 FORMS += \
 		mainwindow.ui \
-    createentrydialog.ui
+	createentrydialog.ui
 
 DISTFILES += qpmx.json \
 	conflip.svg \

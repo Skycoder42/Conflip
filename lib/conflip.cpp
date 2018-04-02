@@ -17,6 +17,11 @@ Q_COREAPP_STARTUP_FUNCTION(conflip_lib_startup)
 
 Q_GLOBAL_PLUGIN_OBJECT_FACTORY(SyncHelperPlugin, SyncHelper, "conflip", helperFactory)
 
+QString Conflip::ConfigFileName()
+{
+	return QStringLiteral("config.json");
+}
+
 QStringList Conflip::listPlugins()
 {
 	return helperFactory->allKeys();

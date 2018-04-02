@@ -2,6 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QJsonSerializer>
+#include <QFileSystemWatcher>
+#include <QSortFilterProxyModel>
+#include <qgadgetlistmodel.h>
+#include <qobjectproxymodel.h>
+#include <syncentry.h>
 
 namespace Ui {
 class MainWindow;
@@ -22,8 +28,21 @@ private slots:
 	void on_action_Remove_Entry_triggered();
 	void on_action_About_triggered();
 
+	void reload();
+	void update();
+	void updatePath(const QString &path);
+
 private:
 	Ui::MainWindow *ui;
+
+	QGadgetListModel<SyncEntry> *_model;
+	QObjectProxyModel *_proxyModel;
+	QSortFilterProxyModel *_sortModel;
+
+	QJsonSerializer *_serializer;
+	QFileSystemWatcher *_watcher;
+
+	QList<SyncEntry> _rmList;
 };
 
 #endif // MAINWINDOW_H

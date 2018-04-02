@@ -24,8 +24,6 @@ private slots:
 	void signalTriggered(int signal);
 
 private:
-	static const QString ConfigFileName;
-
 	QTimer *_timer;
 	QFileSystemWatcher *_watcher;
 	QJsonSerializer *_serializer;

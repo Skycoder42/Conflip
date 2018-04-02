@@ -10,8 +10,6 @@
 
 using namespace std::chrono;
 
-const QString SyncEngine::ConfigFileName(QStringLiteral("config.json"));
-
 SyncEngine::SyncEngine(QObject *parent) :
 	QObject(parent),
 	_timer(new QTimer(this)),
@@ -61,7 +59,7 @@ void SyncEngine::triggerSync()
 		return;
 	}
 
-	QFile readFile(_workingDir.absoluteFilePath(ConfigFileName));
+	QFile readFile(_workingDir.absoluteFilePath(Conflip::ConfigFileName()));
 	if(!readFile.exists())
 		return;
 
@@ -90,7 +88,7 @@ void SyncEngine::triggerSync()
 		removeUnsynced(database.unsynced, changed);
 
 		if(changed) {
-			QSaveFile writeFile(readFile.fileName());
+			QSaveFile writeFile(_workingDir.absoluteFilePath(Conflip::ConfigFileName()));
 			if(!writeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
 				qCritical() << "Failed to update file" << writeFile.fileName()
 							<< "with error:" << qUtf8Printable(writeFile.errorString());
@@ -114,7 +112,12 @@ void SyncEngine::signalTriggered(int signal)
 {
 	switch (signal) {
 	case SIGHUP:
-		triggerSync();
+		_workingDir = static_cast<QString>(Settings::instance()->engine.dir);
+		if(_workingDir.exists()) {
+			for(auto helper : _helpers)
+				helper->setSyncDir(_workingDir);
+			triggerSync();
+		}
 		break;
 	default:
 		break;

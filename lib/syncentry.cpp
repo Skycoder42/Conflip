@@ -19,7 +19,17 @@ bool SyncEntry::operator!=(const SyncEntry &other) const
 			mode != other.mode ||
 			includeHidden != other.includeHidden ||
 			caseSensitive != other.caseSensitive ||
-			syncedMachines != other.syncedMachines;
+							 syncedMachines != other.syncedMachines;
+}
+
+SyncEntry::operator bool() const
+{
+	return !pathPattern.isNull();
+}
+
+bool SyncEntry::operator!() const
+{
+	return pathPattern.isNull();
 }
 
 QDebug operator<<(QDebug debug, const SyncEntry &entry)

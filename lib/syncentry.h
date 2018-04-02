@@ -29,6 +29,9 @@ public:
 
 	bool operator==(const SyncEntry &other) const;
 	bool operator!=(const SyncEntry &other) const;
+
+	operator bool() const;
+	bool operator!() const;
 };
 
 LIBCONFLIPSHARED_EXPORT QDebug operator<<(QDebug debug, const SyncEntry &entry);

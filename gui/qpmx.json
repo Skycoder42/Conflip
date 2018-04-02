@@ -9,6 +9,11 @@
             "package": "de.skycoder42.qpathedit",
             "provider": "qpm",
             "version": "2.2.0"
+        },
+        {
+            "package": "de.skycoder42.qobjectlistmodel",
+            "provider": "qpm",
+            "version": "1.2.1"
         }
     ],
     "license": {
