@@ -18,8 +18,8 @@ public:
 	void undoSync(const QString &path, const QString &mode) override;
 
 private:
-	using IniGroupMapping = QHash<QByteArray, QByteArray>;
-	using IniEntryMapping = QHash<QByteArray, IniGroupMapping>;
+	using IniGroupMapping = QMap<QByteArray, QByteArray>;
+	using IniEntryMapping = QMap<QByteArray, IniGroupMapping>;
 
 	IniEntryMapping createMapping(const QFileInfo &file) const;
 	void writeMapping(QIODevice *device, const IniEntryMapping &mapping, bool firstLine, bool &needSave, const QString &logStr = {}) const;
