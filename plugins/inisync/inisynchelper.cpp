@@ -53,6 +53,23 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 	auto syncNeedsSave = false;
 	auto writeFirstLine = true;
 	auto holdingNewLine = false;
+	auto writeGroupRemainder = [&](const QByteArray &cGroup) -> bool{
+		auto written = false;
+		for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
+			//only handle lines that should be synced
+			if(shouldSync(cGroup, it.key(), subKeys)) {
+				srcWrite.write(it.value());
+				srcNeedsSave = true;
+				written = true;
+				log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
+			} else if(updateMapping[cGroup].remove(it.key()) > 0) {
+				syncNeedsSave = true;
+				log(srcInfo, "Removed non-syncable entrie from sync", cGroup, it.key());
+			}
+		}
+		workMapping.remove(cGroup);
+		return written;
+	};
 	if(srcInfo.exists()) {
 		QByteArray cGroup;
 		while(!srcRead.atEnd()) {
@@ -65,20 +82,7 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 			// handle group lines
 			} else if(sLine.startsWith('[') && sLine.endsWith(']')) {
 				// copy all unsynced entries left in the group
-				auto written = false;
-				for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
-					//only handle lines that should be synced
-					if(shouldSync(cGroup, it.key(), subKeys)) {
-						srcWrite.write(it.value());
-						srcNeedsSave = true;
-						written = true;
-						log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
-					} else if(updateMapping[cGroup].remove(it.key()) > 0) {
-						syncNeedsSave = true;
-						log(srcInfo, "Removed non-syncable entrie from sync", cGroup, it.key());
-					}
-				}
-				workMapping.remove(cGroup);
+				auto written = writeGroupRemainder(cGroup);
 				if(written) {
 					srcWrite.write("\n");
 					holdingNewLine = false;
@@ -138,19 +142,7 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 		}
 
 		// copy all unsynced entries left in the final group
-		if(!cGroup.isNull()) {
-			for(auto it = workMapping[cGroup].constBegin(); it != workMapping[cGroup].constEnd(); it++) {
-				if(shouldSync(cGroup, it.key(), subKeys)) {
-					srcWrite.write(it.value());
-					srcNeedsSave = true;
-					log(srcInfo, "Added new entry from sync to src", cGroup, it.key());
-				} else if(updateMapping[cGroup].remove(it.key()) > 0) {
-					syncNeedsSave = true;
-					log(srcInfo, "Removed non-syncable entrie from sync", cGroup, it.key());
-				}
-			}
-			workMapping.remove(cGroup);
-		}
+		writeGroupRemainder(cGroup);
 
 		srcRead.close();
 	}
@@ -211,13 +203,16 @@ IniSyncHelper::IniEntryMapping IniSyncHelper::createMapping(const QFileInfo &fil
 
 void IniSyncHelper::writeMapping(QIODevice *device, const IniSyncHelper::IniEntryMapping &mapping, bool firstLine, bool &needSave, const QString &logStr) const
 {
+	// emtpy group will always be first in the map due to the sorting
 	for(auto it = mapping.constBegin(); it != mapping.constEnd(); it++) {
 		// write the group
 		if(firstLine) {
-			device->write("[" + it.key() + "]\n");
-			firstLine = false;
+			if(!it.key().isEmpty())
+				device->write("[" + it.key() + "]\n");
+			//else: empty cgroup means no grp at all, so skip it
 		} else
-			device->write("\n[" + it.key() + "]\n");
+			device->write("\n[" + it.key() + "]\n"); //an emtpy cgroup not in the first line will produce "[]" - not ideal, but ok, as it does not change the behaviour
+		firstLine = false;
 
 		// write all entries
 		const auto& subMap = it.value();
@@ -248,7 +243,7 @@ void IniSyncHelper::writeMapping(const QFileInfo &file, const IniSyncHelper::Ini
 
 bool IniSyncHelper::shouldSync(const QByteArray &group, const QByteArray &key, const QByteArrayList &extras) const
 {
-	QByteArray tKey = group + '\\' + key;
+	QByteArray tKey = group.isEmpty() ? key : QByteArray{group + '\\' + key};
 	for(const auto& extra : extras) {
 		if(tKey.startsWith(extra))
 			return true;
@@ -264,5 +259,5 @@ void IniSyncHelper::log(const QFileInfo &file, const char *msg, bool dbg) const
 void IniSyncHelper::log(const QFileInfo &file, const char *msg, const QByteArray &cGroup, const QByteArray &key, bool dbg) const
 {
 	(dbg ? qDebug() : qInfo()).noquote() << "INI-SYNC:" << file.absoluteFilePath()
-										 << "=>" << msg << ('[' + cGroup + '\\' + key + ']');
+										 << "=>" << msg << ('[' + (cGroup.isEmpty() ? key : QByteArray{cGroup + '\\' + key}) + ']');
 }
