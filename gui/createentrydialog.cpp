@@ -52,7 +52,7 @@ SyncEntry CreateEntryDialog::editEntry(const SyncEntry &entry, QWidget *parent)
 		dialog.ui->modeComboBox->setCurrentText(entry.mode);
 		dialog.ui->hiddenFilesCheckBox->setChecked(entry.includeHidden);
 		dialog.ui->caseSensitiveCheckBox->setChecked(entry.caseSensitive);
-		for(auto extra : entry.extras) {
+		for(const auto& extra : entry.extras) {
 			auto item = new QListWidgetItem(extra, dialog.ui->listWidget);
 			item->setFlags(item->flags() | Qt::ItemIsEditable);
 		}

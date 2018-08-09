@@ -18,13 +18,13 @@ public:
 	void undoSync(const QString &path, const QString &mode) override;
 
 private:
-	void updateText(QDomElement srcElement, QDomElement syncElement,
+	void updateText(const QDomElement& srcElement, const QDomElement& syncElement,
 					bool srcExists, bool syncExists,
 					bool srcIsNewer,
 					bool &srcNeedsUpdate, bool &syncNeedsUpdate,
 					const QString &key,
 					const QFileInfo &srcInfo);
-	void updateAttributes(QDomElement srcElement, QDomElement syncElement,
+	void updateAttributes(const QDomElement& srcElement, const QDomElement& syncElement,
 						  bool srcIsNewer,
 						  bool &srcNeedsUpdate, bool &syncNeedsUpdate,
 						  const QString &key,
@@ -37,7 +37,7 @@ private:
 						 const QFileInfo &srcInfo);
 
 	QDomDocument loadDocument(const QFileInfo &file) const;
-	void saveDocument(const QFileInfo &file, QDomDocument document);
+	void saveDocument(const QFileInfo &file, const QDomDocument& document);
 
 	void setupRootElements(QDomDocument &srcDoc, QDomDocument &syncDoc) const;
 	QDomElement cd(QDomElement current, const QString &tag, bool &exists) const;

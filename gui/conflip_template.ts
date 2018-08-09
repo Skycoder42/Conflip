@@ -178,12 +178,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+2"/>
         <source>&lt;p&gt;A tool to synchronize settings/configurations across multiple machines.&lt;/p&gt;&lt;p&gt;Available Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Compile with Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Developed by: Skycoder42&lt;br/&gt;Project Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;License: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons based on &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; and &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; from &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; and are licensed by &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt;&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+30"/>
         <location line="+9"/>
         <location line="+13"/>
         <location line="+25"/>

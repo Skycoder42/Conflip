@@ -1,7 +1,6 @@
 TEMPLATE = lib
 
-QT += jsonserializer
-QT -= gui
+QT += jsonserializer mvvmcore
 
 TARGET = conflip
 
@@ -21,7 +20,7 @@ SOURCES += \
 	conflipdatabase.cpp \
 	synchelper.cpp
 
-SETTINGS_GENERATORS += \
+SETTINGS_DEFINITIONS += \
 	settings.xml
 
 DISTFILES += qpmx.json \

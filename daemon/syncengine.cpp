@@ -44,7 +44,7 @@ int SyncEngine::start()
 		return EXIT_FAILURE;
 	}
 
-	for(auto helper : _helpers)
+	for(auto helper : qAsConst(_helpers))
 		helper->setSyncDir(_workingDir);
 
 	_timer->start(minutes(Settings::instance()->engine.interval));
@@ -114,7 +114,7 @@ void SyncEngine::signalTriggered(int signal)
 	case SIGHUP:
 		_workingDir = static_cast<QString>(Settings::instance()->engine.dir);
 		if(_workingDir.exists()) {
-			for(auto helper : _helpers)
+			for(auto helper : qAsConst(_helpers))
 				helper->setSyncDir(_workingDir);
 			triggerSync();
 		}
@@ -156,7 +156,7 @@ void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
 			paths = _resolver->resolvePath(entry);
 		else
 			paths = QStringList { entry.pathPattern };
-		for(auto path : paths) {
+		for(const auto& path : qAsConst(paths)) {
 			auto isFirst = !entry.syncedMachines.contains(Settings::instance()->engine.machineid);
 			try {
 				helper->performSync(path, entry.mode, entry.extras, isFirst);
@@ -192,14 +192,13 @@ void SyncEngine::removeUnsynced(QList<SyncEntry> &entries, bool &changed)
 			paths = _resolver->resolvePath(*it);
 		else
 			paths = QStringList { it->pathPattern };
-		for(auto path : paths) {
+		for(const auto& path : qAsConst(paths)) {
 			try {
 				helper->undoSync(path, it->mode);
 			} catch(SyncException &e) {
 				qCritical() << "ERROR:" << path
 							<< "=>" << e.what();
 				return;
-				continue;
 			}
 		}
 

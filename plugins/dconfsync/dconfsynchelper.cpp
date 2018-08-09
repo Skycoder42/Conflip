@@ -36,7 +36,8 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 	}
 
 	QByteArrayList subKeys;
-	for(auto extra : extras)
+	subKeys.reserve(extras.size());
+	for(const auto& extra : extras)
 		subKeys.append(extra.toUtf8());
 
 	// step 1: load the current config, prepare dconf and the timestamp cache
@@ -49,7 +50,7 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 	// step 2: update the src and sync from each other
 	auto syncNeedsSave = false;
 	auto srcKeys = dconf.readAllKeys(subKeys);
-	for(auto key : srcKeys) {
+	for(const auto& key : srcKeys) {
 		auto strKey = QString::fromUtf8(key);
 		auto entry = workingMap.value(key);
 
@@ -95,7 +96,7 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 	for(auto it = workingMap.constBegin(); it != workingMap.constEnd(); it++) {
 		//check if the key should still be synced
 		auto keep = false;
-		for(auto subKey : subKeys) {
+		for(const auto& subKey : qAsConst(subKeys)) {
 			if(it.key().startsWith(subKey)) {
 				keep = true;
 				break;

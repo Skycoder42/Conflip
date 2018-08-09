@@ -32,7 +32,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 	auto srcIsNewer = isFirstUse ? false : srcInfo.lastModified() > syncInfo.lastModified();
 
 	// step 2: use extras to scan over both docs and transfer changes
-	for(auto tree : extras) {
+	for(const auto& tree : extras) {
 		auto chain = tree.split(QLatin1Char('/'));
 		QDomElement srcElement = srcDoc.documentElement();
 		QDomElement syncElement = syncDoc.documentElement();
@@ -41,7 +41,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 
 		auto includeAttribs = true;
 		auto lastElemNeeded = true;
-		for(auto link : chain) {
+		for(const auto& link : chain) {
 			// handle text content
 			if(link == QStringLiteral("~")) {
 				updateText(srcElement, syncElement,
@@ -149,7 +149,7 @@ void XmlSyncHelper::undoSync(const QString &path, const QString &mode)
 	removeSyncPath(QStringLiteral("xml"), path, "XML-SYNC");
 }
 
-void XmlSyncHelper::updateText(QDomElement srcElement, QDomElement syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
+void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement& syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
 {
 	// both have the text
 	if(srcExists && syncExists) {
@@ -181,7 +181,7 @@ void XmlSyncHelper::updateText(QDomElement srcElement, QDomElement syncElement, 
 	}
 }
 
-void XmlSyncHelper::updateAttributes(QDomElement srcElement, QDomElement syncElement, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
+void XmlSyncHelper::updateAttributes(const QDomElement& srcElement, const QDomElement& syncElement, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
 {
 	auto srcAttribs = srcElement.attributes();
 	auto syncAttribs = syncElement.attributes();
@@ -277,7 +277,7 @@ QDomDocument XmlSyncHelper::loadDocument(const QFileInfo &file) const
 	}
 }
 
-void XmlSyncHelper::saveDocument(const QFileInfo &file, QDomDocument document)
+void XmlSyncHelper::saveDocument(const QFileInfo &file, const QDomDocument& document)
 {
 	QSaveFile writeFile(file.absoluteFilePath());
 	if(!writeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {

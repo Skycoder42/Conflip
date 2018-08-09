@@ -24,7 +24,8 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("ini"), path);
 
 	QByteArrayList subKeys;
-	for(auto extra : extras)
+	subKeys.reserve(extras.size());
+	for(const auto& extra : extras)
 		subKeys.append(extra.toUtf8());
 
 	// step 1: read and map the current sync state
@@ -219,7 +220,7 @@ void IniSyncHelper::writeMapping(QIODevice *device, const IniSyncHelper::IniEntr
 			device->write("\n[" + it.key() + "]\n");
 
 		// write all entries
-		auto subMap = it.value();
+		const auto& subMap = it.value();
 		for(auto jt = subMap.constBegin(); jt != subMap.constEnd(); jt++) {
 			device->write(jt.value());
 			needSave = true;
@@ -248,7 +249,7 @@ void IniSyncHelper::writeMapping(const QFileInfo &file, const IniSyncHelper::Ini
 bool IniSyncHelper::shouldSync(const QByteArray &group, const QByteArray &key, const QByteArrayList &extras) const
 {
 	QByteArray tKey = group + '\\' + key;
-	for(auto extra : extras) {
+	for(const auto& extra : extras) {
 		if(tKey.startsWith(extra))
 			return true;
 	}

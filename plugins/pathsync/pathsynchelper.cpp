@@ -20,16 +20,21 @@ bool PathSyncHelper::pathIsPattern(const QString &mode) const
 
 void PathSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
 {
-	for(auto extra : extras) {
+	for(const auto& extra : extras) {
 		auto regex = _regexCache.object(extra);
+		auto needInsert = false;
 		if(!regex) {
 			regex = new QRegularExpression(extra,
 										   QRegularExpression::DontCaptureOption | QRegularExpression::UseUnicodePropertiesOption);
 			regex->optimize();
-			_regexCache.insert(extra, regex);
+			needInsert = true;
 		}
 
-		if(regex->match(path).hasMatch()) {
+		auto match = regex->match(path);
+		if(needInsert)
+			_regexCache.insert(extra, regex);
+
+		if(match.hasMatch()) {
 			undoSync(path, mode); //if it was ever synced, stop syncing it now
 			return;
 		}

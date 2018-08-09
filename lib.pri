@@ -1,3 +1,5 @@
+QT += mvvmcore
+
 CFLIB_DIR = $$shadowed($$PWD/lib)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$CFLIB_DIR/release/ -lconflip

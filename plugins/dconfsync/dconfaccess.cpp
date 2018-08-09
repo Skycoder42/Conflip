@@ -90,7 +90,7 @@ bool DConfAccess::writeData(const QByteArray &key, const QByteArray &type, const
 
 	//write the value (async)
 	GError *error = nullptr;
-	auto ok = dconf_client_write_fast(_client, QByteArray(_path + key).constData(), variant, &error);
+	auto ok = dconf_client_write_fast(_client, realPath.constData(), variant, &error);
 	if(!ok) {
 		if(errorMsg)
 			*errorMsg = error->message;

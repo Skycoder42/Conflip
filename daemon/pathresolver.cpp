@@ -29,7 +29,7 @@ QStringList PathResolver::findFiles(const QDir &cd, QStringList pathList) const
 
 		QStringList resList;
 		auto subElements = cd.entryInfoList();
-		for(auto subElement : subElements) {
+		for(const auto& subElement : subElements) {
 			if(!subElement.isDir())
 				continue;
 			// search without **
@@ -44,13 +44,13 @@ QStringList PathResolver::findFiles(const QDir &cd, QStringList pathList) const
 		return findFiles(createDir(home), pathList);
 	} else {
 		QStringList resList;
-
 		auto subElements = cd.entryInfoList({element});
+		resList.reserve(subElements.size());
 		if(pathList.isEmpty()) {
-			for(auto subElement : subElements)
+			for(const auto& subElement : subElements)
 				resList.append(subElement.absoluteFilePath());
 		} else {
-			for(auto subElement : subElements) {
+			for(const auto& subElement : subElements) {
 				if(!subElement.isDir())
 					continue;
 				resList.append(findFiles(createDir(subElement.absoluteFilePath()), pathList));

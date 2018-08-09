@@ -145,8 +145,7 @@ void MainWindow::on_action_About_triggered()
 	info.icon = QApplication::windowIcon();
 	info.windowTitle = tr("About");
 	info.title = tr("%1 — Version %2")
-				 .arg(QApplication::applicationDisplayName())
-				 .arg(QApplication::applicationVersion());
+				 .arg(QApplication::applicationDisplayName(), QApplication::applicationVersion());
 	info.text = tr("<p>A tool to synchronize settings/configurations across multiple machines.</p>"
 				   "<p>Available Plugins: <i>%1</i><br/>"
 				   "Compile with Qt-Version: <a href=\"https://www.qt.io/\">%2</a></p>"
@@ -157,8 +156,7 @@ void MainWindow::on_action_About_triggered()
 				   "and <a href=\"http://www.flaticon.com/authors/creaticca-creative-agency\">Creaticca Creative Agency</a> "
 				   "from <a href=\"http://www.flaticon.com\">www.flaticon.com</a> "
 				   "and are licensed by <a href=\"http://creativecommons.org/licenses/by/3.0/\">CC 3.0 BY</a></p>")
-				.arg(Conflip::listPlugins().join(QStringLiteral(", ")))
-				.arg(QStringLiteral(QT_VERSION_STR));
+				.arg(Conflip::listPlugins().join(QStringLiteral(", ")), QStringLiteral(QT_VERSION_STR));
 
 	info.buttons = QMessageBox::Close;
 	info.defaultButton = QMessageBox::Close;

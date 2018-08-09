@@ -8,4 +8,4 @@ Description: Conflip application library
 Version: %{VERSION}
 Libs: -lconflip
 Cflags: -I${includedir}/conflip -I${includedir}
-Requires: Qt5Core Qt3JsonSerializer
+Requires: Qt5Core Qt3JsonSerializer Qt1MvvmCore

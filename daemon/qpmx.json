@@ -3,7 +3,7 @@
         {
             "package": "de.skycoder42.qctrlsignals",
             "provider": "qpm",
-            "version": "1.1.1"
+            "version": "1.1.2"
         }
     ],
     "license": {
@@ -16,5 +16,6 @@
     ],
     "publishers": {
     },
+    "qbsFile": "",
     "source": false
 }

@@ -6,7 +6,9 @@
 
 class SyncHelperPlugin
 {
+	Q_DISABLE_COPY(SyncHelperPlugin)
 public:
+	inline SyncHelperPlugin() = default;
 	virtual inline ~SyncHelperPlugin() = default;
 
 	virtual SyncHelper *createInstance(const QString &provider, QObject *parent = nullptr) = 0;
