@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QCryptographicHash>
+#include <QStorageInfo>
 
 const QString PathSyncHelper::ModeSymlink = QStringLiteral("symlink");
 const QString PathSyncHelper::ModeCopy = QStringLiteral("copy");
@@ -70,20 +71,12 @@ void PathSyncHelper::undoSync(const QString &path, const QString &mode)
 
 void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)
 {
-	// if syncfile does not exist - create it
+	// if syncfile does not exist -> move src to sync
 	if(!sync.exists()) {
 		if(!src.exists())
 			return;
-
-		if(!QFile::rename(src.absoluteFilePath(), sync.absoluteFilePath())) {
-			// move fails for different devices -> copy and delete instead
-			if(!QFile::copy(src.absoluteFilePath(), sync.absoluteFilePath()))
-				throw SyncException("Failed to move or copy-move src to sync");
-			if(!QFile::remove(src.absoluteFilePath()))
-				throw SyncException("Failed to remove original file after copying");
-		}
-		// no return, proceed as usual
-		log(src, "Moved file from original logication to sync folder");
+		movePath(src, sync, true);
+		log(src, "Moved file from src to sync folder");
 	}
 
 	// check if symlink
@@ -102,9 +95,10 @@ void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, 
 
 	// check if exists
 	if(src.exists()) {
+		Q_ASSERT(!src.isSymLink()); //should be impossible
 		if(isFirstUse) {
-			if(!QFile::remove(src.absoluteFilePath()))
-				throw SyncException("Failed to remove original file for first sync");
+			if(!removePath(src))
+				throw SyncException("Failed to remove src for first sync");
 		} else {
 			qWarning().noquote() << "PATH-SYNC:" << src.absoluteFilePath()
 								 << "=> Symlink sync conflict - switching over to copy mode";
@@ -121,14 +115,18 @@ void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, 
 
 void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)
 {
+	// dirs are currently not possible as a copy
+	if(src.isDir() || sync.isDir())
+		throw SyncException("Cannot copy-sync directories! Use symlink sync or wildcard paths");
+
 	// if syncfile does not exist - create it
 	if(!sync.exists()) {
 		if(!src.exists())
 			return;
 
 		if(!QFile::copy(src.absoluteFilePath(), sync.absoluteFilePath()))
-			throw SyncException("Failed to copy source to sync");
-		log(src, "Copied source to sync folder");
+			throw SyncException("Failed to copy src to sync");
+		log(src, "Copied src to sync folder");
 		return;
 	}
 
@@ -136,7 +134,7 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync, boo
 	if(src.exists()) {
 		if(isFirstUse) {
 			if(!QFile::remove(src.absoluteFilePath()))
-				throw SyncException("Failed to remove original file for first sync");
+				throw SyncException("Failed to remove src file for first sync");
 		} else {
 			if(hashFile(src) == hashFile(sync)) {
 				log(src, "Files are the same", true);
@@ -150,7 +148,7 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync, boo
 					throw SyncException("Failed to remove older sync file");
 				if(!QFile::copy(src.absoluteFilePath(), sync.absoluteFilePath()))
 					throw SyncException("Failed to copy src to sync");
-				log(src, "Copied source to sync folder");
+				log(src, "Copied src to sync folder");
 				return;
 			} else { //delete to enter not exist state
 				if(!QFile::remove(src.absoluteFilePath()))
@@ -162,7 +160,7 @@ void PathSyncHelper::syncAsCopy(const QFileInfo &src, const QFileInfo &sync, boo
 	//does not exist -> copy it
 	if(!QFile::copy(sync.absoluteFilePath(), src.absoluteFilePath()))
 		throw SyncException("Failed to copy sync to src");
-	log(src, "Copied from sync folder to source");
+	log(src, "Copied sync to src");
 }
 
 void PathSyncHelper::unlink(const QFileInfo &src, const QFileInfo &sync)
@@ -176,17 +174,52 @@ void PathSyncHelper::unlink(const QFileInfo &src, const QFileInfo &sync)
 	if(!QFile::remove(src.absoluteFilePath()))
 		throw SyncException("Failed to remove old symlink");
 
-	if(!QFile::rename(sync.absoluteFilePath(), src.absoluteFilePath())) {
-		// move fails for different devices -> copy and delete instead
-		if(!QFile::copy(sync.absoluteFilePath(), src.absoluteFilePath()))
-			throw SyncException("Failed to move or copy-move sync to src");
-		if(!QFile::remove(sync.absoluteFilePath())) {
-			qWarning().noquote() << "PATH-SYNC:" << src.absoluteFilePath()
-								 << "=> Failed to remove sync file after restoring original file";
-		}
+	movePath(sync, src, false);
+	log(src, "Removed file from synchronisation");
+}
+
+void PathSyncHelper::movePath(const QFileInfo &from, const QFileInfo &to, bool fromIsSrc)
+{
+	Q_ASSERT(!to.exists());
+	const auto fromName = fromIsSrc ?
+							  QByteArrayLiteral("src") :
+							  QByteArrayLiteral("sync");
+	const auto toName = fromIsSrc ?
+							  QByteArrayLiteral("sync") :
+							  QByteArrayLiteral("src");
+	const QByteArray direction = fromName + " to " + toName;
+
+	if(from.isSymLink()) {
+		throw SyncException("Failed to move " + direction + ", because " + fromName +
+							" is a symlink (and symlinks cannot be symlink-synced)");
 	}
 
-	log(src, "Removed file from synchronisation");
+	if(from.isDir()) { //dir/symlink can only be truly moved, not copy-moved
+		QStorageInfo fromInfo{from.absoluteFilePath()};
+		QStorageInfo toInfo{to.dir().absolutePath()};
+
+		if(!fromInfo.isValid())
+			throw SyncException("Unable to detect volume of " + fromName);
+		if(!toInfo.isValid())
+			throw SyncException("Unable to detect volume of " + toName);
+		if(fromInfo != toInfo)
+			throw SyncException("Detected volumes of src and sync are not the same - cannot move directories between different volumes");
+
+		QDir rootDir{fromInfo.rootPath()};
+		if(!rootDir.rename(rootDir.relativeFilePath(from.absoluteFilePath()),
+						   rootDir.relativeFilePath(to.absoluteFilePath()))) {
+			throw SyncException("Failed to directory-move " + direction);
+		}
+	} else if(!QFile::rename(from.absoluteFilePath(), to.absoluteFilePath()))
+		throw SyncException("Failed to move or copy-move " + direction);
+}
+
+bool PathSyncHelper::removePath(const QFileInfo &path)
+{
+	if(path.isDir())
+		return QDir{path.absoluteFilePath()}.removeRecursively();
+	else
+		return QFile::remove(path.absoluteFilePath());
 }
 
 QByteArray PathSyncHelper::hashFile(const QFileInfo &file) const

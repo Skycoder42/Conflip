@@ -152,7 +152,7 @@ void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
 		Q_ASSERT_X(helper, Q_FUNC_INFO, "No helper defined for entry mode");
 
 		QStringList paths;
-		if(helper->pathIsPattern(entry.mode))
+		if(helper->pathIsPattern(entry.mode)) //TODO allow patterns anywhere, but restrict dirs?
 			paths = _resolver->resolvePath(entry, helper);
 		else
 			paths = QStringList { entry.pathPattern };

@@ -12,6 +12,7 @@ QStringList PathResolver::resolvePath(const SyncEntry &entry, SyncHelper *helper
 	_scanHidden = entry.includeHidden;
 	_caseSensitive = entry.caseSensitive;
 
+	//TODO make work with win? has different roots...
 	QStringList allPaths;
 	const auto cd = createDir(QStringLiteral("/"));
 

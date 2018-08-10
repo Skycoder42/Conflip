@@ -28,6 +28,9 @@ private:
 	void syncAsCopy(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse);
 	void unlink(const QFileInfo &src, const QFileInfo &sync);
 
+	void movePath(const QFileInfo &from, const QFileInfo &to, bool fromIsSrc);
+	bool removePath(const QFileInfo &path);
+
 	QByteArray hashFile(const QFileInfo &file) const;
 	void log(const QFileInfo &file, const char *msg, bool dbg = false) const;
 };
