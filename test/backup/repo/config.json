@@ -120,7 +120,8 @@
 			"extras": [
 				"general\\key",
 				"general\\users",
-				"advanced"
+				"advanced",
+				"nogroup"
 			],
 			"includeHidden": true,
 			"caseSensitive": true
