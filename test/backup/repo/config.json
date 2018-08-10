@@ -121,6 +121,9 @@
 				"general\\key",
 				"general\\users",
 				"advanced",
+				"!advanced\\is\\a",
+				"advanced\\is\\a\\number",
+				"!advanced\\is\\a\\number\\child",
 				"nogroup"
 			],
 			"includeHidden": true,

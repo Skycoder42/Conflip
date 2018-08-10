@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QSaveFile>
+#include <algorithm>
 
 const QString IniSyncHelper::ModeIni = QStringLiteral("ini");
 
@@ -28,10 +29,15 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 	QFileInfo srcInfo, syncInfo;
 	std::tie(srcInfo, syncInfo) = generatePaths(path);
 
-	QByteArrayList subKeys;
-	subKeys.reserve(extras.size());
-	for(const auto& extra : extras)
-		subKeys.append(extra.toUtf8());
+	KeyInfo subKeys;
+	subKeys.first.reserve(extras.size());
+	subKeys.second.reserve(extras.size());
+	for(const auto& extra : extras) {
+		if(extra.startsWith(QLatin1Char('!')))
+			subKeys.second.append(extra.midRef(1).toUtf8().split('\\'));
+		else
+			subKeys.first.append(extra.toUtf8().split('\\'));
+	}
 
 	// step 1: read and map the current sync state
 	auto srcIsNewer = isFirstUse ? false : srcInfo.lastModified() > syncInfo.lastModified();
@@ -246,14 +252,33 @@ void IniSyncHelper::writeMapping(const QFileInfo &file, const IniSyncHelper::Ini
 	}
 }
 
-bool IniSyncHelper::shouldSync(const QByteArray &group, const QByteArray &key, const QByteArrayList &extras) const
+bool IniSyncHelper::shouldSync(const QByteArray &group, const QByteArray &key, const KeyInfo &extras) const
 {
-	QByteArray tKey = group.isEmpty() ? key : QByteArray{group + '\\' + key};
-	for(const auto& extra : extras) {
-		if(tKey.startsWith(extra))
-			return true;
+	QByteArrayList keyList = key.split('\\');
+	if(!group.isEmpty())
+		keyList.prepend(group);
+	for(const auto& extra : extras.first) {
+		if(startsWith(keyList, extra)) {
+			auto exclude = false;
+			for(const auto &noExtra : extras.second) {
+				if(noExtra.size() > extra.size() &&
+				   startsWith(keyList, noExtra)) {
+					exclude = true;
+					break;
+				}
+			}
+			if(!exclude)
+				return true;
+		}
 	}
 	return false;
+}
+
+bool IniSyncHelper::startsWith(const QByteArrayList &key, const QByteArrayList &subList) const
+{
+	if(subList.size() > key.size())
+		return false;
+	return std::equal(subList.begin(), subList.end(), key.begin());
 }
 
 void IniSyncHelper::log(const QFileInfo &file, const char *msg, bool dbg) const
