@@ -98,7 +98,7 @@
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+31"/>
         <source>&amp;Add Entry</source>
         <translation>Eintrag &amp;Hinzufügen</translation>
     </message>
@@ -108,7 +108,7 @@
         <translation>Eintrag Hinzufügen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>Re&amp;load Daemon</source>
         <translation>Dienst &amp;aktualisieren</translation>
     </message>
@@ -128,7 +128,7 @@
         <translation>Über &amp;Qt</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+12"/>
         <source>&amp;Remove Entry</source>
         <translation>Eintrag &amp;entfernen</translation>
     </message>
@@ -138,12 +138,12 @@
         <translation>Eintrag entfernen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Edit Entry</source>
         <translation>Eintrag &amp;bearbeiten</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="+16"/>
+        <location filename="mainwindow.cpp" line="+25"/>
         <source>Mode</source>
         <translation>Modus</translation>
     </message>
@@ -153,22 +153,42 @@
         <translation>Pfad</translation>
     </message>
     <message>
-        <location line="+80"/>
-        <source>Reloading successful!</source>
-        <translation>Aktualisieren war erfolgreich!</translation>
+        <location line="+12"/>
+        <source>Failed to find the %1 service by service id: %2</source>
+        <oldsource>Failed to find the conflip service by service id: %1</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
+        <source>Service not found!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reloading successful!</source>
+        <translation type="vanished">Aktualisieren war erfolgreich!</translation>
+    </message>
+    <message>
         <source>Check the applications output log for more details</source>
-        <translation>Überprüfen Sie die Log-Ausgabe der Anwendung für mehr Details</translation>
+        <translation type="vanished">Überprüfen Sie die Log-Ausgabe der Anwendung für mehr Details</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Reloading failed!</source>
-        <translation>Aktualisieren fehlgeschlagen!</translation>
+        <translation type="vanished">Aktualisieren fehlgeschlagen!</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+72"/>
+        <source>Failed to reload %1 service with error: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <location line="+106"/>
+        <location line="+8"/>
+        <source>Service Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-67"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
@@ -183,15 +203,25 @@
         <translation>&lt;p&gt;Ein Tool zum Synchronisieren von Einstellungen/Konfigurationen über mehrere Maschinen.&lt;/p&gt;&lt;p&gt;Verfügbare Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Erstellt mit Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Entwickelt von: Skycoder42&lt;br/&gt;Projekt Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;Lizenz: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons basieren auf &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; und &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; von &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; und stehen unter der &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt; Lizenz&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+30"/>
-        <location line="+9"/>
+        <location line="+35"/>
+        <location line="+53"/>
         <location line="+13"/>
         <location line="+25"/>
         <source>Reading config failed</source>
         <translation>Konfiguration lesen fehlgeschalgen</translation>
     </message>
     <message>
-        <location line="-38"/>
+        <location line="-72"/>
+        <source>Failed to start %1 service with error: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Failed to resume %1 service with error: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
         <location line="+38"/>
         <source>Parsed JSON content is invalid!</source>
         <translation>Der gelesene JSON-Inhalt der Datei ist ungültig!</translation>

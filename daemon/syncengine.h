@@ -17,11 +17,13 @@ class SyncEngine : public QObject
 public:
 	explicit SyncEngine(QObject *parent = nullptr);
 
-	int start();
+	bool start();
+	void pause();
+	void resume();
+	void reload();
 
 private slots:
 	void triggerSync();
-	void signalTriggered(int signal);
 
 private:
 	QTimer *_timer;

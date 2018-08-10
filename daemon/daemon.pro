@@ -1,21 +1,23 @@
 TEMPLATE = app
 
-QT += jsonserializer
-QT -= gui
+QT = core service jsonserializer
 
 CONFIG += console
 CONFIG -= app_bundle
 
-TARGET = conflipd
+TARGET = $${TARGET_BASE}d
+DESTDIR = $$BIN_DESTDIR
 
 HEADERS += \
 	syncengine.h \
-	pathresolver.h
+	pathresolver.h \
+	conflipservice.h
 
 SOURCES += \
 	main.cpp \
 	syncengine.cpp \
-	pathresolver.cpp
+	pathresolver.cpp \
+	conflipservice.cpp
 
 DISTFILES += \
 	conflip.service.in \
@@ -31,8 +33,14 @@ linux {
 	create_service_slice.depends += $$PWD/conflip.service.in
 	create_service_slice.commands += sed "s:%{INSTALL_BINS}:$$INSTALL_BINS:g" $$PWD/conflip.service.in | sed $$shell_quote(s:%{SLICE}:--slice %I:g) > conflip@.service
 
-	QMAKE_EXTRA_TARGETS += create_service create_service_slice
-	PRE_TARGETDEPS += conflip.service conflip@.service
+	TEST_TARGET=$${TARGET_BASE}@test
+	slice_rundummy.target = $$BIN_DESTDIR/$$TEST_TARGET
+	slice_rundummy.commands += echo \'$${LITERAL_HASH}!/bin/sh\' > $$shell_quote($$BIN_DESTDIR/$$TEST_TARGET) \
+		$$escape_expand(\n\t)echo exec $$shell_quote($$BIN_DESTDIR/$$TARGET) $$shell_quote(\"$${LITERAL_DOLLAR}$${LITERAL_DOLLAR}@\") --slice test >> $$shell_quote($$BIN_DESTDIR/$$TEST_TARGET) \
+		$$escape_expand(\n\t)chmod a+x $$shell_quote($$BIN_DESTDIR/$$TEST_TARGET)
+
+	QMAKE_EXTRA_TARGETS += create_service create_service_slice slice_rundummy
+	PRE_TARGETDEPS += conflip.service conflip@.service "$$BIN_DESTDIR/$$TEST_TARGET"
 
 	install_service_user.files += $$OUT_PWD/conflip.service $$OUT_PWD/conflip@.service
 	install_service_user.CONFIG += no_check_exist

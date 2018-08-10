@@ -2,7 +2,7 @@ TEMPLATE = lib
 
 QT += jsonserializer mvvmcore
 
-TARGET = conflip
+TARGET = $$qtLibraryTarget($$TARGET_BASE)
 
 DEFINES += CONFLIP_LIBRARY
 

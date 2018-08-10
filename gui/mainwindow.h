@@ -5,6 +5,7 @@
 #include <QJsonSerializer>
 #include <QFileSystemWatcher>
 #include <QSortFilterProxyModel>
+#include <QtService/ServiceControl>
 #include <qgadgetlistmodel.h>
 #include <qobjectproxymodel.h>
 #include <syncentry.h>
@@ -34,6 +35,7 @@ private slots:
 
 private:
 	Ui::MainWindow *ui;
+	QtService::ServiceControl *_svcControl;
 
 	QGadgetListModel<SyncEntry> *_model;
 	QObjectProxyModel *_proxyModel;

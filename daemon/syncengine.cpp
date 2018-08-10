@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QSaveFile>
 #include <chrono>
-#include <QCtrlSignals>
 #include <conflipdatabase.h>
 #include <conflip.h>
 #include <settings.h>
@@ -27,30 +26,46 @@ SyncEngine::SyncEngine(QObject *parent) :
 			this, &SyncEngine::triggerSync);
 	connect(_watcher, &QFileSystemWatcher::fileChanged,
 			this, &SyncEngine::triggerSync);
-
-	QCtrlSignalHandler::instance()->setAutoQuitActive(true);
-	connect(QCtrlSignalHandler::instance(), &QCtrlSignalHandler::ctrlSignal,
-			this, &SyncEngine::signalTriggered);
-	QCtrlSignalHandler::instance()->registerForSignal(SIGHUP);
 }
 
-int SyncEngine::start()
+bool SyncEngine::start()
 {
 	_workingDir = QDir::cleanPath(Settings::instance()->engine.dir);
 	_workingDir.makeAbsolute();
-	if(!_workingDir.exists()) {
-		qCritical().noquote() << "Working directory"
-							  << _workingDir.absolutePath()
-							  << "does not exist";
-		return EXIT_FAILURE;
-	}
+	if(!Conflip::initConfDir())
+		return false;
 
 	for(auto helper : qAsConst(_helpers))
 		helper->setSyncDir(_workingDir);
 
-	_timer->start(minutes(Settings::instance()->engine.interval));
+	_timer->setInterval(minutes(Settings::instance()->engine.interval));
+	resume();
+	return true;
+}
+
+void SyncEngine::pause()
+{
+	_timer->stop();
+}
+
+void SyncEngine::resume()
+{
+	_timer->start();
 	QMetaObject::invokeMethod(this, "triggerSync", Qt::QueuedConnection);
-	return EXIT_SUCCESS;
+}
+
+void SyncEngine::reload()
+{
+	Settings::instance()->accessor()->sync();
+	_workingDir = QDir::cleanPath(Settings::instance()->engine.dir);
+	_workingDir.makeAbsolute();
+	if(Conflip::initConfDir()) {
+		for(auto helper : qAsConst(_helpers))
+			helper->setSyncDir(_workingDir);
+		_timer->setInterval(minutes(Settings::instance()->engine.interval));
+		pause();
+		resume();
+	}
 }
 
 void SyncEngine::triggerSync()
@@ -106,23 +121,6 @@ void SyncEngine::triggerSync()
 		qCritical() << "Failed to parse" << readFile.fileName()
 					<< "with error:\n" << e.what();
 		return;
-	}
-}
-
-void SyncEngine::signalTriggered(int signal)
-{
-	switch (signal) {
-	case SIGHUP:
-		_workingDir = QDir::cleanPath(Settings::instance()->engine.dir);
-		_workingDir.makeAbsolute();
-		if(_workingDir.exists()) {
-			for(auto helper : qAsConst(_helpers))
-				helper->setSyncDir(_workingDir);
-			triggerSync();
-		}
-		break;
-	default:
-		break;
 	}
 }
 

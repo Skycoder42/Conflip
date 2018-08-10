@@ -1,8 +1,9 @@
 TEMPLATE = app
 
-QT += core gui widgets jsonserializer
+QT += core gui widgets jsonserializer service
 
-TARGET = conflip
+TARGET = $$TARGET_BASE
+DESTDIR = $$BIN_DESTDIR
 
 HEADERS += \
 	mainwindow.h \
@@ -24,6 +25,10 @@ DISTFILES += qpmx.json \
 	conflip.svg \
 	conflip.desktop \
 	$$TRANSLATIONS
+
+linux {
+	DEFINES += SERVICE_BACKEND=\\\"systemd\\\"
+}
 
 target.path = $$INSTALL_BINS
 qpmx_ts_target.path = $$INSTALL_TRANSLATIONS

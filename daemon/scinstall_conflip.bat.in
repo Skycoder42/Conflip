@@ -1,0 +1,9 @@
+@echo off
+setlocal
+
+sc create conflip binPath= "%{INSTALL_BINS}\\conflipd.exe --backend windows" start= auto displayname= "%{ProjectName} Service"  || exit /B 1
+sc description conflip "The Conflip Backend Service" || exit /B 1
+
+if "%2" == "" goto system_service
+	sc config conflip obj= %1 password= %2
+:system_service

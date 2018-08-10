@@ -12,6 +12,15 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
+#ifdef QT_NO_DEBUG
+	_svcControl{QtService::ServiceControl::create(QStringLiteral(SERVICE_BACKEND),
+												  QCoreApplication::applicationName(), //includes the slice on linux
+												  this)},
+#else
+	_svcControl{QtService::ServiceControl::create(QStringLiteral("standard"),
+												  QDir{QCoreApplication::applicationDirPath()}.absoluteFilePath(QStringLiteral(TARGET "@test")),
+												  this)},
+#endif
 	_model(new QGadgetListModel<SyncEntry>(this)),
 	_proxyModel(new QObjectProxyModel({tr("Mode"), tr("Path")}, this)),
 	_sortModel(new QSortFilterProxyModel(this)),
@@ -21,17 +30,14 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	//connections
-	connect(ui->action_Exit, &QAction::triggered,
-			this, &QMainWindow::close);
-	connect(ui->actionAbout_Qt, &QAction::triggered,
-			qApp, &QApplication::aboutQt);
-	connect(ui->pathedit, &QPathEdit::pathChanged,
-			this, &MainWindow::updatePath);
-	connect(ui->treeView, &QTreeView::activated,
-			ui->action_Edit_Entry, &QAction::trigger);
-	connect(_watcher, &QFileSystemWatcher::fileChanged,
-			this, &MainWindow::reload);
+	// setup daemon connection
+	if(!_svcControl->serviceExists()) {
+		ui->action_Reload_Daemon->setVisible(false);
+		DialogMaster::warning(nullptr,
+							  tr("Failed to find the %1 service by service id: %2")
+							  .arg(QApplication::applicationDisplayName(), _svcControl->serviceId()),
+							  tr("Service not found!"));
+	}
 
 	// prepare treeview and it's models
 	auto sp = new QAction(this);
@@ -59,8 +65,20 @@ MainWindow::MainWindow(QWidget *parent) :
 		QString path = Settings::instance()->engine.dir;
 		_watcher->addPath(path + QStringLiteral("/config.json"));
 		ui->pathedit->setPath(path);
-		reload();
+		QMetaObject::invokeMethod(this, "reload", Qt::QueuedConnection);
 	}
+
+	//connections
+	connect(ui->action_Exit, &QAction::triggered,
+			this, &QMainWindow::close);
+	connect(ui->actionAbout_Qt, &QAction::triggered,
+			qApp, &QApplication::aboutQt);
+	connect(ui->treeView, &QTreeView::activated,
+			ui->action_Edit_Entry, &QAction::trigger);
+	connect(ui->pathedit, &QPathEdit::pathChanged,
+			this, &MainWindow::updatePath);
+	connect(_watcher, &QFileSystemWatcher::fileChanged,
+			this, &MainWindow::reload);
 
 	// restore geom
 	if(Settings::instance()->gui.mainwindow.geom.isSet())
@@ -77,28 +95,24 @@ MainWindow::~MainWindow()
 	Settings::instance()->gui.mainwindow.state = saveState();
 	Settings::instance()->gui.mainwindow.header = ui->treeView->header()->saveState();
 
+#ifndef QT_NO_DEBUG
+	if(_svcControl->serviceExists())
+		_svcControl->stop(); //dont care for result
+#endif
+
 	delete ui;
 }
 
 void MainWindow::on_action_Reload_Daemon_triggered()
 {
-	auto proc = new QProcess(this);
-	proc->setProgram(QStringLiteral("systemctl"));
-	proc->setArguments({
-						   QStringLiteral("--user"),
-						   QStringLiteral("reload"),
-						   QCoreApplication::applicationName() + QStringLiteral(".service")
-					   });
-	proc->setProcessChannelMode(QProcess::ForwardedChannels);
-	connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-			this, [this, proc](int code, QProcess::ExitStatus exitStatus) {
-		if(exitStatus == QProcess::NormalExit && code == EXIT_SUCCESS)
-			DialogMaster::information(this, tr("Reloading successful!"));
-		else
-			DialogMaster::warning(this, tr("Check the applications output log for more details"), tr("Reloading failed!"));
-		proc->deleteLater();
-	});
-	proc->start();
+	if(_svcControl->serviceExists()) {
+		if(!_svcControl->reload()) {
+			DialogMaster::critical(this,
+								   tr("Failed to reload %1 service with error: %2")
+								   .arg(QApplication::applicationDisplayName(), _svcControl->error()),
+								   tr("Service Error"));
+		}
+	}
 }
 
 void MainWindow::on_action_Add_Entry_triggered()
@@ -166,12 +180,17 @@ void MainWindow::on_action_About_triggered()
 
 void MainWindow::reload()
 {
+	ui->action_Add_Entry->setEnabled(false);
+	ui->action_Edit_Entry->setEnabled(false);
+	ui->action_Remove_Entry->setEnabled(false);
+	ui->action_Reload_Daemon->setEnabled(false);
+
 	try {
 		_model->resetModel({});
 		_rmList.clear();
 
-		QDir pathDir(ui->pathedit->path());
-		QFile file(pathDir.absoluteFilePath(Conflip::ConfigFileName()));
+		QDir pathDir{Settings::instance()->engine.dir};
+		QFile file{pathDir.absoluteFilePath(Conflip::ConfigFileName())};
 		if(!file.exists())
 			return;
 
@@ -183,6 +202,50 @@ void MainWindow::reload()
 		auto db = _serializer->deserializeFrom<ConflipDatabase>(&file);
 		_model->resetModel(db.entries);
 		file.close();
+
+		ui->action_Add_Entry->setEnabled(true);
+		ui->action_Edit_Entry->setEnabled(true);
+		ui->action_Remove_Entry->setEnabled(true);
+		ui->action_Reload_Daemon->setEnabled(true);
+
+		if(_svcControl->serviceExists()) {
+			switch(_svcControl->status()) {
+			case QtService::ServiceControl::ServiceStopped:
+			case QtService::ServiceControl::ServiceErrored:
+				if(!_svcControl->start()) {
+					DialogMaster::critical(this,
+										   tr("Failed to start %1 service with error: %2")
+										   .arg(QApplication::applicationDisplayName(), _svcControl->error()),
+										   tr("Service Error"));
+				}
+				break;
+			case QtService::ServiceControl::ServicePaused:
+				if(!_svcControl->resume()) {
+					DialogMaster::critical(this,
+										   tr("Failed to resume %1 service with error: %2")
+										   .arg(QApplication::applicationDisplayName(), _svcControl->error()),
+										   tr("Service Error"));
+					break;
+				}
+				Q_FALLTHROUGH();
+			case QtService::ServiceControl::ServiceRunning:
+				on_action_Reload_Daemon_triggered();
+				break;
+			case QtService::ServiceControl::ServiceStatusUnknown:
+				if(!_svcControl->start())
+					on_action_Reload_Daemon_triggered();
+				break;
+			case QtService::ServiceControl::ServiceStarting:
+			case QtService::ServiceControl::ServiceResuming:
+			case QtService::ServiceControl::ServiceReloading:
+			case QtService::ServiceControl::ServiceStopping:
+			case QtService::ServiceControl::ServicePausing:
+				break;
+			default:
+				Q_UNREACHABLE();
+				break;
+			}
+		}
 	} catch(QJsonSerializationException &e) {
 		qCritical() << e.what();
 		DialogMaster::critical(this, tr("Parsed JSON content is invalid!"), tr("Reading config failed"));
@@ -192,7 +255,7 @@ void MainWindow::reload()
 void MainWindow::update()
 {
 	try {
-		QDir pathDir(ui->pathedit->path());
+		QDir pathDir{Settings::instance()->engine.dir};
 		ConflipDatabase db;
 
 		QFile file(pathDir.absoluteFilePath(Conflip::ConfigFileName()));
@@ -233,7 +296,9 @@ void MainWindow::updatePath(const QString &path)
 	pathDir.makeAbsolute();
 	if(pathDir.exists()) {
 		Settings::instance()->engine.dir = pathDir.absolutePath();
-		_watcher->addPath(pathDir.absoluteFilePath(Conflip::ConfigFileName()));
-		reload();
+		if(Conflip::initConfDir()) {
+			_watcher->addPath(pathDir.absoluteFilePath(Conflip::ConfigFileName()));
+			reload();
+		}
 	}
 }

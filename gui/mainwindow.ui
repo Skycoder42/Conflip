@@ -124,6 +124,9 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_Add_Entry">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="list-add">
      <normaloff>.</normaloff>.</iconset>
@@ -139,6 +142,9 @@
    </property>
   </action>
   <action name="action_Reload_Daemon">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="view-refresh">
      <normaloff>.</normaloff>.</iconset>
@@ -181,6 +187,9 @@
    </property>
   </action>
   <action name="action_Remove_Entry">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="list-remove">
      <normaloff>.</normaloff>.</iconset>
@@ -196,6 +205,9 @@
    </property>
   </action>
   <action name="action_Edit_Entry">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="gtk-edit">
      <normaloff>.</normaloff>.</iconset>

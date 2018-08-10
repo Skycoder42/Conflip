@@ -10,6 +10,7 @@ namespace Conflip
 {
 
 LIBCONFLIPSHARED_EXPORT QString ConfigFileName();
+LIBCONFLIPSHARED_EXPORT bool initConfDir();
 
 LIBCONFLIPSHARED_EXPORT QStringList listPlugins();
 LIBCONFLIPSHARED_EXPORT SyncHelper *loadHelper(const QString &type, QObject *parent = nullptr);

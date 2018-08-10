@@ -1,11 +1,16 @@
 [Unit]
-Description=Conflip Daemon
+Description=Conflip Service
+Documentation=https://github.com/Skycoder42/Conflip
 
 [Service]
-Type=simple
-ExecStart=%{INSTALL_BINS}/conflipd --systemd-log %{SLICE}
-ExecReload=/bin/kill -HUP $MAINPID
+Type=notify
+NotifyAccess=exec
+ExecStart=%{INSTALL_BINS}/conflipd -platform minimal --backend systemd %{SLICE}
+ExecReload=%{INSTALL_BINS}/conflipd -platform minimal --backend systemd reload $MAINPID %{SLICE}
+ExecStop=%{INSTALL_BINS}/conflipd -platform minimal --backend systemd stop $MAINPID %{SLICE}
+#WatchdogSec=10
 Restart=on-abnormal
+RuntimeDirectory=%{conflip}
 
 [Install]
 WantedBy=default.target
