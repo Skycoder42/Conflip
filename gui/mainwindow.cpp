@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QApplication>
 #include <QProcess>
+#include <QClipboard>
 #include <conflip.h>
 #include <conflipdatabase.h>
 #include <dialogmaster.h>
@@ -176,6 +177,22 @@ void MainWindow::on_action_About_triggered()
 	info.defaultButton = QMessageBox::Close;
 	info.escapeButton = QMessageBox::Close;
 	DialogMaster::messageBox(info);
+}
+
+void MainWindow::on_actionPaste_Path_triggered()
+{
+	auto clipBoard = QApplication::clipboard();
+	auto path = clipBoard->text();
+	QUrl pathUrl{path};
+	if(pathUrl.isLocalFile())
+		path = pathUrl.toLocalFile();
+	if(path.isEmpty())
+		return;
+	auto entry = CreateEntryDialog::editEntry(SyncEntry{path}, this);
+	if(entry) {
+		_model->addGadget(entry);
+		update();
+	}
 }
 
 void MainWindow::reload()

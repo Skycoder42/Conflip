@@ -1,2 +1,0 @@
-include(/home/sky/Programming/QtProjects/build-Conflip-Desktop_Qt_5_11_1_GCC_64bit-Release/gui/.ts-sources.pri)
-include(/home/sky/Programming/QtProjects/Conflip/gui/gui.pro)

@@ -93,7 +93,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+11"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
@@ -143,7 +143,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="+25"/>
+        <location line="+8"/>
+        <source>Paste Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="+26"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -170,13 +175,13 @@
     </message>
     <message>
         <location line="+2"/>
-        <location line="+106"/>
+        <location line="+122"/>
         <location line="+8"/>
         <source>Service Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-67"/>
+        <location line="-83"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -191,7 +196,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+51"/>
         <location line="+53"/>
         <location line="+13"/>
         <location line="+25"/>

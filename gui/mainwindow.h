@@ -28,6 +28,7 @@ private slots:
 	void on_action_Edit_Entry_triggered();
 	void on_action_Remove_Entry_triggered();
 	void on_action_About_triggered();
+	void on_actionPaste_Path_triggered();
 
 	void reload();
 	void update();

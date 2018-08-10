@@ -93,7 +93,7 @@
         <translation>&amp;Bearbeiten</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+11"/>
         <source>&amp;Help</source>
         <translation>&amp;Hilfe</translation>
     </message>
@@ -143,7 +143,12 @@
         <translation>Eintrag &amp;bearbeiten</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="+25"/>
+        <location line="+8"/>
+        <source>Paste Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="+26"/>
         <source>Mode</source>
         <translation>Modus</translation>
     </message>
@@ -182,13 +187,13 @@
     </message>
     <message>
         <location line="+2"/>
-        <location line="+106"/>
+        <location line="+122"/>
         <location line="+8"/>
         <source>Service Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-67"/>
+        <location line="-83"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
@@ -203,7 +208,7 @@
         <translation>&lt;p&gt;Ein Tool zum Synchronisieren von Einstellungen/Konfigurationen über mehrere Maschinen.&lt;/p&gt;&lt;p&gt;Verfügbare Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Erstellt mit Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Entwickelt von: Skycoder42&lt;br/&gt;Projekt Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;Lizenz: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons basieren auf &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; und &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; von &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; und stehen unter der &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt; Lizenz&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+51"/>
         <location line="+53"/>
         <location line="+13"/>
         <location line="+25"/>

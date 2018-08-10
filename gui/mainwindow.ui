@@ -98,6 +98,8 @@
     <addaction name="action_Edit_Entry"/>
     <addaction name="separator"/>
     <addaction name="action_Remove_Entry"/>
+    <addaction name="separator"/>
+    <addaction name="actionPaste_Path"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -214,6 +216,17 @@
    </property>
    <property name="text">
     <string>&amp;Edit Entry</string>
+   </property>
+  </action>
+  <action name="actionPaste_Path">
+   <property name="icon">
+    <iconset theme="edit-paste"/>
+   </property>
+   <property name="text">
+    <string>Paste Path</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+V</string>
    </property>
   </action>
  </widget>
