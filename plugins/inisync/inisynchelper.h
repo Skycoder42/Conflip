@@ -13,6 +13,7 @@ public:
 
 	explicit IniSyncHelper(QObject *parent = nullptr);
 
+	QString syncPrefix() const override;
 	bool pathIsPattern(const QString &mode) const override;
 	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
 	void undoSync(const QString &path, const QString &mode) override;

@@ -229,9 +229,10 @@ void MainWindow::update()
 
 void MainWindow::updatePath(const QString &path)
 {
-	QDir pathDir(path);
+	QDir pathDir(QDir::cleanPath(path));
+	pathDir.makeAbsolute();
 	if(pathDir.exists()) {
-		Settings::instance()->engine.dir = path;
+		Settings::instance()->engine.dir = pathDir.absolutePath();
 		_watcher->addPath(pathDir.absoluteFilePath(Conflip::ConfigFileName()));
 		reload();
 	}

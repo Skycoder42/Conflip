@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QStringList>
 #include <syncentry.h>
+#include <synchelper.h>
 
 class PathResolver : public QObject
 {
@@ -13,7 +14,7 @@ class PathResolver : public QObject
 public:
 	explicit PathResolver(QObject *parent = nullptr);
 
-	QStringList resolvePath(const SyncEntry &entry) const;
+	QStringList resolvePath(const SyncEntry &entry, SyncHelper *helper) const;
 
 private:
 	mutable bool _scanHidden;

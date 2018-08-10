@@ -9,6 +9,11 @@ IniSyncHelper::IniSyncHelper(QObject *parent) :
 	SyncHelper(parent)
 {}
 
+QString IniSyncHelper::syncPrefix() const
+{
+	return QStringLiteral("ini");
+}
+
 bool IniSyncHelper::pathIsPattern(const QString &mode) const
 {
 	Q_UNUSED(mode)
@@ -21,7 +26,7 @@ void IniSyncHelper::performSync(const QString &path, const QString &mode, const 
 		throw SyncException("Unsupported path mode");
 
 	QFileInfo srcInfo, syncInfo;
-	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("ini"), path);
+	std::tie(srcInfo, syncInfo) = generatePaths(path);
 
 	QByteArrayList subKeys;
 	subKeys.reserve(extras.size());
@@ -169,7 +174,7 @@ void IniSyncHelper::undoSync(const QString &path, const QString &mode)
 {
 	if(mode != ModeIni)
 		throw SyncException("Unsupported path mode");
-	removeSyncPath(QStringLiteral("ini"), path, "INI-SYNC");
+	removeSyncPath(path, "INI-SYNC");
 }
 
 IniSyncHelper::IniEntryMapping IniSyncHelper::createMapping(const QFileInfo &file) const

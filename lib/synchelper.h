@@ -15,14 +15,19 @@ public:
 
 	void setSyncDir(const QDir &dir);
 
+	virtual QString syncPrefix() const = 0;
+
 	virtual bool pathIsPattern(const QString &mode) const = 0;
+	virtual QString toSyncPath(const QString &path) const;
+	virtual QString toSrcPath(const QString &path) const;
+
 	virtual void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) = 0;
 	virtual void undoSync(const QString &path, const QString &mode) = 0;
 
 protected:
 	QDir syncDir() const;
-	std::tuple<QFileInfo, QFileInfo> generatePaths(const QString &prefix, const QString &path) const;
-	void removeSyncPath(const QString &prefix, const QString &path, const QByteArray &logPrefix);
+	std::tuple<QFileInfo, QFileInfo> generatePaths(const QString &path) const;
+	void removeSyncPath(const QString &path, const QByteArray &logPrefix);
 
 private:
 	QDir _syncDir;

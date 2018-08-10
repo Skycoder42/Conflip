@@ -9,6 +9,11 @@ XmlSyncHelper::XmlSyncHelper(QObject *parent) :
 	SyncHelper(parent)
 {}
 
+QString XmlSyncHelper::syncPrefix() const
+{
+	return QStringLiteral("xml");
+}
+
 bool XmlSyncHelper::pathIsPattern(const QString &mode) const
 {
 	Q_UNUSED(mode)
@@ -21,7 +26,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 		throw SyncException("Unsupported path mode");
 
 	QFileInfo srcInfo, syncInfo;
-	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("xml"), path);
+	std::tie(srcInfo, syncInfo) = generatePaths(path);
 
 	// step 1: load the two xml models
 	auto srcDoc = loadDocument(srcInfo);
@@ -146,7 +151,7 @@ void XmlSyncHelper::undoSync(const QString &path, const QString &mode)
 {
 	if(mode != ModeXml)
 		throw SyncException("Unsupported path mode");
-	removeSyncPath(QStringLiteral("xml"), path, "XML-SYNC");
+	removeSyncPath(path, "XML-SYNC");
 }
 
 void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement& syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)

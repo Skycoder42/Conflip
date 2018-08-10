@@ -27,6 +27,8 @@ public:
 	bool caseSensitive = true;
 	QList<QUuid> syncedMachines;
 
+	void setCleanPathPattern(const QString &path);
+
 	bool operator==(const SyncEntry &other) const;
 	bool operator!=(const SyncEntry &other) const;
 

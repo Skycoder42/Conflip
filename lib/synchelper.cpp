@@ -8,29 +8,45 @@ SyncHelper::SyncHelper(QObject *parent) :
 
 void SyncHelper::setSyncDir(const QDir &dir)
 {
+	Q_ASSERT(dir.isAbsolute());
 	_syncDir = dir;
-	_syncDir.makeAbsolute();
+}
+
+QString SyncHelper::toSyncPath(const QString &path) const
+{
+	auto basePath = QDir::cleanPath(QFileInfo{path}.absoluteFilePath());
+	if(basePath.startsWith(QDir::homePath()))
+		basePath = syncPrefix() + QStringLiteral("/user/") + QDir::home().relativeFilePath(basePath);
+	else
+		basePath = syncPrefix() + QStringLiteral("/system/") + basePath;
+	return QDir::cleanPath(syncDir().absoluteFilePath(basePath));
+}
+
+QString SyncHelper::toSrcPath(const QString &path) const
+{
+	const auto userPrefix = syncDir().absoluteFilePath(syncPrefix() + QStringLiteral("/user/"));
+	const auto systemPrefix = syncDir().absoluteFilePath(syncPrefix() + QStringLiteral("/system/"));
+	auto basePath = QDir::cleanPath(QFileInfo{path}.absoluteFilePath());
+	if(path.startsWith(userPrefix))
+		basePath = QDir{userPrefix}.relativeFilePath(basePath);
+	else if(path.startsWith(systemPrefix))
+		basePath = QDir{systemPrefix}.relativeFilePath(basePath);
+	else {
+		qWarning() << "Tried to convert path" << path << "from sync to src path, but it is not a synced path";
+		return {};
+	}
+	return QDir::cleanPath(QDir::home().absoluteFilePath(basePath));
 }
 
 QDir SyncHelper::syncDir() const
 {
 	return _syncDir;
 }
-
-std::tuple<QFileInfo, QFileInfo> SyncHelper::generatePaths(const QString &prefix, const QString &path) const
+std::tuple<QFileInfo, QFileInfo> SyncHelper::generatePaths(const QString &path) const
 {
-	const static auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-	auto basePath = QFileInfo(path).dir().absolutePath();
-	auto targetDir = syncDir();
-	if(basePath.startsWith(home))
-		basePath = prefix + QStringLiteral("/user/") + QDir(home).relativeFilePath(basePath);
-	else
-		basePath = prefix + QStringLiteral("/system/") + basePath;
-	targetDir = QDir::cleanPath(targetDir.absoluteFilePath(basePath));
-
-	QFileInfo srcInfo(path);
+	QFileInfo srcInfo{path};
 	srcInfo.setCaching(false);
-	QFileInfo syncInfo(targetDir.absoluteFilePath(srcInfo.fileName()));
+	QFileInfo syncInfo{toSyncPath(path)};
 	syncInfo.setCaching(false);
 
 	//create parent dirs
@@ -46,17 +62,9 @@ std::tuple<QFileInfo, QFileInfo> SyncHelper::generatePaths(const QString &prefix
 	return {srcInfo, syncInfo};
 }
 
-void SyncHelper::removeSyncPath(const QString &prefix, const QString &path, const QByteArray &logPrefix)
+void SyncHelper::removeSyncPath(const QString &path, const QByteArray &logPrefix)
 {
-	const static auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-	auto basePath = QFileInfo{path}.absoluteFilePath();
-	auto targetDir = syncDir();
-	if(basePath.startsWith(home))
-		basePath = prefix + QStringLiteral("/user/") + QDir(home).relativeFilePath(basePath);
-	else
-		basePath = prefix + QStringLiteral("/system/") + basePath;
-	QFileInfo targetInfo { QDir::cleanPath(targetDir.absoluteFilePath(basePath)) };
-
+	QFileInfo targetInfo{toSyncPath(path)};
 	QFile tFile(targetInfo.absoluteFilePath());
 	if(tFile.exists()) {
 		if(!tFile.remove())

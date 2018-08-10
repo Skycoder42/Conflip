@@ -36,7 +36,8 @@ SyncEngine::SyncEngine(QObject *parent) :
 
 int SyncEngine::start()
 {
-	_workingDir = static_cast<QString>(Settings::instance()->engine.dir);
+	_workingDir = QDir::cleanPath(Settings::instance()->engine.dir);
+	_workingDir.makeAbsolute();
 	if(!_workingDir.exists()) {
 		qCritical().noquote() << "Working directory"
 							  << _workingDir.absolutePath()
@@ -112,7 +113,8 @@ void SyncEngine::signalTriggered(int signal)
 {
 	switch (signal) {
 	case SIGHUP:
-		_workingDir = static_cast<QString>(Settings::instance()->engine.dir);
+		_workingDir = QDir::cleanPath(Settings::instance()->engine.dir);
+		_workingDir.makeAbsolute();
 		if(_workingDir.exists()) {
 			for(auto helper : qAsConst(_helpers))
 				helper->setSyncDir(_workingDir);
@@ -153,7 +155,7 @@ void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
 
 		QStringList paths;
 		if(helper->pathIsPattern(entry.mode))
-			paths = _resolver->resolvePath(entry);
+			paths = _resolver->resolvePath(entry, helper);
 		else
 			paths = QStringList { entry.pathPattern };
 		for(const auto& path : qAsConst(paths)) {
@@ -189,7 +191,7 @@ void SyncEngine::removeUnsynced(QList<SyncEntry> &entries, bool &changed)
 
 		QStringList paths;
 		if(helper->pathIsPattern(it->mode))
-			paths = _resolver->resolvePath(*it);
+			paths = _resolver->resolvePath(*it, helper);
 		else
 			paths = QStringList { it->pathPattern };
 		for(const auto& path : qAsConst(paths)) {

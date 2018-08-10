@@ -1,6 +1,14 @@
 #include "syncentry.h"
 #include <QDebug>
 #include <QMetaEnum>
+#include <QDir>
+
+void SyncEntry::setCleanPathPattern(const QString &path)
+{
+	pathPattern = QDir::cleanPath(path);
+	if(pathPattern.startsWith(QStringLiteral("~/")))
+		pathPattern = QDir::home().absoluteFilePath(pathPattern.mid(2));
+}
 
 bool SyncEntry::operator==(const SyncEntry &other) const
 {

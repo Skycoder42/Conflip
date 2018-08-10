@@ -13,6 +13,11 @@ DConfSyncHelper::DConfSyncHelper(QObject *parent) :
 	QJsonSerializer::registerAllConverters<DConfEntry>();
 }
 
+QString DConfSyncHelper::syncPrefix() const
+{
+	return QStringLiteral("dconf");
+}
+
 bool DConfSyncHelper::pathIsPattern(const QString &mode) const
 {
 	Q_UNUSED(mode)
@@ -27,7 +32,7 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 		throw SyncException("DConf path must start and end with a /");
 
 	//generate sync path and create parent dirs
-	QString cnfPath = QStringLiteral("dconf") + path + QStringLiteral("dconf.json");
+	QString cnfPath = syncPrefix() + path + QStringLiteral("dconf.json");
 	QFileInfo syncInfo(QDir::cleanPath(syncDir().absoluteFilePath(cnfPath)));
 	syncInfo.setCaching(false);
 	if(!syncInfo.dir().exists()) {
@@ -128,7 +133,7 @@ void DConfSyncHelper::undoSync(const QString &path, const QString &mode)
 {
 	if(mode != ModeDConf)
 		throw SyncException("Unsupported path mode");
-	QString cnfPath = QStringLiteral("dconf") + path + QStringLiteral("dconf.json");
+	QString cnfPath = syncPrefix() + path + QStringLiteral("dconf.json");
 	QFileInfo syncInfo(QDir::cleanPath(syncDir().absoluteFilePath(cnfPath)));
 	if(syncInfo.exists()) {
 		if(!QFile::remove(syncInfo.absoluteFilePath()))

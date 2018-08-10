@@ -12,6 +12,11 @@ PathSyncHelper::PathSyncHelper(QObject *parent) :
 	_regexCache(100000)
 {}
 
+QString PathSyncHelper::syncPrefix() const
+{
+	return QStringLiteral("files");
+}
+
 bool PathSyncHelper::pathIsPattern(const QString &mode) const
 {
 	Q_UNUSED(mode)
@@ -41,7 +46,7 @@ void PathSyncHelper::performSync(const QString &path, const QString &mode, const
 	}
 
 	QFileInfo srcInfo, syncInfo;
-	std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("files"), path);
+	std::tie(srcInfo, syncInfo) = generatePaths(path);
 
 	if(mode == ModeSymlink)
 		syncAsSymlink(srcInfo, syncInfo, isFirstUse);
@@ -55,10 +60,10 @@ void PathSyncHelper::undoSync(const QString &path, const QString &mode)
 {
 	if(mode == ModeSymlink) {
 		QFileInfo srcInfo, syncInfo;
-		std::tie(srcInfo, syncInfo) = generatePaths(QStringLiteral("files"), path);
+		std::tie(srcInfo, syncInfo) = generatePaths(path);
 		unlink(srcInfo, syncInfo);
 	} else if(mode == ModeCopy)
-		removeSyncPath(QStringLiteral("files"), path, "PATH-SYNC");
+		removeSyncPath(path, "PATH-SYNC");
 	else
 		throw SyncException("Unsupported path mode");
 }

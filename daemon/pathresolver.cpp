@@ -7,17 +7,25 @@ PathResolver::PathResolver(QObject *parent) :
 	_scanHidden(true)
 {}
 
-QStringList PathResolver::resolvePath(const SyncEntry &entry) const
+QStringList PathResolver::resolvePath(const SyncEntry &entry, SyncHelper *helper) const
 {
-	if(!entry.pathPattern.contains(QLatin1Char('*')) &&
-	   !entry.pathPattern.contains(QLatin1Char('?')) &&
-	   entry.caseSensitive)
-		return {entry.pathPattern};
-
-	auto pathList = entry.pathPattern.split(QLatin1Char('/'), QString::SkipEmptyParts);
 	_scanHidden = entry.includeHidden;
-	auto cd = createDir(QStringLiteral("/"));
-	return findFiles(cd, pathList);
+	_caseSensitive = entry.caseSensitive;
+
+	QStringList allPaths;
+	const auto cd = createDir(QStringLiteral("/"));
+
+	// match all "src" paths
+	allPaths.append(findFiles(cd, entry.pathPattern.split(QLatin1Char('/'), QString::SkipEmptyParts)));
+
+	// match all "sync" paths
+	const auto sPaths = findFiles(cd, helper->toSyncPath(entry.pathPattern).split(QLatin1Char('/'), QString::SkipEmptyParts));
+	allPaths.reserve(allPaths.size() + sPaths.size());
+	for(const auto &path : sPaths)
+		allPaths.append(helper->toSrcPath(path));
+
+	allPaths.removeDuplicates();
+	return allPaths;
 }
 
 QStringList PathResolver::findFiles(const QDir &cd, QStringList pathList) const
@@ -39,9 +47,6 @@ QStringList PathResolver::findFiles(const QDir &cd, QStringList pathList) const
 		}
 
 		return resList;
-	} else if(element == QLatin1Char('~')) {
-		auto home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-		return findFiles(createDir(home), pathList);
 	} else {
 		QStringList resList;
 		auto subElements = cd.entryInfoList({element});

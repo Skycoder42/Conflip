@@ -60,7 +60,7 @@ SyncEntry CreateEntryDialog::editEntry(const SyncEntry &entry, QWidget *parent)
 
 	if(dialog.exec() == QDialog::Accepted) {
 		SyncEntry resEntry;
-		resEntry.pathPattern = dialog.ui->pathLineEdit->text();
+		resEntry.setCleanPathPattern(dialog.ui->pathLineEdit->text());
 		resEntry.mode = dialog.ui->modeComboBox->currentText();
 		resEntry.includeHidden = dialog.ui->hiddenFilesCheckBox->isChecked();
 		resEntry.caseSensitive = dialog.ui->caseSensitiveCheckBox->isChecked();
