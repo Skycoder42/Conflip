@@ -38,6 +38,11 @@ QString SyncHelper::toSrcPath(const QString &path) const
 	return QDir::cleanPath(QDir::home().absoluteFilePath(basePath));
 }
 
+SyncHelper::ExtrasHint SyncHelper::extrasHint() const
+{
+	return {false, tr("Extras"), {}};
+}
+
 QDir SyncHelper::syncDir() const
 {
 	return _syncDir;

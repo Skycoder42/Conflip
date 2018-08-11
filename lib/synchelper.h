@@ -11,6 +11,12 @@
 class LIBCONFLIPSHARED_EXPORT SyncHelper : public QObject
 {
 public:
+	struct ExtrasHint {
+		bool enabled;
+		QString title;
+		QString hint;
+	};
+
 	SyncHelper(QObject *parent = nullptr);
 
 	void setSyncDir(const QDir &dir);
@@ -24,6 +30,8 @@ public:
 
 	virtual void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) = 0;
 	virtual void undoSync(const QString &path, const QString &mode) = 0;
+
+	virtual ExtrasHint extrasHint() const;
 
 protected:
 	QDir syncDir() const;

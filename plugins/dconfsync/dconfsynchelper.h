@@ -39,6 +39,7 @@ public:
 	bool canSyncDirs(const QString &mode) const override;
 	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
 	void undoSync(const QString &path, const QString &mode) override;
+	ExtrasHint extrasHint() const override;
 
 private:
 	using DConfMap = QMap<QByteArray, DConfEntry>;

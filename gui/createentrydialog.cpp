@@ -1,5 +1,6 @@
 #include "createentrydialog.h"
 #include "ui_createentrydialog.h"
+#include <QWhatsThis>
 #include <dialogmaster.h>
 #include <conflip.h>
 #include <settings.h>
@@ -22,10 +23,13 @@ CreateEntryDialog::CreateEntryDialog(QWidget *parent) :
 
 	ui->addButton->setDefaultAction(ui->action_Add_Extra);
 	ui->removeButton->setDefaultAction(ui->action_Remove_Extra);
-	ui->listWidget->addActions({
+	ui->extrasListWidget->addActions({
 								   ui->action_Add_Extra,
 								   ui->action_Remove_Extra
 							   });
+	ui->helpButton->setDefaultAction(ui->actionWhats_this);
+	connect(ui->actionWhats_this, &QAction::triggered,
+			this, &CreateEntryDialog::showHint);
 
 	if(Settings::instance()->gui.createentrydialog.size.isSet())
 		resize(Settings::instance()->gui.createentrydialog.size);
@@ -54,7 +58,7 @@ SyncEntry CreateEntryDialog::editEntry(const SyncEntry &entry, QWidget *parent)
 		dialog.ui->caseSensitiveCheckBox->setChecked(entry.caseSensitive);
 		dialog.ui->matchDirectoriesCheckBox->setChecked(entry.matchDirs);
 		for(const auto& extra : entry.extras) {
-			auto item = new QListWidgetItem(extra, dialog.ui->listWidget);
+			auto item = new QListWidgetItem(extra, dialog.ui->extrasListWidget);
 			item->setFlags(item->flags() | Qt::ItemIsEditable);
 		}
 	}
@@ -67,11 +71,18 @@ SyncEntry CreateEntryDialog::editEntry(const SyncEntry &entry, QWidget *parent)
 		resEntry.caseSensitive = dialog.ui->caseSensitiveCheckBox->isChecked();
 		resEntry.matchDirs = dialog.ui->matchDirectoriesCheckBox->isEnabled() &&
 							 dialog.ui->matchDirectoriesCheckBox->isChecked();
-		for(auto i = 0; i < dialog.ui->listWidget->count(); i++)
-			resEntry.extras.append(dialog.ui->listWidget->item(i)->text());
+		for(auto i = 0; i < dialog.ui->extrasListWidget->count(); i++)
+			resEntry.extras.append(dialog.ui->extrasListWidget->item(i)->text());
 		return resEntry;
 	} else
 		return {};
+}
+
+void CreateEntryDialog::showHint()
+{
+	QWhatsThis::showText(mapToGlobal({width()/2, ui->extrasListWidget->y()}),
+						 ui->extrasListWidget->whatsThis(),
+						 this);
 }
 
 void CreateEntryDialog::on_actionSelect_File_triggered()
@@ -90,15 +101,15 @@ void CreateEntryDialog::on_actionSelect_Directory_triggered()
 
 void CreateEntryDialog::on_action_Add_Extra_triggered()
 {
-	auto item = new QListWidgetItem(ui->listWidget);
+	auto item = new QListWidgetItem(ui->extrasListWidget);
 	item->setFlags(item->flags() | Qt::ItemIsEditable);
-	ui->listWidget->setCurrentItem(item);
-	ui->listWidget->editItem(item);
+	ui->extrasListWidget->setCurrentItem(item);
+	ui->extrasListWidget->editItem(item);
 }
 
 void CreateEntryDialog::on_action_Remove_Extra_triggered()
 {
-	auto item = ui->listWidget->currentItem();
+	auto item = ui->extrasListWidget->currentItem();
 	if(item)
 		delete item;
 }
@@ -108,7 +119,22 @@ void CreateEntryDialog::on_modeComboBox_currentIndexChanged(const QString &text)
 	auto helper = Conflip::loadHelper(text, this);
 	if(helper) {
 		ui->matchDirectoriesCheckBox->setEnabled(helper->canSyncDirs(text));
+		auto info = helper->extrasHint();
+		ui->extrasLabel->setEnabled(info.enabled);
+		ui->extrasListWidget->setEnabled(info.enabled);
+		ui->action_Add_Extra->setEnabled(info.enabled);
+		ui->action_Remove_Extra->setEnabled(info.enabled);
+		ui->actionWhats_this->setEnabled(info.enabled);
+		ui->extrasLabel->setText(info.title + tr(":"));
+		ui->extrasLabel->setWhatsThis(info.hint);
+		ui->extrasListWidget->setWhatsThis(info.hint);
 		helper->deleteLater();
-	} else
+	} else {
 		ui->matchDirectoriesCheckBox->setEnabled(true);
+		ui->extrasLabel->setEnabled(false);
+		ui->extrasListWidget->setEnabled(false);
+		ui->action_Add_Extra->setEnabled(false);
+		ui->action_Remove_Extra->setEnabled(false);
+		ui->actionWhats_this->setEnabled(false);
+	}
 }

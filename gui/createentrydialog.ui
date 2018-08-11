@@ -92,18 +92,8 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&amp;Extras:</string>
-     </property>
-     <property name="buddy">
-      <cstring>listWidget</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="6" column="0" colspan="2">
-    <widget class="QListWidget" name="listWidget">
+    <widget class="QListWidget" name="extrasListWidget">
      <property name="contextMenuPolicy">
       <enum>Qt::ActionsContextMenu</enum>
      </property>
@@ -160,6 +150,36 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="extrasLabel">
+     <property name="text">
+      <string>&amp;Extras:</string>
+     </property>
+     <property name="buddy">
+      <cstring>extrasListWidget</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="helpButton"/>
+     </item>
+    </layout>
+   </item>
   </layout>
   <action name="action_Add_Extra">
    <property name="icon">
@@ -172,6 +192,9 @@
    <property name="shortcut">
     <string notr="true">Ctrl+Ins</string>
    </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
+   </property>
   </action>
   <action name="action_Remove_Extra">
    <property name="icon">
@@ -183,6 +206,9 @@
    </property>
    <property name="shortcut">
     <string notr="true">Del</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="actionSelect_File">
@@ -201,6 +227,21 @@
    </property>
    <property name="text">
     <string>Select &amp;Directory</string>
+   </property>
+  </action>
+  <action name="actionWhats_this">
+   <property name="icon">
+    <iconset theme="help-whatsthis">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Whats this?</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F1</string>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

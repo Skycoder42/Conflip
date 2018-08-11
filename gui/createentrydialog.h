@@ -20,6 +20,8 @@ public:
 	static SyncEntry editEntry(const SyncEntry &entry, QWidget *parent = nullptr);
 
 private slots:
+	void showHint();
+
 	void on_actionSelect_File_triggered();
 	void on_actionSelect_Directory_triggered();
 	void on_action_Add_Extra_triggered();

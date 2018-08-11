@@ -164,6 +164,26 @@ void XmlSyncHelper::undoSync(const QString &path, const QString &mode)
 	removeSyncPath(path, "XML-SYNC");
 }
 
+SyncHelper::ExtrasHint XmlSyncHelper::extrasHint() const
+{
+	return {
+		true,
+		tr("Keys"),
+		tr("<p>Enter the paths of the XML-Elements you want to synchronize. Elements are seperated by a '/' "
+		   "and there are some special characters that match special things. The possible variants are:"
+		   "<ul>"
+		   "	<li>\"some/node\": A path of elements. This will synchronize the element \"node\" within the"
+		   "		element \"some\" inside the root element. All attributes, child-elements and text are synchronized</li>"
+		   "	<li>\"node/~\": This will synchronize the text within the \"node\" element, and nothing else</li>"
+		   "	<li>\"node/=\": This will synchronize all attributes of \"node\" but not the contents</li>"
+		   "	<li>\"node/=key\": This will synchronize the attribute \"key\" of \"node\" but not the contents</li>"
+		   "	<li>\"node/#\": This will synchronize all attributes and content text of \"node\"</li>"
+		   "	<li>\"node/\": This will synchronize all child elements in \"node\", but no attributes</li>"
+		   "</ul></p>"
+		   "<p>You never have to specify the root element, as a XML-Document can only have a single root.</p>")
+	};
+}
+
 void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement& syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
 {
 	// both have the text

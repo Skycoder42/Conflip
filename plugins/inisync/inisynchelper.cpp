@@ -189,6 +189,24 @@ void IniSyncHelper::undoSync(const QString &path, const QString &mode)
 	removeSyncPath(path, "INI-SYNC");
 }
 
+SyncHelper::ExtrasHint IniSyncHelper::extrasHint() const
+{
+	return {
+		true,
+		tr("Keys"),
+		tr("<p>Enter the keys you want to synchronize. All entries that start with the given keys will be synchronized."
+		   "You can also enter \"inverted\" keys to exclude entries.</p>"
+		   "<p>For example, adding the keys"
+		   "<ul>"
+		   "	<li>test\\group</li>"
+		   "	<li>!test\\group\\child</li>"
+		   "	<li>test\\group\\child\\special</li>"
+		   "</ul>"
+		   "Will synchronize every entry that begins with \"test\\group\", but exclude all entries from \"test\\group\\child\", "
+		   "except everything that starts with \"test\\group\\child\\special\".</p>")
+	};
+}
+
 IniSyncHelper::IniEntryMapping IniSyncHelper::createMapping(const QFileInfo &file) const
 {
 	if(!file.exists())

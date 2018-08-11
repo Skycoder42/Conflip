@@ -74,6 +74,23 @@ void PathSyncHelper::undoSync(const QString &path, const QString &mode)
 		throw SyncException("Unsupported path mode");
 }
 
+SyncHelper::ExtrasHint PathSyncHelper::extrasHint() const
+{
+	return {
+		true,
+		tr("Excluded Paths"),
+		tr("<p>You can enter regular expressions that are matched against the found paths to exclude them from synchronization. "
+		   "The regex must be a standard PCRE-expression and can contain unicode characters</p>"
+		   "<p>For example, assuming your path pattern is \"dir/file_*.txt\" and your directory contains the files"
+		   "<ul>"
+		   "	<li>file_tree.txt</li>"
+		   "	<li>file_house.txt</li>"
+		   "	<li>file_heart.txt</li>"
+		   "</ul>"
+		   "And you add the exclude pattern \"_h\\w+e.*\\.\", it will only match \"file_tree.txt\" and exclude the other two</p>")
+	};
+}
+
 void PathSyncHelper::syncAsSymlink(const QFileInfo &src, const QFileInfo &sync, bool isFirstUse)
 {
 	// if syncfile does not exist -> move src to sync

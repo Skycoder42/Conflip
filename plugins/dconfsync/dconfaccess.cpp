@@ -32,7 +32,7 @@ void DConfAccess::open(const QByteArray &path)
 
 QByteArrayList DConfAccess::readAllKeys(const QByteArrayList &filters) const
 {
-	auto bList = readAllKeys(QByteArray());
+	auto bList = readAllKeysImpl({});
 	for(auto it = bList.begin(); it != bList.end();) {
 		auto erase = true;
 		for(const auto &filter : filters) {
@@ -110,7 +110,7 @@ void DConfAccess::sync()
 	}
 }
 
-QByteArrayList DConfAccess::readAllKeys(const QByteArray &base) const
+QByteArrayList DConfAccess::readAllKeysImpl(const QByteArray &base) const
 {
 	QByteArray realPath = _path + base;
 	gint len = 0;
@@ -121,7 +121,7 @@ QByteArrayList DConfAccess::readAllKeys(const QByteArray &base) const
 		for(gint i = 0; i < len; i++) {
 			QByteArray element = base + QByteArray(list[i]);
 			if(element.endsWith('/'))
-				bList.append(readAllKeys(element));
+				bList.append(readAllKeysImpl(element));
 			else
 				bList.append(element);
 		}

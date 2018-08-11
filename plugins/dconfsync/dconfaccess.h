@@ -25,7 +25,7 @@ private:
 	QByteArray _path;
 	bool _needsSync;
 
-	QByteArrayList readAllKeys(const QByteArray &base) const;
+	QByteArrayList readAllKeysImpl(const QByteArray &base) const;
 };
 
 #endif // DCONFREADER_H

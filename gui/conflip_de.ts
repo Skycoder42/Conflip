@@ -35,27 +35,32 @@
         <translation>&amp;Groß/Kleinschreibung:</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+75"/>
         <source>&amp;Extras:</source>
         <translation>&amp;Extras:</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+82"/>
+        <source>Whats this?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-99"/>
         <source>Match &amp;Direcoties:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+51"/>
         <source>&amp;Add Extra</source>
         <translation>Extra &amp;hinzufügen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Remove Extra</source>
         <translation>Extra &amp;entfernen</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>Select &amp;File</source>
         <translation>&amp;Datei auswählen</translation>
     </message>
@@ -65,7 +70,7 @@
         <translation>&amp;Ordner auswählen</translation>
     </message>
     <message>
-        <location filename="createentrydialog.cpp" line="+79"/>
+        <location filename="createentrydialog.cpp" line="+90"/>
         <source>Select a file</source>
         <translation>Wählen Sie eine Datei aus</translation>
     </message>
@@ -73,6 +78,11 @@
         <location line="+7"/>
         <source>Select a directory</source>
         <translation>Wählen Sie einen Ordner aus</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
