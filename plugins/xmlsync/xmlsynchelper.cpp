@@ -119,6 +119,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 					if(!includeAttribs)
 						removeAttribs(newChild.toElement());
 					syncParent.replaceChild(newChild, syncElement);
+					syncNeedsUpdate = true;
 					log(srcInfo, "Updated nodes in sync from src", tree);
 				} else {
 					auto srcParent = srcElement.parentNode();
@@ -126,6 +127,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 					if(!includeAttribs)
 						removeAttribs(newChild.toElement());
 					srcParent.replaceChild(newChild, srcElement);
+					srcNeedsUpdate = true;
 					log(srcInfo, "Updated nodes in src from sync", tree);
 				}
 			} else if(srcExists) {
@@ -134,6 +136,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 				if(!includeAttribs)
 					removeAttribs(newChild.toElement());
 				syncParent.replaceChild(newChild, syncElement);
+				syncNeedsUpdate = true;
 				log(srcInfo, "Added new nodes in sync from src", tree);
 			} else if(syncExists) {
 				auto srcParent = srcElement.parentNode();
@@ -141,6 +144,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 				if(!includeAttribs)
 					removeAttribs(newChild.toElement());
 				srcParent.replaceChild(newChild, srcElement);
+				srcNeedsUpdate = true;
 				log(srcInfo, "Added new nodes in src from sync", tree);
 			}
 		}
@@ -164,8 +168,8 @@ void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement&
 {
 	// both have the text
 	if(srcExists && syncExists) {
-		auto srcText = srcElement.text();
-		auto syncText = syncElement.text();
+		auto srcText = getText(srcElement);
+		auto syncText = getText(syncElement);
 		// text is different
 		if(srcText != syncText) {
 			if(srcIsNewer) {
@@ -181,12 +185,12 @@ void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement&
 			log(srcInfo, "Skipping unchanged text", key, true);
 	// only src has text
 	} else if(srcExists) {
-		writeText(syncElement, srcElement.text());
+		writeText(syncElement, getText(srcElement));
 		syncNeedsUpdate = true;
 		log(srcInfo, "Added new text in sync from src", key);
 	// only sync has text
 	} else if(syncExists) {
-		writeText(srcElement, syncElement.text());
+		writeText(srcElement, getText(syncElement));
 		srcNeedsUpdate = true;
 		log(srcInfo, "Added new text in src from sync", key);
 	}
@@ -267,7 +271,7 @@ QDomDocument XmlSyncHelper::loadDocument(const QFileInfo &file) const
 {
 	QFile readFile(file.absoluteFilePath());
 	if(!readFile.exists())
-		return QDomDocument();
+		return QDomDocument{};
 	else {
 		if(!readFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 			throw SyncException("Failed to open xml file for reading with error: " +
@@ -304,17 +308,40 @@ void XmlSyncHelper::saveDocument(const QFileInfo &file, const QDomDocument& docu
 
 void XmlSyncHelper::setupRootElements(QDomDocument &srcDoc, QDomDocument &syncDoc) const
 {
-	if(srcDoc.documentElement().isNull()) {
-		if(!syncDoc.doctype().isNull())
-			srcDoc = QDomDocument(syncDoc.doctype().name());
-		auto root = srcDoc.createElement(syncDoc.documentElement().tagName());
-		srcDoc.appendChild(root);
-	} else if(syncDoc.documentElement().isNull()) {
-		if(!srcDoc.doctype().isNull())
-			syncDoc = QDomDocument(srcDoc.doctype().name());
-		auto root = syncDoc.createElement(srcDoc.documentElement().tagName());
-		syncDoc.appendChild(root);
+	if(srcDoc.documentElement().isNull())
+		srcDoc = createDoc(syncDoc);
+	else if(syncDoc.documentElement().isNull())
+		syncDoc = createDoc(srcDoc);
+}
+
+QDomDocument XmlSyncHelper::createDoc(const QDomDocument& other) const
+{
+	// set document type
+	QDomDocument doc;
+	if(!other.doctype().isNull())
+		doc = QDomDocument{other.doctype().name()};
+
+	// add xml processing instructions
+	auto hasInstr = false;
+	auto children = other.childNodes();
+	for(auto i = 0; i < children.size(); ++i) {
+		if(children.at(i).isProcessingInstruction()) {
+			auto proc = children.at(i).toProcessingInstruction();
+			if(proc.target() == QStringLiteral("xml")) {
+				doc.appendChild(doc.createProcessingInstruction(proc.target(), proc.data()));
+				hasInstr = true;
+				break;
+			}
+		}
 	}
+	if(!hasInstr) {
+		doc.appendChild(doc.createProcessingInstruction(QStringLiteral("xml"),
+														QStringLiteral("version=\"1.0\" encoding=\"UTF-8\"")));
+	}
+
+	// create root element
+	doc.appendChild(doc.createElement(other.documentElement().tagName()));
+	return doc;
 }
 
 QDomElement XmlSyncHelper::cd(QDomElement current, const QString &tag, bool &exists) const
@@ -328,17 +355,29 @@ QDomElement XmlSyncHelper::cd(QDomElement current, const QString &tag, bool &exi
 	return child;
 }
 
+QString XmlSyncHelper::getText(const QDomElement& element) const
+{
+	// combine text from all direct children
+	QString text;
+	auto children = element.childNodes();
+	for(auto i = 0; i < children.size(); ++i) {
+		if(children.at(i).isText())
+			text.append(children.at(i).toText().data());
+	}
+	return text;
+}
+
 void XmlSyncHelper::writeText(QDomElement element, const QString &text) const
 {
 	auto children = element.childNodes();
-	for(auto i = 0; i < children.size(); i++) {
-		if(children.at(i).isText()) {
-			auto txtNode = children.at(i).toText();
-			txtNode.setData(text);
-			return;
-		}
+	// remove all old texts
+	for(auto i = 0; i < children.size();) {
+		if(children.at(i).isText())
+			element.removeChild(children.at(i));
+		else
+			++i;
 	}
-
+	// append the new text
 	auto txtNode = element.ownerDocument().createTextNode(text);
 	element.appendChild(txtNode);
 }

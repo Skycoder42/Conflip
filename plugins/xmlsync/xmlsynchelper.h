@@ -42,7 +42,9 @@ private:
 	void saveDocument(const QFileInfo &file, const QDomDocument& document);
 
 	void setupRootElements(QDomDocument &srcDoc, QDomDocument &syncDoc) const;
+	QDomDocument createDoc(const QDomDocument& other) const;
 	QDomElement cd(QDomElement current, const QString &tag, bool &exists) const;
+	QString getText(const QDomElement& element) const;
 	void writeText(QDomElement element, const QString &text) const;
 	void removeAttribs(QDomElement node) const;
 

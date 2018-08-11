@@ -1,23 +1,28 @@
 <?xml version='1.0'?>
 <root>
-    <simple>Test</simple>
-    <attribs another="666" baum="42"/>
-    <all b="2" c="3" a="1"/>
-    <nochild b="2" c="3" a="1">
-        <child>no</child>
-    </nochild>
-    <attrsub prop="test">Text</attrsub>
-    <nosub prop="test">Text</nosub>
-    <sub>
-        <element prop="yes">
-            <child>one</child>
-            <child>two</child>
-            <child>three</child>
-        </element>
-        <group>
-            <child>one</child>
-            <child>two</child>
-            <child>three</child>
-        </group>
-    </sub>
+	<simple somekey="42">Test</simple>
+	
+	<attribs b="2" c="3" a="1">
+		<child>no</child>
+	</attribs>
+	<attrib another="666" baum="42">no</attrib>
+	
+	<mixed b="2" c="3" a="1">Test</mixed>
+	<unmixed b="2" c="3" a="1">
+		<child>no</child>
+	</unmixed>
+	
+	<all b="2" c="3" a="1">Text</all>
+	<sub>
+		<element prop="yes">
+			<child>one</child>
+			<child>two</child>
+			<child>three</child>
+		</element>
+		<group prop="no">
+			<child>one</child>
+			<child>two</child>
+			<child>three</child>
+		</group>
+	</sub>
 </root>

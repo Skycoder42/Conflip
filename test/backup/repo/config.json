@@ -187,11 +187,11 @@
 			"mode": "xml",
 			"extras": [
 				"simple/~",
-				"attribs/=baum",
+				"attribs/=",
+				"attrib/=baum",
+				"mixed/#",
+				"unmixed/#",
 				"all",
-				"nochild/=",
-				"attrsub/#",
-				"nosub",
 				"sub/element",
 				"sub/group/"
 			],
