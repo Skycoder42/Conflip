@@ -24,6 +24,11 @@ bool PathSyncHelper::pathIsPattern(const QString &mode) const
 	return true;
 }
 
+bool PathSyncHelper::canSyncDirs(const QString &mode) const
+{
+	return mode == QStringLiteral("symlink"); //only symlink can sync dirs...
+}
+
 void PathSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
 {
 	for(const auto& extra : extras) {

@@ -17,6 +17,7 @@ bool SyncEntry::operator==(const SyncEntry &other) const
 			mode == other.mode &&
 			includeHidden == other.includeHidden &&
 			caseSensitive == other.caseSensitive &&
+			matchDirs == other.matchDirs &&
 			syncedMachines == other.syncedMachines;
 }
 
@@ -27,7 +28,8 @@ bool SyncEntry::operator!=(const SyncEntry &other) const
 			mode != other.mode ||
 			includeHidden != other.includeHidden ||
 			caseSensitive != other.caseSensitive ||
-							 syncedMachines != other.syncedMachines;
+			matchDirs != other.matchDirs ||
+			syncedMachines != other.syncedMachines;
 }
 
 SyncEntry::operator bool() const

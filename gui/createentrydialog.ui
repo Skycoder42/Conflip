@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>500</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -92,7 +92,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>&amp;Extras:</string>
@@ -102,7 +102,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item row="6" column="0" colspan="2">
     <widget class="QListWidget" name="listWidget">
      <property name="contextMenuPolicy">
       <enum>Qt::ActionsContextMenu</enum>
@@ -115,7 +115,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="7" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QToolButton" name="addButton">
@@ -142,6 +142,23 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="matchDirectoriesLabel">
+     <property name="text">
+      <string>Match &amp;Direcoties:</string>
+     </property>
+     <property name="buddy">
+      <cstring>matchDirectoriesCheckBox</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="matchDirectoriesCheckBox">
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
   <action name="action_Add_Extra">

@@ -5,14 +5,16 @@
 			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_file.txt",
 			"mode": "copy",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		
 		{
@@ -20,14 +22,16 @@
 			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": false
+			"caseSensitive": false,
+			"matchDirs": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_file_sensitive.txt",
 			"mode": "copy",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": false
+			"caseSensitive": false,
+			"matchDirs": true
 		},
 		
 		{
@@ -35,24 +39,25 @@
 			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/files/copy_pattern_*.txt",
 			"mode": "copy",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
-		
-		
 		
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/basic_symlink",
 			"mode": "symlink",
 			"extras": [],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		
 		{
@@ -60,14 +65,16 @@
 			"mode": "symlink",
 			"extras": [],
 			"includeHidden": false,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/hidden_copy/*",
 			"mode": "copy",
 			"extras": [],
 			"includeHidden": false,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		
 		{
@@ -78,7 +85,8 @@
 				".*\\.x\\.txt$"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/pattern_copy/*/subdir/*.txt",
@@ -88,7 +96,8 @@
 				".*\\.x\\.txt$"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		
 		{
@@ -99,7 +108,8 @@
 				"exclude_pattern_\\d+"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
 		},
 		{
 			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/recurse_copy/**/*.txt",
@@ -109,7 +119,25 @@
 				"exclude_pattern_\\d+"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": true
+		},
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/match_dirs/dirs_*",
+			"mode": "symlink",
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true,
+			"matchDirs": true
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/dirs/match_dirs/nodirs_*",
+			"mode": "symlink",
+			"extras": [],
+			"includeHidden": true,
+			"caseSensitive": true,
+			"matchDirs": false
 		},
 		
 		
@@ -127,7 +155,8 @@
 				"nogroup"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": false
 		},
 		
 		
@@ -147,7 +176,8 @@
 				"tweaks"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": false
 		},
 		
 		
@@ -166,7 +196,8 @@
 				"sub/group/"
 			],
 			"includeHidden": true,
-			"caseSensitive": true
+			"caseSensitive": true,
+			"matchDirs": false
 		}
 	]
 }

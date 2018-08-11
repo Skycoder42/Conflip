@@ -24,6 +24,7 @@ private slots:
 	void on_actionSelect_Directory_triggered();
 	void on_action_Add_Extra_triggered();
 	void on_action_Remove_Extra_triggered();
+	void on_modeComboBox_currentIndexChanged(const QString &text);
 
 private:
 	Ui::CreateEntryDialog *ui;

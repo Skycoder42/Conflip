@@ -21,6 +21,12 @@ bool IniSyncHelper::pathIsPattern(const QString &mode) const
 	return true;
 }
 
+bool IniSyncHelper::canSyncDirs(const QString &mode) const
+{
+	Q_UNUSED(mode)
+	return false;
+}
+
 void IniSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
 {
 	if(mode != ModeIni)

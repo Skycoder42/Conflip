@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>408</height>
+    <width>600</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -78,7 +78,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>480</width>
+     <width>600</width>
      <height>23</height>
     </rect>
    </property>
@@ -220,7 +220,8 @@
   </action>
   <action name="actionPaste_Path">
    <property name="icon">
-    <iconset theme="edit-paste"/>
+    <iconset theme="edit-paste">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Paste Path</string>

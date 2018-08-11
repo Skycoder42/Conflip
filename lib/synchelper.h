@@ -18,6 +18,7 @@ public:
 	virtual QString syncPrefix() const = 0;
 
 	virtual bool pathIsPattern(const QString &mode) const = 0;
+	virtual bool canSyncDirs(const QString &mode) const = 0;
 	virtual QString toSyncPath(const QString &path) const;
 	virtual QString toSrcPath(const QString &path) const;
 

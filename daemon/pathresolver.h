@@ -17,12 +17,9 @@ public:
 	QStringList resolvePath(const SyncEntry &entry, SyncHelper *helper) const;
 
 private:
-	mutable bool _scanHidden;
-	mutable bool _caseSensitive;
-
-	QStringList findFiles(const QDir &cd, QStringList pathList) const;
-	QDir findRootDir(QStringList &pathList) const;
-	QDir createDir(const QString &path) const;
+	QStringList findFiles(const QDir &cd, QStringList pathList, const SyncEntry &entry) const;
+	QDir findRootDir(QStringList &pathList, const SyncEntry &entry) const;
+	QDir createDir(const QString &path, const SyncEntry &entry) const;
 };
 
 #endif // PATHRESOLVER_H

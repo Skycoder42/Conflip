@@ -163,7 +163,7 @@ void MainWindow::on_action_About_triggered()
 				 .arg(QApplication::applicationDisplayName(), QApplication::applicationVersion());
 	info.text = tr("<p>A tool to synchronize settings/configurations across multiple machines.</p>"
 				   "<p>Available Plugins: <i>%1</i><br/>"
-				   "Compile with Qt-Version: <a href=\"https://www.qt.io/\">%2</a></p>"
+				   "Compiled with Qt-Version: <a href=\"https://www.qt.io/\">%2</a></p>"
 				   "<p>Developed by: Skycoder42<br/>"
 				   "Project Website: <a href=\"https://github.com/Skycoder42/Conflip\">https://github.com/Skycoder42/Conflip</a><br/>"
 				   "License: <a href=\"https://github.com/Skycoder42/Conflip/blob/master/LICENSE\">BSD 3 Clause</a></p>"

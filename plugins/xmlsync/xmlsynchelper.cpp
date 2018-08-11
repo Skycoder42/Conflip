@@ -20,6 +20,12 @@ bool XmlSyncHelper::pathIsPattern(const QString &mode) const
 	return true;
 }
 
+bool XmlSyncHelper::canSyncDirs(const QString &mode) const
+{
+	Q_UNUSED(mode)
+	return false;
+}
+
 void XmlSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
 {
 	if(mode != ModeXml)

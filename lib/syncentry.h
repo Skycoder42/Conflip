@@ -17,6 +17,7 @@ class LIBCONFLIPSHARED_EXPORT SyncEntry
 	Q_PROPERTY(QString mode MEMBER mode)
 	Q_PROPERTY(bool	includeHidden MEMBER includeHidden)
 	Q_PROPERTY(bool	caseSensitive MEMBER caseSensitive)
+	Q_PROPERTY(bool	matchDirs MEMBER matchDirs)
 	Q_PROPERTY(QList<QUuid> syncedMachines MEMBER syncedMachines)
 
 public:
@@ -25,6 +26,7 @@ public:
 	QString mode;
 	bool includeHidden = true;
 	bool caseSensitive = true;
+	bool matchDirs = true;
 	QList<QUuid> syncedMachines;
 
 	void setCleanPathPattern(const QString &path);
