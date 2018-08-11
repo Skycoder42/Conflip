@@ -21,6 +21,7 @@ private:
 	mutable bool _caseSensitive;
 
 	QStringList findFiles(const QDir &cd, QStringList pathList) const;
+	QDir findRootDir(QStringList &pathList) const;
 	QDir createDir(const QString &path) const;
 };
 
