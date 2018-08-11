@@ -5,7 +5,7 @@ CONFIG += plugin
 QT = core
 
 TARGET = inisync
-DESTDIR = $$OUT_PWD/../conflip
+DESTDIR = $$PLUGIN_DESTDIR/conflip
 
 HEADERS += \
 	inisynchelperplugin.h \

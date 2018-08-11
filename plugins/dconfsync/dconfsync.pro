@@ -5,7 +5,7 @@ CONFIG += plugin
 QT = core jsonserializer
 
 TARGET = dconfsync
-DESTDIR = $$OUT_PWD/../conflip
+DESTDIR = $$PLUGIN_DESTDIR/conflip
 
 HEADERS += \
 	dconfsynchelperplugin.h \

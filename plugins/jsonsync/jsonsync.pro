@@ -2,20 +2,20 @@ TEMPLATE = lib
 
 CONFIG += plugin
 
-QT = core xml
+QT = core
 
-TARGET = xmlsync
+TARGET = jsonsync
 DESTDIR = $$PLUGIN_DESTDIR/conflip
 
 HEADERS += \
-		xmlsynchelperplugin.h \
-	xmlsynchelper.h
+		jsonsynchelperplugin.h \
+    jsonsynchelper.h
 
 SOURCES += \
-		xmlsynchelperplugin.cpp \
-	xmlsynchelper.cpp
+		jsonsynchelperplugin.cpp \
+    jsonsynchelper.cpp
 
-DISTFILES += xmlsync.json
+DISTFILES += jsonsync.json
 
 target.path = $$INSTALL_PLUGINS/conflip
 INSTALLS += target

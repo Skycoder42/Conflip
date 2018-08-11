@@ -5,7 +5,7 @@ CONFIG += plugin
 QT = core
 
 TARGET = pathsync
-DESTDIR = $$OUT_PWD/../conflip
+DESTDIR = $$PLUGIN_DESTDIR/conflip
 
 HEADERS += \
 	pathsynchelperplugin.h \

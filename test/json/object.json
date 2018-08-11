@@ -1,0 +1,16 @@
+{
+	"key": true,
+	"noKey": false,
+	"group": {
+		"subKey": "Hello World",
+		"more": {},
+		"list": [1, 2, 3, 4, 5]
+	},
+	"anotherGroup": {
+		"null": null,
+		"notNull": 42
+	},
+	"anotherGroup2": {
+		"some": "stuff"
+	}
+}

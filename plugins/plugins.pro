@@ -4,4 +4,5 @@ SUBDIRS += \
     pathsync \
     inisync \
     dconfsync \
-    xmlsync
+    xmlsync \
+    jsonsync

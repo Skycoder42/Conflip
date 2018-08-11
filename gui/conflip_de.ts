@@ -113,7 +113,13 @@
         <translation>&amp;Hilfe</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+11"/>
+        <source>Toolbar</source>
+        <oldsource>Primary Toolbar</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>&amp;Add Entry</source>
         <translation>Eintrag &amp;Hinzufügen</translation>
     </message>

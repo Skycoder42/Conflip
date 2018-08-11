@@ -2,7 +2,7 @@
 #include "inisynchelper.h"
 
 IniSyncHelperPlugin::IniSyncHelperPlugin(QObject *parent) :
-	QObject(parent)
+	QObject{parent}
 {}
 
 SyncHelper *IniSyncHelperPlugin::createInstance(const QString &provider, QObject *parent)

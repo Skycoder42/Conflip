@@ -198,6 +198,48 @@
 			"includeHidden": true,
 			"caseSensitive": true,
 			"matchDirs": false
+		},
+		
+		
+		
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/json/object.json",
+			"mode": "json",
+			"extras": [
+				"key",
+				"group/subKey",
+				"group/list",
+				"anotherGroup"
+			],
+			"includeHidden": true,
+			"caseSensitive": true,
+			"matchDirs": false
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/json/array.json",
+			"mode": "json",
+			"extras": [
+				"key",
+				"group/subKey",
+				"group/list",
+				"anotherGroup"
+			],
+			"includeHidden": true,
+			"caseSensitive": true,
+			"matchDirs": false
+		},
+		{
+			"pathPattern": "/home/sky/Programming/QtProjects/Conflip/test/json/object.qbjs",
+			"mode": "qbjs",
+			"extras": [
+				"key",
+				"group/subKey",
+				"group/list",
+				"anotherGroup"
+			],
+			"includeHidden": true,
+			"caseSensitive": true,
+			"matchDirs": false
 		}
 	]
 }
