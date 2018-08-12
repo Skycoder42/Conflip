@@ -6,7 +6,9 @@
 #include <QFileSystemWatcher>
 #include <QJsonSerializer>
 #include <QDir>
+#include <QThreadPool>
 #include <synchelper.h>
+#include <conflipdatabase.h>
 
 #include "pathresolver.h"
 
@@ -25,20 +27,29 @@ public:
 private slots:
 	void triggerSync();
 
+	void syncDone(SyncTask *task, SyncTask::Result result);
+
 private:
 	QTimer *_timer;
 	QFileSystemWatcher *_watcher;
 	QJsonSerializer *_serializer;
 	PathResolver *_resolver;
+	QThreadPool *_threadPool;
 
 	QHash<QString, SyncHelper*> _helpers;
 
 	QDir _workingDir;
-	bool _skipNextUpdate;
+	bool _skipNextUpdate = false;
+
+	ConflipDatabase _currentDb;
+	bool _dbChanged = false;
+	QHash<SyncTask*, SyncEntry*> _activeTasks;
 
 	SyncHelper *getHelper(const QString &type);
-	void syncEntries(QList<SyncEntry> &entries, bool &changed);
-	void removeUnsynced(QList<SyncEntry> &entries, bool &changed);
+	void syncEntries(QList<SyncEntry> &entries);
+	void removeUnsynced(QList<SyncEntry> &entries);
+
+	void completeSync();
 };
 
 #endif // SYNCENGINE_H

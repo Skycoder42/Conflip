@@ -3,21 +3,18 @@
 #include <QDebug>
 #include <QSaveFile>
 #include <chrono>
-#include <conflipdatabase.h>
 #include <conflip.h>
 #include <settings.h>
 
 using namespace std::chrono;
 
 SyncEngine::SyncEngine(QObject *parent) :
-	QObject(parent),
-	_timer(new QTimer(this)),
-	_watcher(new QFileSystemWatcher(this)),
-	_serializer(new QJsonSerializer(this)),
-	_resolver(new PathResolver(this)),
-	_helpers(),
-	_workingDir(),
-	_skipNextUpdate(false)
+	QObject{parent},
+	_timer{new QTimer{this}},
+	_watcher{new QFileSystemWatcher{this}},
+	_serializer{new QJsonSerializer{this}},
+	_resolver{new PathResolver{this}},
+	_threadPool{new QThreadPool{this}}
 {
 	if(!Settings::instance()->engine.machineid.isSet())
 		Settings::instance()->engine.machineid = QUuid::createUuid();
@@ -35,9 +32,7 @@ bool SyncEngine::start()
 	if(!Conflip::initConfDir())
 		return false;
 
-	for(auto helper : qAsConst(_helpers))
-		helper->setSyncDir(_workingDir);
-
+	_resolver->setSyncDir(_workingDir);
 	_timer->setInterval(minutes(Settings::instance()->engine.interval));
 	resume();
 	return true;
@@ -46,6 +41,8 @@ bool SyncEngine::start()
 void SyncEngine::pause()
 {
 	_timer->stop();
+	_threadPool->clear();
+	_threadPool->waitForDone();
 }
 
 void SyncEngine::resume()
@@ -60,8 +57,7 @@ void SyncEngine::reload()
 	_workingDir = QDir::cleanPath(Settings::instance()->engine.dir);
 	_workingDir.makeAbsolute();
 	if(Conflip::initConfDir()) {
-		for(auto helper : qAsConst(_helpers))
-			helper->setSyncDir(_workingDir);
+		_resolver->setSyncDir(_workingDir);
 		_timer->setInterval(minutes(Settings::instance()->engine.interval));
 		pause();
 		resume();
@@ -94,34 +90,59 @@ void SyncEngine::triggerSync()
 	}
 
 	try {
-		auto database = _serializer->deserializeFrom<ConflipDatabase>(&readFile);
+		_currentDb = _serializer->deserializeFrom<ConflipDatabase>(&readFile);
 		readFile.close();
-		auto changed = false;
-
-		// synchronize entries
-		syncEntries(database.entries, changed);
-		//unsync
-		removeUnsynced(database.unsynced, changed);
-
-		if(changed) {
-			QSaveFile writeFile(_workingDir.absoluteFilePath(Conflip::ConfigFileName()));
-			if(!writeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-				qCritical() << "Failed to update file" << writeFile.fileName()
-							<< "with error:" << qUtf8Printable(writeFile.errorString());
-			}
-
-			_serializer->serializeTo(&writeFile, database);
-			_skipNextUpdate = true;
-			if(!writeFile.commit()) {
-				qCritical() << "Failed to update file" << writeFile.fileName()
-							<< "with error:" << qUtf8Printable(writeFile.errorString());
-			}
-		}
+		_dbChanged = false;
+		syncEntries(_currentDb.entries);
+		removeUnsynced(_currentDb.unsynced);
 	} catch (QJsonSerializerException &e) {
 		qCritical() << "Failed to parse" << readFile.fileName()
 					<< "with error:\n" << e.what();
 		return;
 	}
+}
+
+void SyncEngine::syncDone(SyncTask *task, SyncTask::Result result)
+{
+	auto entry = _activeTasks.take(task);
+	if(!entry)
+		return;
+
+	switch(result) {
+	case SyncTask::NotASymlink:
+		entry->mode = QStringLiteral("copy");
+		_dbChanged = true;
+		Q_FALLTHROUGH(); //TODO check if ok so
+	case SyncTask::Synced:
+		// if sync successful and not first used yet -> mark first used
+		if(!entry->syncedMachines.contains(Settings::instance()->engine.machineid)) {
+			entry->syncedMachines.append(Settings::instance()->engine.machineid);
+			_dbChanged = true;
+		}
+		break;
+	case SyncTask::Removed:
+		entry->syncedMachines.removeAll(Settings::instance()->engine.machineid);
+		if(entry->syncedMachines.isEmpty()) {
+			if(!_currentDb.unsynced.removeOne(*entry)) {
+				qWarning().noquote() << "Failed to remove unsynced sync entry from database. Sync entry path: "
+									 << entry->pathPattern;
+			}
+			entry = nullptr;
+		}
+		_dbChanged = true;
+		break;
+	case SyncTask::Error:
+		// do nothing, is already logged
+		// TODO notify GUI? (or event create a window to notify)
+		break;
+	default:
+		Q_UNREACHABLE();
+		break;
+	}
+
+	if(_activeTasks.isEmpty())
+		completeSync();
+	task->deleteLater();
 }
 
 SyncHelper *SyncEngine::getHelper(const QString &type)
@@ -134,7 +155,6 @@ SyncHelper *SyncEngine::getHelper(const QString &type)
 				qCritical() << "No plugin found to load helper of type" << type;
 				return nullptr;
 			}
-			helper->setSyncDir(_workingDir);
 			_helpers.insert(type, helper);
 		} catch(QException &e) {
 			qCritical() << "Failed to load plugin for type" << type
@@ -145,7 +165,7 @@ SyncHelper *SyncEngine::getHelper(const QString &type)
 	return helper;
 }
 
-void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
+void SyncEngine::syncEntries(QList<SyncEntry> &entries)
 {
 	for(auto &entry : entries) {
 		auto helper = getHelper(entry.mode);
@@ -154,7 +174,7 @@ void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
 		//fixup matchDirs if set but not supported by helper
 		if(entry.matchDirs && !helper->canSyncDirs(entry.mode)) {
 			entry.matchDirs = false;
-			changed = true;
+			_dbChanged = true;
 		}
 
 		QStringList paths;
@@ -163,56 +183,68 @@ void SyncEngine::syncEntries(QList<SyncEntry> &entries, bool &changed)
 		else
 			paths = QStringList { entry.pathPattern };
 		for(const auto& path : qAsConst(paths)) {
-			auto isFirst = !entry.syncedMachines.contains(Settings::instance()->engine.machineid);
-			try {
-				helper->performSync(path, entry.mode, entry.extras, isFirst);
-			} catch(NotASymlinkException &e) {
-				Q_UNUSED(e)
-				entry.mode = QStringLiteral("copy");
-				changed = true;
-			} catch(SyncException &e) {
-				qCritical() << "ERROR:" << path
-							<< "=>" << e.what();
-				continue;
-			}
-			// if sync successful and not first used yet -> mark first used
-			if(isFirst) {
-				entry.syncedMachines.append(Settings::instance()->engine.machineid);
-				changed = true;
-			}
+			auto task = helper->createSyncTask(entry.mode,
+											   _workingDir,
+											   path,
+											   entry.extras,
+											   !entry.syncedMachines.contains(Settings::instance()->engine.machineid),
+											   this);
+			connect(task, &SyncTask::syncDone,
+					this, &SyncEngine::syncDone);
+			_activeTasks.insert(task, &entry);
+			_threadPool->start(task);
+			//TODO check for path conflicts
 		}
 	}
 }
 
-void SyncEngine::removeUnsynced(QList<SyncEntry> &entries, bool &changed)
+void SyncEngine::removeUnsynced(QList<SyncEntry> &entries)
 {
-	for(auto it = entries.begin(); it != entries.end();) {
-		if(!it->syncedMachines.contains(Settings::instance()->engine.machineid))
+	for(auto &entry : entries) {
+		if(!entry.syncedMachines.contains(Settings::instance()->engine.machineid))
 			continue;
 
-		auto helper = getHelper(it->mode);
+		auto helper = getHelper(entry.mode);
 		Q_ASSERT_X(helper, Q_FUNC_INFO, "No helper defined for entry mode");
 
 		QStringList paths;
-		if(helper->pathIsPattern(it->mode))
-			paths = _resolver->resolvePath(*it, helper);
+		if(helper->pathIsPattern(entry.mode))
+			paths = _resolver->resolvePath(entry, helper);
 		else
-			paths = QStringList { it->pathPattern };
+			paths = QStringList { entry.pathPattern };
 		for(const auto& path : qAsConst(paths)) {
-			try {
-				helper->undoSync(path, it->mode);
-			} catch(SyncException &e) {
-				qCritical() << "ERROR:" << path
-							<< "=>" << e.what();
-				return;
-			}
+			auto task = helper->createUndoSyncTask(entry.mode, _workingDir, path, this);
+			connect(task, &SyncTask::syncDone,
+					this, &SyncEngine::syncDone);
+			_activeTasks.insert(task, &entry);
+			_threadPool->start(task);
+			//TODO check for path conflicts
+		}
+	}
+}
+
+void SyncEngine::completeSync()
+{
+	if(_dbChanged) {
+		QSaveFile writeFile(_workingDir.absoluteFilePath(Conflip::ConfigFileName()));
+		if(!writeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+			qCritical() << "Failed to update file" << writeFile.fileName()
+						<< "with error:" << qUtf8Printable(writeFile.errorString());
 		}
 
-		it->syncedMachines.removeAll(Settings::instance()->engine.machineid);
-		if(it->syncedMachines.isEmpty())
-			it = entries.erase(it);
-		else
-			it++;
-		changed = true;
+		try {
+			_serializer->serializeTo(&writeFile, _currentDb);
+			_skipNextUpdate = true;
+			if(!writeFile.commit()) {
+				_skipNextUpdate = false;
+				qCritical() << "Failed to update file" << writeFile.fileName()
+							<< "with error:" << qUtf8Printable(writeFile.errorString());
+			}
+		} catch (QJsonSerializerException &e) {
+			writeFile.cancelWriting();
+			qCritical() << "Failed to serialize data to" << writeFile.fileName()
+						<< "with error:\n" << e.what();
+			return;
+		}
 	}
 }

@@ -7,6 +7,63 @@
 #include <QJsonObject>
 #include <synchelper.h>
 
+class JsonSyncHelper;
+class JsonSyncTask : public SyncTask
+{
+	Q_OBJECT
+
+public:
+	// sync
+	JsonSyncTask(const JsonSyncHelper *helper,
+				 QString &&mode,
+				 const QDir &syncDir,
+				 QString &&path,
+				 QStringList &&extras,
+				 bool isFirstUse,
+				 QObject *parent);
+	// remove
+	JsonSyncTask(const JsonSyncHelper *helper,
+				 QString &&mode,
+				 const QDir &syncDir,
+				 QString &&path,
+				 QObject *parent);
+protected:
+	void performSync() override;
+
+private:
+	const bool _isBinary;
+	QList<QStringList> _keyChains;
+	bool _srcIsNewer = false;
+	bool _srcNeedsUpdate = false;
+	bool _syncNeedsUpdate = false;
+
+	void performArraySync(QJsonArray &srcArray,
+						  const QJsonArray &syncArray,
+						  QJsonArray &resArray);
+	void performObjSync(QJsonObject &srcObj,
+						const QJsonObject &syncObj,
+						QJsonObject &resObj);
+
+	void traverse(QJsonObject &srcObj,
+				  const QJsonObject &syncObj,
+				  QJsonObject &resObj,
+				  const QStringList &keyChain,
+				  int keyIndex);
+	QJsonObject getChild(const QJsonObject &srcObj,
+						 const QString &key,
+						 const QStringList &keyChain,
+						 int keyIndex, const QByteArray &target);
+
+	void syncElement(QJsonObject &srcObj,
+					 const QJsonObject &syncObj,
+					 QJsonObject &resObj,
+					 const QString &key,
+					 const QString &logKey);
+
+	QJsonDocument readFile(const QString &path, const QByteArray &target);
+	void writeFile(const QString &path, const QJsonDocument &doc, const QByteArray &target);
+};
+
 class JsonSyncHelper : public SyncHelper
 {
 	Q_OBJECT
@@ -15,17 +72,17 @@ public:
 	static const QString ModeJson;
 	static const QString ModeQbjs;
 
-	explicit JsonSyncHelper(bool isBinary, QObject *parent = nullptr);
+	explicit JsonSyncHelper(QObject *parent = nullptr);
 
-	QString syncPrefix() const override;
 	bool pathIsPattern(const QString &mode) const override;
 	bool canSyncDirs(const QString &mode) const override;
-	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
-	void undoSync(const QString &path, const QString &mode) override;
 	ExtrasHint extrasHint() const override;
 
+	SyncTask *createSyncTask(QString mode, const QDir &syncDir, QString path, QStringList extras, bool isFirstUse, QObject *parent) override;
+	SyncTask *createUndoSyncTask(QString mode, const QDir &syncDir, QString path, QObject *parent) override;
+
 private:
-	const bool _isBinary;
+	bool _isBinary;
 
 	void performArraySync(QJsonArray &srcArray,
 						  const QJsonArray &syncArray,

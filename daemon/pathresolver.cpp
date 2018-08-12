@@ -7,6 +7,11 @@ PathResolver::PathResolver(QObject *parent) :
 	QObject(parent)
 {}
 
+void PathResolver::setSyncDir(const QDir &dir)
+{
+	_syncDir = dir;
+}
+
 QStringList PathResolver::resolvePath(const SyncEntry &entry, SyncHelper *helper) const
 {
 	QStringList allPaths;
@@ -17,12 +22,12 @@ QStringList PathResolver::resolvePath(const SyncEntry &entry, SyncHelper *helper
 	allPaths.append(findFiles(cd, pathList, entry));
 
 	// match all "sync" paths
-	pathList = helper->toSyncPath(entry.pathPattern).split(QLatin1Char('/'), QString::SkipEmptyParts);
+	pathList = helper->toSyncPath(entry.mode, _syncDir, entry.pathPattern).split(QLatin1Char('/'), QString::SkipEmptyParts);
 	cd = findRootDir(pathList, entry);
 	const auto sPaths = findFiles(cd, pathList, entry);
 	allPaths.reserve(allPaths.size() + sPaths.size());
 	for(const auto &path : sPaths)
-		allPaths.append(helper->toSrcPath(path));
+		allPaths.append(helper->toSrcPath(entry.mode, _syncDir, path));
 
 	allPaths.removeDuplicates();
 	return allPaths;

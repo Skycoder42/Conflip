@@ -9,11 +9,6 @@ XmlSyncHelper::XmlSyncHelper(QObject *parent) :
 	SyncHelper(parent)
 {}
 
-QString XmlSyncHelper::syncPrefix() const
-{
-	return QStringLiteral("xml");
-}
-
 bool XmlSyncHelper::pathIsPattern(const QString &mode) const
 {
 	Q_UNUSED(mode)
@@ -26,20 +21,80 @@ bool XmlSyncHelper::canSyncDirs(const QString &mode) const
 	return false;
 }
 
-void XmlSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
+SyncHelper::ExtrasHint XmlSyncHelper::extrasHint() const
 {
-	if(mode != ModeXml)
-		throw SyncException("Unsupported path mode");
+	return {
+		true,
+		tr("Keys"),
+		tr("<p>Enter the paths of the XML-Elements you want to synchronize. Elements are seperated by a '/' "
+		   "and there are some special characters that match special things. The possible variants are:"
+		   "<ul>"
+		   "	<li>\"some/node\": A path of elements. This will synchronize the element \"node\" within the"
+		   "		element \"some\" inside the root element. All attributes, child-elements and text are synchronized</li>"
+		   "	<li>\"node/~\": This will synchronize the text within the \"node\" element, and nothing else</li>"
+		   "	<li>\"node/=\": This will synchronize all attributes of \"node\" but not the contents</li>"
+		   "	<li>\"node/=key\": This will synchronize the attribute \"key\" of \"node\" but not the contents</li>"
+		   "	<li>\"node/#\": This will synchronize all attributes and content text of \"node\"</li>"
+		   "	<li>\"node/\": This will synchronize all child elements in \"node\", but no attributes</li>"
+		   "</ul></p>"
+		   "<p>You never have to specify the root element, as a XML-Document can only have a single root.</p>")
+	};
+}
 
-	QFileInfo srcInfo, syncInfo;
-	std::tie(srcInfo, syncInfo) = generatePaths(path);
+SyncTask *XmlSyncHelper::createSyncTask(QString mode, const QDir &syncDir, QString path, QStringList extras, bool isFirstUse, QObject *parent)
+{
+	return new XmlSyncTask {
+		this,
+		std::move(mode),
+		syncDir,
+		std::move(path),
+		std::move(extras),
+		isFirstUse,
+		parent
+	};
+}
+
+SyncTask *XmlSyncHelper::createUndoSyncTask(QString mode, const QDir &syncDir, QString path, QObject *parent)
+{
+	return new XmlSyncTask {
+		this,
+		std::move(mode),
+		syncDir,
+		std::move(path),
+		parent
+	};
+}
+
+
+
+QMutex XmlSyncTask::_XmlMutex;
+
+XmlSyncTask::XmlSyncTask(const XmlSyncHelper *helper, QString &&mode, const QDir &syncDir, QString &&path, QStringList &&extras, bool isFirstUse, QObject *parent) :
+	SyncTask{helper, std::move(mode), syncDir, std::move(path), std::move(extras), isFirstUse, parent}
+{}
+
+XmlSyncTask::XmlSyncTask(const XmlSyncHelper *helper, QString &&mode, const QDir &syncDir, QString &&path, QObject *parent) :
+	SyncTask{helper, std::move(mode), syncDir, std::move(path), parent}
+{}
+
+void XmlSyncTask::performSync()
+{
+	auto srcInfo = srcPath();
+	auto syncInfo = syncPath();
 
 	// step 1: load the two xml models
 	auto srcDoc = loadDocument(srcInfo);
 	auto syncDoc = loadDocument(syncInfo);
+	if(srcDoc.documentElement().isNull() &&
+	   syncDoc.documentElement().isNull())
+		return;
+	else if(srcDoc.documentElement().isNull())
+		srcDoc = createDoc(syncDoc);
+	else if(syncDoc.documentElement().isNull())
+		syncDoc = createDoc(srcDoc);
+
 	bool srcNeedsUpdate = false;
 	bool syncNeedsUpdate = false;
-	setupRootElements(srcDoc, syncDoc);
 	auto srcIsNewer = isFirstUse ? false : srcInfo.lastModified() > syncInfo.lastModified();
 
 	// step 2: use extras to scan over both docs and transfer changes
@@ -59,8 +114,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 						   srcExists, syncExists,
 						   srcIsNewer,
 						   srcNeedsUpdate, syncNeedsUpdate,
-						   tree,
-						   srcInfo);
+						   tree);
 				lastElemNeeded = false;
 				break; //chain must end here
 			// handle attribute content (all attributes)
@@ -68,8 +122,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 				updateAttributes(srcElement, syncElement,
 								 srcIsNewer,
 								 srcNeedsUpdate, syncNeedsUpdate,
-								 tree,
-								 srcInfo);
+								 tree);
 				lastElemNeeded = false;
 				break; //chain must end here
 			} else if(link.startsWith(QStringLiteral("="))) {
@@ -80,8 +133,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 								srcAttr, syncAttr,
 								srcIsNewer,
 								srcNeedsUpdate, syncNeedsUpdate,
-								tree,
-								srcInfo);
+								tree);
 				lastElemNeeded = false;
 				break; //chain must end here
 			// handle text content and all attributes
@@ -90,13 +142,11 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 						   srcExists, syncExists,
 						   srcIsNewer,
 						   srcNeedsUpdate, syncNeedsUpdate,
-						   tree,
-						   srcInfo);
+						   tree);
 				updateAttributes(srcElement, syncElement,
 								 srcIsNewer,
 								 srcNeedsUpdate, syncNeedsUpdate,
-								 tree,
-								 srcInfo);
+								 tree);
 				lastElemNeeded = false;
 				break; //chain must end here
 			// handle child chain without attribs
@@ -120,7 +170,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 						removeAttribs(newChild.toElement());
 					syncParent.replaceChild(newChild, syncElement);
 					syncNeedsUpdate = true;
-					log(srcInfo, "Updated nodes in sync from src", tree);
+					info(tree) << "Updated nodes in sync from src";
 				} else {
 					auto srcParent = srcElement.parentNode();
 					auto newChild = syncElement.cloneNode(true);
@@ -128,7 +178,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 						removeAttribs(newChild.toElement());
 					srcParent.replaceChild(newChild, srcElement);
 					srcNeedsUpdate = true;
-					log(srcInfo, "Updated nodes in src from sync", tree);
+					info(tree) << "Updated nodes in src from sync";
 				}
 			} else if(srcExists) {
 				auto syncParent = syncElement.parentNode();
@@ -137,7 +187,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 					removeAttribs(newChild.toElement());
 				syncParent.replaceChild(newChild, syncElement);
 				syncNeedsUpdate = true;
-				log(srcInfo, "Added new nodes in sync from src", tree);
+				info(tree) << "Added new nodes to sync from src";
 			} else if(syncExists) {
 				auto srcParent = srcElement.parentNode();
 				auto newChild = syncElement.cloneNode(true);
@@ -145,7 +195,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 					removeAttribs(newChild.toElement());
 				srcParent.replaceChild(newChild, srcElement);
 				srcNeedsUpdate = true;
-				log(srcInfo, "Added new nodes in src from sync", tree);
+				info(tree) << "Added new nodes to src from sync";
 			}
 		}
 	}
@@ -157,34 +207,7 @@ void XmlSyncHelper::performSync(const QString &path, const QString &mode, const 
 		saveDocument(syncInfo, syncDoc);
 }
 
-void XmlSyncHelper::undoSync(const QString &path, const QString &mode)
-{
-	if(mode != ModeXml)
-		throw SyncException("Unsupported path mode");
-	removeSyncPath(path, "XML-SYNC");
-}
-
-SyncHelper::ExtrasHint XmlSyncHelper::extrasHint() const
-{
-	return {
-		true,
-		tr("Keys"),
-		tr("<p>Enter the paths of the XML-Elements you want to synchronize. Elements are seperated by a '/' "
-		   "and there are some special characters that match special things. The possible variants are:"
-		   "<ul>"
-		   "	<li>\"some/node\": A path of elements. This will synchronize the element \"node\" within the"
-		   "		element \"some\" inside the root element. All attributes, child-elements and text are synchronized</li>"
-		   "	<li>\"node/~\": This will synchronize the text within the \"node\" element, and nothing else</li>"
-		   "	<li>\"node/=\": This will synchronize all attributes of \"node\" but not the contents</li>"
-		   "	<li>\"node/=key\": This will synchronize the attribute \"key\" of \"node\" but not the contents</li>"
-		   "	<li>\"node/#\": This will synchronize all attributes and content text of \"node\"</li>"
-		   "	<li>\"node/\": This will synchronize all child elements in \"node\", but no attributes</li>"
-		   "</ul></p>"
-		   "<p>You never have to specify the root element, as a XML-Document can only have a single root.</p>")
-	};
-}
-
-void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement& syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
+void XmlSyncTask::updateText(const QDomElement &srcElement, const QDomElement &syncElement, bool srcExists, bool syncExists, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key)
 {
 	// both have the text
 	if(srcExists && syncExists) {
@@ -195,28 +218,28 @@ void XmlSyncHelper::updateText(const QDomElement& srcElement, const QDomElement&
 			if(srcIsNewer) {
 				writeText(syncElement, srcText);
 				syncNeedsUpdate = true;
-				log(srcInfo, "Updated text in sync from src", key);
+				info(key) << "Updated text in sync from src";
 			} else {
 				writeText(srcElement, syncText);
 				srcNeedsUpdate = true;
-				log(srcInfo, "Updated text in src from sync", key);
+				info(key) << "Updated text in src from sync";
 			}
 		} else
-			log(srcInfo, "Skipping unchanged text", key, true);
+			debug(key) << "Skipping unchanged text";
 	// only src has text
 	} else if(srcExists) {
 		writeText(syncElement, getText(srcElement));
 		syncNeedsUpdate = true;
-		log(srcInfo, "Added new text in sync from src", key);
+		info(key) << "Added new text in sync from src";
 	// only sync has text
 	} else if(syncExists) {
 		writeText(srcElement, getText(syncElement));
 		srcNeedsUpdate = true;
-		log(srcInfo, "Added new text in src from sync", key);
+		info(key) << "Added new text in src from sync";
 	}
 }
 
-void XmlSyncHelper::updateAttributes(const QDomElement& srcElement, const QDomElement& syncElement, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
+void XmlSyncTask::updateAttributes(const QDomElement &srcElement, const QDomElement &syncElement, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key)
 {
 	auto srcAttribs = srcElement.attributes();
 	auto syncAttribs = syncElement.attributes();
@@ -231,8 +254,7 @@ void XmlSyncHelper::updateAttributes(const QDomElement& srcElement, const QDomEl
 						srcAttr, syncAttr,
 						srcIsNewer,
 						srcNeedsUpdate, syncNeedsUpdate,
-						key + name,
-						srcInfo);
+						key + name);
 		skipNames.insert(name);
 	}
 
@@ -247,12 +269,11 @@ void XmlSyncHelper::updateAttributes(const QDomElement& srcElement, const QDomEl
 						srcAttr, syncAttr,
 						srcIsNewer,
 						srcNeedsUpdate, syncNeedsUpdate,
-						key + name,
-						srcInfo);
+						key + name);
 	}
 }
 
-void XmlSyncHelper::updateAttribute(QDomElement srcElement, QDomElement syncElement, QDomAttr srcAttr, QDomAttr syncAttr, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key, const QFileInfo &srcInfo)
+void XmlSyncTask::updateAttribute(QDomElement srcElement, QDomElement syncElement, QDomAttr srcAttr, QDomAttr syncAttr, bool srcIsNewer, bool &srcNeedsUpdate, bool &syncNeedsUpdate, const QString &key)
 {
 	// both have attrib
 	if(!srcAttr.isNull() && !syncAttr.isNull()) {
@@ -262,49 +283,53 @@ void XmlSyncHelper::updateAttribute(QDomElement srcElement, QDomElement syncElem
 			if(srcIsNewer) {
 				syncAttr.setValue(srcValue);
 				syncNeedsUpdate = true;
-				log(srcInfo, "Updated attribute in sync from src", key);
+				info(key) << "Updated attribute in sync from src";
 			} else {
 				srcAttr.setValue(syncValue);
 				srcNeedsUpdate = true;
-				log(srcInfo, "Updated attribute in src from sync", key);
+				info(key) << "Updated attribute in src from sync";
 			}
 		} else
-			log(srcInfo, "Skipping unchanged attribute", key, true);
+			debug(key) << "Skipping unchanged attribute";
 	// only src has attrib
 	} else if(!srcAttr.isNull()) {
 		syncAttr = syncElement.ownerDocument().createAttribute(srcAttr.name());
 		syncAttr.setValue(srcAttr.value());
 		syncElement.setAttributeNode(syncAttr);
 		syncNeedsUpdate = true;
-		log(srcInfo, "Added new attribute in sync from src", key);
+		info(key) << "Added new attribute in sync from src";
 	// only sync has attrib
 	} else if(!syncAttr.isNull()) {
 		srcAttr = srcElement.ownerDocument().createAttribute(syncAttr.name());
 		srcAttr.setValue(syncAttr.value());
 		srcElement.setAttributeNode(srcAttr);
 		srcNeedsUpdate = true;
-		log(srcInfo, "Added new attribute in src from sync", key);
+		info(key) << "Added new attribute in src from sync";
 	}
 }
 
-QDomDocument XmlSyncHelper::loadDocument(const QFileInfo &file) const
+QDomDocument XmlSyncTask::loadDocument(const QFileInfo &file) const
 {
-	QFile readFile(file.absoluteFilePath());
+	QFile readFile{file.absoluteFilePath()};
 	if(!readFile.exists())
 		return QDomDocument{};
 	else {
 		if(!readFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			throw SyncException("Failed to open xml file for reading with error: " +
-								readFile.errorString().toUtf8());
+			fatal("Failed to open xml file for reading with error: " +
+				  readFile.errorString().toUtf8());
 		}
 
 		QString error;
 		int line, column;
 		QDomDocument doc;
-		if(!doc.setContent(&readFile, &error, &line, &column)) {
-			throw SyncException("Failed to read XML file. Parser error at line" +
-								QByteArray::number(line) + ", column" + QByteArray::number(column) +
-								": " + readFile.errorString().toUtf8());
+		// because setContent is not reentrant: lock
+		QMutexLocker locker{&_XmlMutex};
+		auto ok = doc.setContent(&readFile, &error, &line, &column);
+		locker.unlock();
+		if(!ok) {
+			fatal("Failed to read XML file. Parser error at line" +
+				  QByteArray::number(line) + ", column" + QByteArray::number(column) +
+				  ": " + readFile.errorString().toUtf8());
 		}
 
 		readFile.close();
@@ -312,29 +337,21 @@ QDomDocument XmlSyncHelper::loadDocument(const QFileInfo &file) const
 	}
 }
 
-void XmlSyncHelper::saveDocument(const QFileInfo &file, const QDomDocument& document)
+void XmlSyncTask::saveDocument(const QFileInfo &file, const QDomDocument &document)
 {
-	QSaveFile writeFile(file.absoluteFilePath());
+	QSaveFile writeFile{file.absoluteFilePath()};
 	if(!writeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-		throw SyncException("Failed to open xml file for writing with error: " +
-							writeFile.errorString().toUtf8());
+		fatal("Failed to open xml file for writing with error: " +
+			  writeFile.errorString().toUtf8());
 	}
 	writeFile.write(document.toByteArray(4));
 	if(!writeFile.commit()) {
-		throw SyncException("Failed to save written xml file with error: " +
-							writeFile.errorString().toUtf8());
+		fatal("Failed to save written xml file with error: " +
+			  writeFile.errorString().toUtf8());
 	}
 }
 
-void XmlSyncHelper::setupRootElements(QDomDocument &srcDoc, QDomDocument &syncDoc) const
-{
-	if(srcDoc.documentElement().isNull())
-		srcDoc = createDoc(syncDoc);
-	else if(syncDoc.documentElement().isNull())
-		syncDoc = createDoc(srcDoc);
-}
-
-QDomDocument XmlSyncHelper::createDoc(const QDomDocument& other) const
+QDomDocument XmlSyncTask::createDoc(const QDomDocument &other) const
 {
 	// set document type
 	QDomDocument doc;
@@ -364,7 +381,7 @@ QDomDocument XmlSyncHelper::createDoc(const QDomDocument& other) const
 	return doc;
 }
 
-QDomElement XmlSyncHelper::cd(QDomElement current, const QString &tag, bool &exists) const
+QDomElement XmlSyncTask::cd(QDomElement current, const QString &tag, bool &exists) const
 {
 	auto child = current.firstChildElement(tag);
 	if(child.isNull()) {
@@ -375,7 +392,7 @@ QDomElement XmlSyncHelper::cd(QDomElement current, const QString &tag, bool &exi
 	return child;
 }
 
-QString XmlSyncHelper::getText(const QDomElement& element) const
+QString XmlSyncTask::getText(const QDomElement &element) const
 {
 	// combine text from all direct children
 	QString text;
@@ -387,7 +404,7 @@ QString XmlSyncHelper::getText(const QDomElement& element) const
 	return text;
 }
 
-void XmlSyncHelper::writeText(QDomElement element, const QString &text) const
+void XmlSyncTask::writeText(QDomElement element, const QString &text) const
 {
 	auto children = element.childNodes();
 	// remove all old texts
@@ -402,21 +419,10 @@ void XmlSyncHelper::writeText(QDomElement element, const QString &text) const
 	element.appendChild(txtNode);
 }
 
-void XmlSyncHelper::removeAttribs(QDomElement node) const
+void XmlSyncTask::removeAttribs(QDomElement node) const
 {
 	auto nodes = node.attributes();
 	for(auto i = 0; i < nodes.size();) {
 		node.removeAttributeNode(nodes.item(i).toAttr());
 	}
-}
-
-void XmlSyncHelper::log(const QFileInfo &file, const char *msg, bool dbg) const
-{
-	(dbg ? qDebug() : qInfo()).noquote() << "XML-SYNC:" << file.absoluteFilePath() << "=>" << msg;
-}
-
-void XmlSyncHelper::log(const QFileInfo &file, const char *msg, const QString &key, bool dbg) const
-{
-	(dbg ? qDebug() : qInfo()).noquote() << "XML-SYNC:" << file.absoluteFilePath()
-										 << "=>" << msg << (QLatin1Char('[') + key + QLatin1Char(']'));
 }

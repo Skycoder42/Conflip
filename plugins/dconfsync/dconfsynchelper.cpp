@@ -7,16 +7,8 @@
 const QString DConfSyncHelper::ModeDConf = QStringLiteral("dconf");
 
 DConfSyncHelper::DConfSyncHelper(QObject *parent) :
-	SyncHelper(parent),
-	_serializer(new QJsonSerializer(this))
-{
-	QJsonSerializer::registerAllConverters<DConfEntry>();
-}
-
-QString DConfSyncHelper::syncPrefix() const
-{
-	return QStringLiteral("dconf");
-}
+	SyncHelper(parent)
+{}
 
 bool DConfSyncHelper::pathIsPattern(const QString &mode) const
 {
@@ -30,21 +22,58 @@ bool DConfSyncHelper::canSyncDirs(const QString &mode) const
 	return false;
 }
 
-void DConfSyncHelper::performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse)
+SyncHelper::ExtrasHint DConfSyncHelper::extrasHint() const
 {
-	if(mode != ModeDConf)
-		throw SyncException("Unsupported path mode");
+	return {
+		true,
+		tr("Keys"),
+		tr("Enter the keys you want to synchronize. All entries that start with the given keys will be synchronized.")
+	};
+}
+
+SyncTask *DConfSyncHelper::createSyncTask(QString mode, const QDir &syncDir, QString path, QStringList extras, bool isFirstUse, QObject *parent)
+{
+	return new DConfSyncTask {
+		this,
+		std::move(mode),
+		syncDir,
+		std::move(path),
+		std::move(extras),
+		isFirstUse,
+		parent
+	};
+}
+
+SyncTask *DConfSyncHelper::createUndoSyncTask(QString mode, const QDir &syncDir, QString path, QObject *parent)
+{
+	return new DConfSyncTask {
+		this,
+		std::move(mode),
+		syncDir,
+		std::move(path),
+		parent
+	};
+}
+
+
+
+DConfSyncTask::DConfSyncTask(const DConfSyncHelper *helper, QString &&mode, const QDir &syncDir, QString &&path, QStringList &&extras, bool isFirstUse, QObject *parent) :
+	SyncTask{helper, std::move(mode), syncDir, std::move(path), std::move(extras), isFirstUse, parent},
+	_serializer{new QJsonSerializer{this}}
+{}
+
+DConfSyncTask::DConfSyncTask(const DConfSyncHelper *helper, QString &&mode, const QDir &syncDir, QString &&path, QObject *parent) :
+	SyncTask{helper, std::move(mode), syncDir, std::move(path), parent},
+	_serializer{new QJsonSerializer{this}}
+{}
+
+void DConfSyncTask::performSync()
+{
 	if(!path.startsWith('/') || !path.endsWith('/'))
-		throw SyncException("DConf path must start and end with a /");
+		fatal("DConf path must start and end with a /");
 
 	//generate sync path and create parent dirs
-	QString cnfPath = syncPrefix() + path + QStringLiteral("dconf.json");
-	QFileInfo syncInfo(QDir::cleanPath(syncDir().absoluteFilePath(cnfPath)));
-	syncInfo.setCaching(false);
-	if(!syncInfo.dir().exists()) {
-		if(!syncInfo.dir().mkpath(QStringLiteral(".")))
-			throw SyncException("Failed to create sync directory");
-	}
+	auto syncInfo = syncFile();
 
 	QByteArrayList subKeys;
 	subKeys.reserve(extras.size());
@@ -72,9 +101,9 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 			if(isFirstUse || entry.lastModified > srcDate) {
 				QByteArray msg;
 				if(!dconf.writeData(key, entry.type, entry.data, &msg))
-					throw SyncException("Failed to save from sync to src with error: " + msg);
+					fatal("Failed to save from sync to src with error: " + msg);
 				stamps->setValue(strKey, entry.lastModified);
-				log(path, "Updated entry in sync from src", key);
+				info(strKey) << "Updated entry in sync from src";
 			} else {
 				// check if value has changed
 				QByteArray type, data;
@@ -87,9 +116,9 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 					updateMap.insert(key, entry);
 					syncNeedsSave = true;
 					stamps->setValue(strKey, entry.lastModified);
-					log(path, "Updated entry in src from sync", key);
+					info(strKey) << "Updated entry in src from sync";
 				} else
-					log(path, "Skipping unchanged entry", key, true);
+					debug(strKey) << "Skipping unchanged entry";
 			}
 			workingMap.remove(key);
 		// value not already in sync
@@ -99,12 +128,13 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 			updateMap.insert(key, entry);
 			syncNeedsSave = true;
 			stamps->setValue(strKey, entry.lastModified);
-			log(path, "Added new entry from src to sync", key);
+			info(strKey) << "Added new entry from src to sync";
 		}
 	}
 
 	//step 3: sync all unhandeld sync changes
 	for(auto it = workingMap.constBegin(); it != workingMap.constEnd(); it++) {
+		auto strKey = QString::fromUtf8(it.key());
 		//check if the key should still be synced
 		auto keep = false;
 		for(const auto& subKey : qAsConst(subKeys)) {
@@ -117,66 +147,65 @@ void DConfSyncHelper::performSync(const QString &path, const QString &mode, cons
 		if(!keep) {
 			updateMap.remove(it.key());
 			syncNeedsSave = true;
-			log(path, "Removed non-syncable entrie from sync", it.key());
+			info(strKey) << "Removed non-syncable entrie from sync";
 			continue;
 		}
 
 		QByteArray msg;
 		if(!dconf.writeData(it.key(), it->type, it->data, &msg))
-			throw SyncException("Failed to save from sync to src with error: " + msg);
+			fatal("Failed to save from sync to src with error: " + msg);
 		stamps->setValue(QString::fromUtf8(it.key()), it->lastModified);
-		log(path, "Added new entry from sync to src", it.key());
+		info(strKey) << "Added new entry from sync to src";
 	}
 
 	//step 4: update sync file if needed
 	if(syncNeedsSave)
 		writeSyncConf(syncInfo, updateMap);
 	else
-		log(path, "No new src changes, not update sync", true);
+		debug() << "No new src changes, not update sync";
 }
 
-void DConfSyncHelper::undoSync(const QString &path, const QString &mode)
+void DConfSyncTask::undoSync()
 {
-	if(mode != ModeDConf)
-		throw SyncException("Unsupported path mode");
-	QString cnfPath = syncPrefix() + path + QStringLiteral("dconf.json");
-	QFileInfo syncInfo(QDir::cleanPath(syncDir().absoluteFilePath(cnfPath)));
+	auto syncInfo = syncFile();
 	if(syncInfo.exists()) {
 		if(!QFile::remove(syncInfo.absoluteFilePath()))
-			throw SyncException("Failed to remove synced file");
-		log(path, "Removed file from synchronisation");
+			fatal("Failed to remove synced file");
+		info() << "Removed file from synchronisation";
 	}
 }
 
-SyncHelper::ExtrasHint DConfSyncHelper::extrasHint() const
+QFileInfo DConfSyncTask::syncFile()
 {
-	return {
-		true,
-		tr("Keys"),
-		tr("Enter the keys you want to synchronize. All entries that start with the given keys will be synchronized.")
-	};
+	QFileInfo syncInfo{helper->toSyncPath(mode, syncDir, path + QStringLiteral("dconf.json"))};
+	syncInfo.setCaching(false);
+	if(!syncInfo.dir().exists()) {
+		if(!syncInfo.dir().mkpath(QStringLiteral(".")))
+			fatal("Failed to create sync directory");
+	}
+	return syncInfo;
 }
 
-QSharedPointer<QSettings> DConfSyncHelper::loadSettings(const QString &path)
+QSharedPointer<QSettings> DConfSyncTask::loadSettings(const QString &path)
 {
 	QDir cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 	QString subPath = QStringLiteral("dconf-stamps") + path;
 	if(!cacheDir.mkpath(subPath) || !cacheDir.cd(subPath))
-		throw SyncException("Failed to create timestamp cache dir");
+		fatal("Failed to create timestamp cache dir");
 
 	return QSharedPointer<QSettings>::create(cacheDir.absoluteFilePath(QStringLiteral("stamps.ini")),
 											 QSettings::IniFormat);
 }
 
-DConfSyncHelper::DConfMap DConfSyncHelper::readSyncConf(const QFileInfo &file) const
+DConfSyncTask::DConfMap DConfSyncTask::readSyncConf(const QFileInfo &file) const
 {
 	if(!file.exists())
 		return {};
 
-	QFile readFile(file.absoluteFilePath());
+	QFile readFile{file.absoluteFilePath()};
 	if(!readFile.open(QIODevice::ReadOnly) ){ //open in binary mode - the synced file has linux fileendings
-		throw SyncException("Failed to open sync file for reading with error: " +
-							readFile.errorString().toUtf8());
+		fatal("Failed to open sync file for reading with error: " +
+			  readFile.errorString().toUtf8());
 	}
 	try {
 		auto strMap = _serializer->deserializeFrom<QMap<QString, DConfEntry>>(&readFile);
@@ -187,17 +216,17 @@ DConfSyncHelper::DConfMap DConfSyncHelper::readSyncConf(const QFileInfo &file) c
 			resMap.insert(it.key().toUtf8(), it.value());
 		return resMap;
 	} catch(QJsonSerializationException &e) {
-		throw SyncException(QByteArrayLiteral("Failed to read sync file json with error:\n") +
-							e.what());
+		fatal(QByteArrayLiteral("Failed to read sync file json with error: ") +
+			  e.what());
 	}
 }
 
-void DConfSyncHelper::writeSyncConf(const QFileInfo &file, const DConfSyncHelper::DConfMap &map)
+void DConfSyncTask::writeSyncConf(const QFileInfo &file, const DConfSyncTask::DConfMap &map)
 {
-	QSaveFile writeFile(file.absoluteFilePath());
+	QSaveFile writeFile{file.absoluteFilePath()};
 	if(!writeFile.open(QIODevice::WriteOnly) ){ //open in binary mode - the synced file has linux fileendings
-		throw SyncException("Failed to open sync file for writing with error: " +
-							writeFile.errorString().toUtf8());
+		fatal("Failed to open sync file for writing with error: " +
+			  writeFile.errorString().toUtf8());
 	}
 
 	try {
@@ -208,24 +237,14 @@ void DConfSyncHelper::writeSyncConf(const QFileInfo &file, const DConfSyncHelper
 		_serializer->serializeTo(&writeFile, writeMap);
 
 		if(!writeFile.commit()) {
-			throw SyncException("Failed to save sync file with error: " +
-								writeFile.errorString().toUtf8());
+			fatal("Failed to save sync file with error: " +
+				  writeFile.errorString().toUtf8());
 		}
 	} catch(QJsonSerializationException &e) {
 		writeFile.cancelWriting();
-		throw SyncException(QByteArrayLiteral("Failed to read sync file json with error:\n") +
-							e.what());
+		fatal(QByteArrayLiteral("Failed to read sync file json with error: ") +
+			  e.what());
 	}
-}
-
-void DConfSyncHelper::log(const QString &path, const char *msg, bool dbg) const
-{
-	(dbg ? qDebug() : qInfo()).noquote() << "DCONF-SYNC:" << path << "=>" << msg;
-}
-
-void DConfSyncHelper::log(const QString &path, const char *msg, const QByteArray &key, bool dbg) const
-{
-	(dbg ? qDebug() : qInfo()).noquote() << "DCONF-SYNC:" << path << "=>" << msg << ('[' + key + ']');
 }
 
 

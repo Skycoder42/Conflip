@@ -3,7 +3,9 @@
 
 DConfSyncHelperPlugin::DConfSyncHelperPlugin(QObject *parent) :
 	QObject(parent)
-{}
+{
+	QJsonSerializer::registerAllConverters<DConfEntry>();
+}
 
 SyncHelper *DConfSyncHelperPlugin::createInstance(const QString &provider, QObject *parent)
 {

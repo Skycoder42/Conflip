@@ -25,6 +25,42 @@ private:
 	void setType(const QString &value);
 };
 
+class DConfSyncHelper;
+class DConfSyncTask : public SyncTask
+{
+	Q_OBJECT
+
+public:
+	// sync
+	DConfSyncTask(const DConfSyncHelper *helper,
+				  QString &&mode,
+				  const QDir &syncDir,
+				  QString &&path,
+				  QStringList &&extras,
+				  bool isFirstUse,
+				  QObject *parent);
+	// remove
+	DConfSyncTask(const DConfSyncHelper *helper,
+				  QString &&mode,
+				  const QDir &syncDir,
+				  QString &&path,
+				  QObject *parent);
+
+	// SyncTask interface
+protected:
+	void performSync() override;
+	void undoSync() override;
+
+private:
+	using DConfMap = QMap<QByteArray, DConfEntry>;
+	QJsonSerializer *_serializer;
+
+	QFileInfo syncFile();
+	QSharedPointer<QSettings> loadSettings(const QString &path);
+	DConfMap readSyncConf(const QFileInfo &file) const;
+	void writeSyncConf(const QFileInfo &file, const DConfMap &map);
+};
+
 class DConfSyncHelper : public SyncHelper
 {
 	Q_OBJECT
@@ -34,12 +70,12 @@ public:
 
 	explicit DConfSyncHelper(QObject *parent = nullptr);
 
-	QString syncPrefix() const override;
 	bool pathIsPattern(const QString &mode) const override;
 	bool canSyncDirs(const QString &mode) const override;
-	void performSync(const QString &path, const QString &mode, const QStringList &extras, bool isFirstUse) override;
-	void undoSync(const QString &path, const QString &mode) override;
 	ExtrasHint extrasHint() const override;
+
+	SyncTask *createSyncTask(QString mode, const QDir &syncDir, QString path, QStringList extras, bool isFirstUse, QObject *parent) override;
+	SyncTask *createUndoSyncTask(QString mode, const QDir &syncDir, QString path, QObject *parent) override;
 
 private:
 	using DConfMap = QMap<QByteArray, DConfEntry>;
