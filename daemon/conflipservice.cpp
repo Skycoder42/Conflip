@@ -19,6 +19,8 @@ void ConflipService::setSlice(const QString &slice)
 QtService::Service::CommandMode ConflipService::onStart()
 {
 	QCommandLineParser parser;
+	parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
+	parser.addOption({QStringLiteral("platform"), {}});
 	parser.addOption({QStringLiteral("backend"), {}});
 	parser.addOption({QStringLiteral("slice"), {}});
 	parser.addOption({QStringLiteral("loglevel"), {}, QStringLiteral("level"),
