@@ -263,6 +263,13 @@ void MainWindow::reload()
 				break;
 			}
 		}
+
+		auto hasError = db.hasErrors.value(Settings::instance()->engine.machineid.get().toString(QUuid::WithoutBraces), false);
+		if(hasError) {
+			DialogMaster::critical(this,
+								   tr("An error occured in the last synchronization. Check the system error log for details."),
+								   tr("Synchronization Error"));
+		}
 	} catch(QJsonSerializationException &e) {
 		qCritical() << e.what();
 		DialogMaster::critical(this, tr("Parsed JSON content is invalid!"), tr("Reading config failed"));

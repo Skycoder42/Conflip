@@ -231,14 +231,14 @@
     </message>
     <message>
         <location line="+51"/>
-        <location line="+53"/>
+        <location line="+60"/>
         <location line="+13"/>
         <location line="+25"/>
         <source>Reading config failed</source>
         <translation>Konfiguration lesen fehlgeschalgen</translation>
     </message>
     <message>
-        <location line="-72"/>
+        <location line="-79"/>
         <source>Failed to start %1 service with error: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -248,7 +248,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+29"/>
+        <source>Synchronization Error</source>
+        <oldsource>Sync Error</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1"/>
+        <source>An error occured in the last synchronization. Check the system error log for details.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <location line="+38"/>
         <source>Parsed JSON content is invalid!</source>
         <translation>Der gelesene JSON-Inhalt der Datei ist ungültig!</translation>

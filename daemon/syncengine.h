@@ -44,6 +44,7 @@ private:
 	ConflipDatabase _currentDb;
 	bool _dbChanged = false;
 	QHash<SyncTask*, SyncEntry*> _activeTasks;
+	bool _hasErrors = false;
 
 	SyncHelper *getHelper(const QString &type);
 	void syncEntries(QList<SyncEntry> &entries);

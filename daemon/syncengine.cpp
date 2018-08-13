@@ -93,6 +93,7 @@ void SyncEngine::triggerSync()
 		_currentDb = _serializer->deserializeFrom<ConflipDatabase>(&readFile);
 		readFile.close();
 		_dbChanged = false;
+		_hasErrors = false;
 		syncEntries(_currentDb.entries);
 		removeUnsynced(_currentDb.unsynced);
 	} catch (QJsonSerializerException &e) {
@@ -132,8 +133,7 @@ void SyncEngine::syncDone(SyncTask *task, SyncTask::Result result)
 		_dbChanged = true;
 		break;
 	case SyncTask::Error:
-		// do nothing, is already logged
-		// TODO notify GUI? (or event create a window to notify)
+		_hasErrors = true;
 		break;
 	default:
 		Q_UNREACHABLE();
@@ -225,6 +225,12 @@ void SyncEngine::removeUnsynced(QList<SyncEntry> &entries)
 
 void SyncEngine::completeSync()
 {
+	auto &machineError = _currentDb.hasErrors[Settings::instance()->engine.machineid.get().toString(QUuid::WithoutBraces)];
+	if(_hasErrors != machineError) {
+		machineError = _hasErrors;
+		_dbChanged = true;
+	}
+
 	if(_dbChanged) {
 		QSaveFile writeFile(_workingDir.absoluteFilePath(Conflip::ConfigFileName()));
 		if(!writeFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
