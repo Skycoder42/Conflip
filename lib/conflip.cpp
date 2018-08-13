@@ -1,12 +1,16 @@
 #include "conflip.h"
 #include <QCoreApplication>
 #include <QJsonSerializer>
+#include <QLibraryInfo>
+#include <QTranslator>
 #include <qpluginfactory.h>
 #include "syncentry.h"
 #include "synchelperplugin.h"
 #include "settings.h"
 
 namespace {
+
+QSet<QString> loadedTranslations;
 
 void conflip_lib_startup()
 {
@@ -26,6 +30,25 @@ QString Conflip::ConfigFileName()
 QStringList Conflip::listPlugins()
 {
 	return helperFactory->allKeys();
+}
+
+void Conflip::loadTranslations(const QString &type)
+{
+	if(!loadedTranslations.contains(type)) {
+		auto plg = helperFactory->plugin(type);
+		if(!plg)
+			return;
+		for(const auto &qmFile : plg->translations()) {
+			auto translator = new QTranslator{qApp};
+			if(translator->load(QLocale(),
+								qmFile,
+								QStringLiteral("_"),
+								QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+				qApp->installTranslator(translator);
+			}
+		}
+		loadedTranslations.insert(type);
+	}
 }
 
 SyncHelper *Conflip::loadHelper(const QString &type, QObject *parent)

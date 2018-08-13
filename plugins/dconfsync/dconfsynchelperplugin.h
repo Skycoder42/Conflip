@@ -12,6 +12,7 @@ class DConfSyncHelperPlugin : public QObject, public SyncHelperPlugin
 public:
 	DConfSyncHelperPlugin(QObject *parent = nullptr);
 
+	QStringList translations() const override;
 	SyncHelper *createInstance(const QString &provider, QObject *parent) override;
 };
 

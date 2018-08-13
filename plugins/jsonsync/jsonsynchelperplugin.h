@@ -12,6 +12,7 @@ class JsonSyncHelperPlugin : public QObject, public SyncHelperPlugin
 public:
 	JsonSyncHelperPlugin(QObject *parent = nullptr);
 
+	QStringList translations() const override;
 	SyncHelper *createInstance(const QString &provider, QObject *parent) override;
 };
 

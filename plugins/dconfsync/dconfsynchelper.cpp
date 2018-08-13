@@ -26,7 +26,7 @@ SyncHelper::ExtrasHint DConfSyncHelper::extrasHint() const
 {
 	return {
 		true,
-		tr("Keys"),
+		tr("&Keys"),
 		tr("Enter the keys you want to synchronize. All entries that start with the given keys will be synchronized.")
 	};
 }

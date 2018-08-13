@@ -5,6 +5,11 @@ JsonSyncHelperPlugin::JsonSyncHelperPlugin(QObject *parent) :
 	QObject{parent}
 {}
 
+QStringList JsonSyncHelperPlugin::translations() const
+{
+	return {QStringLiteral("conflip_jsonsync")};
+}
+
 SyncHelper *JsonSyncHelperPlugin::createInstance(const QString &provider, QObject *parent)
 {
 	if(provider == JsonSyncHelper::ModeJson ||

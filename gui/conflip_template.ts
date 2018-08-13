@@ -70,7 +70,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="createentrydialog.cpp" line="+90"/>
+        <location filename="createentrydialog.cpp" line="+91"/>
         <source>Select a file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -80,7 +80,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+32"/>
         <source>:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -256,6 +256,14 @@
         <location line="-12"/>
         <location line="+5"/>
         <source>Writing config failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SyncHelper</name>
+    <message>
+        <location filename="../lib/synchelper.cpp" line="+48"/>
+        <source>&amp;Extras</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

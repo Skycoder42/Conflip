@@ -68,7 +68,8 @@ SyncEntry CreateEntryDialog::editEntry(const SyncEntry &entry, QWidget *parent)
 		resEntry.setCleanPathPattern(dialog.ui->pathLineEdit->text());
 		resEntry.mode = dialog.ui->modeComboBox->currentText();
 		resEntry.includeHidden = dialog.ui->hiddenFilesCheckBox->isChecked();
-		resEntry.caseSensitive = dialog.ui->caseSensitiveCheckBox->isChecked();
+		resEntry.caseSensitive =
+		dialog.ui->caseSensitiveCheckBox->isChecked();
 		resEntry.matchDirs = dialog.ui->matchDirectoriesCheckBox->isEnabled() &&
 							 dialog.ui->matchDirectoriesCheckBox->isChecked();
 		for(auto i = 0; i < dialog.ui->extrasListWidget->count(); i++)
@@ -116,6 +117,7 @@ void CreateEntryDialog::on_action_Remove_Extra_triggered()
 
 void CreateEntryDialog::on_modeComboBox_currentIndexChanged(const QString &text)
 {
+	Conflip::loadTranslations(text);
 	auto helper = Conflip::loadHelper(text, this);
 	if(helper) {
 		ui->matchDirectoriesCheckBox->setEnabled(helper->canSyncDirs(text));

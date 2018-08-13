@@ -26,7 +26,7 @@ SyncHelper::ExtrasHint IniSyncHelper::extrasHint() const
 {
 	return {
 		true,
-		tr("Keys"),
+		tr("&Keys"),
 		tr("<p>Enter the keys you want to synchronize. All entries that start with the given keys will be synchronized."
 		   "You can also enter \"inverted\" keys to exclude entries.</p>"
 		   "<p>For example, adding the keys"

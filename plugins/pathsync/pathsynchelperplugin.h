@@ -12,6 +12,7 @@ class PathSyncHelperPlugin : public QObject, public SyncHelperPlugin
 public:
 	PathSyncHelperPlugin(QObject *parent = nullptr);
 
+	QStringList translations() const override;
 	SyncHelper *createInstance(const QString &provider, QObject *parent) override;
 };
 

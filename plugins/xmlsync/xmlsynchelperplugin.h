@@ -12,6 +12,7 @@ class XmlSyncHelperPlugin : public QObject, public SyncHelperPlugin
 public:
 	XmlSyncHelperPlugin(QObject *parent = nullptr);
 
+	QStringList translations() const override;
 	SyncHelper *createInstance(const QString &provider, QObject *parent) override;
 };
 

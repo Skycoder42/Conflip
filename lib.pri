@@ -1,4 +1,4 @@
-QT += mvvmcore
+QT += mvvmcore jsonserializer
 
 CFLIB_DIR = $$shadowed($$PWD/lib)
 

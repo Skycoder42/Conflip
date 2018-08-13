@@ -11,6 +11,7 @@ public:
 	inline SyncHelperPlugin() = default;
 	virtual inline ~SyncHelperPlugin() = default;
 
+	virtual inline QStringList translations() const { return {}; }
 	virtual SyncHelper *createInstance(const QString &provider, QObject *parent = nullptr) = 0;
 };
 

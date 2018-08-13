@@ -25,7 +25,7 @@ SyncHelper::ExtrasHint XmlSyncHelper::extrasHint() const
 {
 	return {
 		true,
-		tr("Keys"),
+		tr("&Keys"),
 		tr("<p>Enter the paths of the XML-Elements you want to synchronize. Elements are seperated by a '/' "
 		   "and there are some special characters that match special things. The possible variants are:"
 		   "<ul>"

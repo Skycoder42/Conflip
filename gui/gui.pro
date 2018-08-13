@@ -23,8 +23,9 @@ TRANSLATIONS += conflip_de.ts \
 
 DISTFILES += qpmx.json \
 	conflip.svg \
-	conflip.desktop \
-	$$TRANSLATIONS
+	conflip.desktop
+
+never_true_lupdate_only: SOURCES += ../lib/synchelper.cpp
 
 linux {
 	DEFINES += SERVICE_BACKEND=\\\"systemd\\\"

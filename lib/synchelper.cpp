@@ -45,7 +45,7 @@ QString SyncHelper::toSrcPath(const QString &mode, const QDir &syncDir, const QS
 
 SyncHelper::ExtrasHint SyncHelper::extrasHint() const
 {
-	return {false, tr("Extras"), {}};
+	return {false, tr("&Extras"), {}};
 }
 
 

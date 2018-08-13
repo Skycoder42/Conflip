@@ -26,7 +26,7 @@ SyncHelper::ExtrasHint JsonSyncHelper::extrasHint() const
 {
 	return {
 		true,
-		tr("Keys"),
+		tr("&Keys"),
 		tr("<p>Enter the key-path you want to synchronize. The path is a chain of keys of properties that "
 		   "are traversed into the object and the last in the chain is synchronized. The keys are seperated "
 		   "by a '/'.</p>"

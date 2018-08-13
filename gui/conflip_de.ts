@@ -42,12 +42,12 @@
     <message>
         <location line="+82"/>
         <source>Whats this?</source>
-        <translation type="unfinished"></translation>
+        <translation>Was is das?</translation>
     </message>
     <message>
         <location line="-99"/>
         <source>Match &amp;Direcoties:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Order einschließen:</translation>
     </message>
     <message>
         <location line="+51"/>
@@ -70,7 +70,7 @@
         <translation>&amp;Ordner auswählen</translation>
     </message>
     <message>
-        <location filename="createentrydialog.cpp" line="+90"/>
+        <location filename="createentrydialog.cpp" line="+91"/>
         <source>Select a file</source>
         <translation>Wählen Sie eine Datei aus</translation>
     </message>
@@ -80,9 +80,9 @@
         <translation>Wählen Sie einen Ordner aus</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+32"/>
         <source>:</source>
-        <translation type="unfinished"></translation>
+        <translation>:</translation>
     </message>
 </context>
 <context>
@@ -116,7 +116,7 @@
         <location line="+11"/>
         <source>Toolbar</source>
         <oldsource>Primary Toolbar</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeugleiste</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -166,7 +166,7 @@
     <message>
         <location line="+9"/>
         <source>Paste Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad einfügen</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="+26"/>
@@ -182,12 +182,12 @@
         <location line="+12"/>
         <source>Failed to find the %1 service by service id: %2</source>
         <oldsource>Failed to find the conflip service by service id: %1</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den %1 Dienst nicht unter der folgenden ID finden: %2</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Service not found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Service nicht gefunden!</translation>
     </message>
     <message>
         <source>Reloading successful!</source>
@@ -204,14 +204,14 @@
     <message>
         <location line="+72"/>
         <source>Failed to reload %1 service with error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den %1 Dienst nicht aktualisieren mit Fehler: %2</translation>
     </message>
     <message>
         <location line="+2"/>
         <location line="+122"/>
         <location line="+8"/>
         <source>Service Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Service-Fehler</translation>
     </message>
     <message>
         <location line="-83"/>
@@ -227,7 +227,7 @@
         <location line="+2"/>
         <source>&lt;p&gt;A tool to synchronize settings/configurations across multiple machines.&lt;/p&gt;&lt;p&gt;Available Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Compiled with Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Developed by: Skycoder42&lt;br/&gt;Project Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;License: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons based on &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; and &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; from &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; and are licensed by &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt;&lt;/p&gt;</source>
         <oldsource>&lt;p&gt;A tool to synchronize settings/configurations across multiple machines.&lt;/p&gt;&lt;p&gt;Available Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Compile with Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Developed by: Skycoder42&lt;br/&gt;Project Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;License: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons based on &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; and &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; from &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; and are licensed by &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt;&lt;/p&gt;</oldsource>
-        <translation type="unfinished">&lt;p&gt;Ein Tool zum Synchronisieren von Einstellungen/Konfigurationen über mehrere Maschinen.&lt;/p&gt;&lt;p&gt;Verfügbare Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Erstellt mit Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Entwickelt von: Skycoder42&lt;br/&gt;Projekt Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;Lizenz: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons basieren auf &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; und &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; von &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; und stehen unter der &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt; Lizenz&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Ein Tool zum Synchronisieren von Einstellungen/Konfigurationen über mehrere Maschinen.&lt;/p&gt;&lt;p&gt;Verfügbare Plugins: &lt;i&gt;%1&lt;/i&gt;&lt;br/&gt;Erstellt mit Qt-Version: &lt;a href=&quot;https://www.qt.io/&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Entwickelt von: Skycoder42&lt;br/&gt;Projekt Website: &lt;a href=&quot;https://github.com/Skycoder42/Conflip&quot;&gt;https://github.com/Skycoder42/Conflip&lt;/a&gt;&lt;br/&gt;Lizenz: &lt;a href=&quot;https://github.com/Skycoder42/Conflip/blob/master/LICENSE&quot;&gt;BSD 3 Clause&lt;/a&gt;&lt;/p&gt;&lt;p&gt;Icons basieren auf &lt;a href=&quot;http://www.flaticon.com/authors/roundicons&quot;&gt;Roundicons&lt;/a&gt; und &lt;a href=&quot;http://www.flaticon.com/authors/creaticca-creative-agency&quot;&gt;Creaticca Creative Agency&lt;/a&gt; von &lt;a href=&quot;http://www.flaticon.com&quot;&gt;www.flaticon.com&lt;/a&gt; und stehen unter der &lt;a href=&quot;http://creativecommons.org/licenses/by/3.0/&quot;&gt;CC 3.0 BY&lt;/a&gt; Lizenz&lt;/p&gt;</translation>
     </message>
     <message>
         <location line="+51"/>
@@ -240,23 +240,23 @@
     <message>
         <location line="-79"/>
         <source>Failed to start %1 service with error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den %1 Dienst nicht starten mit Fehler: %2</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Failed to resume %1 service with error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den %1 Dienst nicht fortsetzen mit Fehler: %2</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Synchronization Error</source>
         <oldsource>Sync Error</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisationsfehler</translation>
     </message>
     <message>
         <location line="-1"/>
         <source>An error occured in the last synchronization. Check the system error log for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Fehler ist bei der letzten Synchronisation aufgetreten. Überprüfen Sie die Log-Ausgabe der Anwendung für mehr Details.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -269,6 +269,18 @@
         <location line="+5"/>
         <source>Writing config failed</source>
         <translation>Konfiguration schreiben fehlgeschalgen</translation>
+    </message>
+</context>
+<context>
+    <name>SyncHelper</name>
+    <message>
+        <source>Extras</source>
+        <translation type="vanished">Extras</translation>
+    </message>
+    <message>
+        <location filename="../lib/synchelper.cpp" line="+48"/>
+        <source>&amp;Extras</source>
+        <translation>&amp;Extras</translation>
     </message>
 </context>
 </TS>

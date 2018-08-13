@@ -7,3 +7,6 @@ SUBDIRS += \
 	jsonsync
 
 unix:!android:!ios:system(pkg-config --exists dconf): SUBDIRS += dconfsync
+
+prepareRecursiveTarget(lrelease)
+QMAKE_EXTRA_TARGETS += lrelease

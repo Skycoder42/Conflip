@@ -5,6 +5,11 @@ XmlSyncHelperPlugin::XmlSyncHelperPlugin(QObject *parent) :
 	QObject(parent)
 {}
 
+QStringList XmlSyncHelperPlugin::translations() const
+{
+	return {QStringLiteral("conflip_xmlsync")};
+}
+
 SyncHelper *XmlSyncHelperPlugin::createInstance(const QString &provider, QObject *parent)
 {
 	if(provider == XmlSyncHelper::ModeXml)

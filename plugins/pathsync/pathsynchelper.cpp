@@ -33,7 +33,7 @@ SyncHelper::ExtrasHint PathSyncHelper::extrasHint() const
 {
 	return {
 		true,
-		tr("Excluded Paths"),
+		tr("&Excluded Paths"),
 		tr("<p>You can enter regular expressions that are matched against the found paths to exclude them from synchronization. "
 		   "The regex must be a standard PCRE-expression and can contain unicode characters</p>"
 		   "<p>For example, assuming your path pattern is \"dir/file_*.txt\" and your directory contains the files"

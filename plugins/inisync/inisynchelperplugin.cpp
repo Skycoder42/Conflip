@@ -5,6 +5,11 @@ IniSyncHelperPlugin::IniSyncHelperPlugin(QObject *parent) :
 	QObject{parent}
 {}
 
+QStringList IniSyncHelperPlugin::translations() const
+{
+	return {QStringLiteral("conflip_inisync")};
+}
+
 SyncHelper *IniSyncHelperPlugin::createInstance(const QString &provider, QObject *parent)
 {
 	if(provider == IniSyncHelper::ModeIni)
