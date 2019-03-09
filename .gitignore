@@ -40,3 +40,4 @@ CMakeLists.txt.user*
 # qpm
 vendor
 /gui/.tsdummy.pro.dummy
+*.tsdummy.pro.dummy

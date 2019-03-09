@@ -16,7 +16,7 @@ void ConflipService::setSlice(const QString &slice)
 	QCoreApplication::setApplicationName(QStringLiteral(TARGET "@%1").arg(slice));
 }
 
-QtService::Service::CommandMode ConflipService::onStart()
+QtService::Service::CommandResult ConflipService::onStart()
 {
 	QCommandLineParser parser;
 	parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -31,8 +31,7 @@ QtService::Service::CommandMode ConflipService::onStart()
 #endif
 	if(!parser.parse(QCoreApplication::arguments())) {
 		qCritical().noquote() << parser.errorText();
-		qApp->exit(EXIT_FAILURE);
-		return Synchronous;
+		return CommandResult::Failed;
 	}
 
 	QString logStr;
@@ -56,32 +55,33 @@ QtService::Service::CommandMode ConflipService::onStart()
 	QLoggingCategory::setFilterRules(logStr);
 
 	_engine = new SyncEngine{this};
-	if(!_engine->start())
-		qApp->exit(EXIT_FAILURE);
-	return Synchronous;
+	if(_engine->start())
+		return CommandResult::Completed;
+	else
+		return CommandResult::Failed;
 }
 
-QtService::Service::CommandMode ConflipService::onStop(int &exitCode)
+QtService::Service::CommandResult ConflipService::onStop(int &exitCode)
 {
 	_engine->pause();
 	exitCode = EXIT_SUCCESS;
-	return Synchronous;
+	return CommandResult::Completed;
 }
 
-QtService::Service::CommandMode ConflipService::onReload()
+QtService::Service::CommandResult ConflipService::onReload()
 {
 	_engine->reload();
-	return Synchronous;
+	return CommandResult::Completed;
 }
 
-QtService::Service::CommandMode ConflipService::onPause()
+QtService::Service::CommandResult ConflipService::onPause()
 {
 	_engine->pause();
-	return Synchronous;
+	return CommandResult::Completed;
 }
 
-QtService::Service::CommandMode ConflipService::onResume()
+QtService::Service::CommandResult ConflipService::onResume()
 {
 	_engine->resume();
-	return Synchronous;
+	return CommandResult::Completed;
 }

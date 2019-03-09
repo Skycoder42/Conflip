@@ -3,6 +3,7 @@
 #include <QJsonSerializer>
 #include <QLibraryInfo>
 #include <QTranslator>
+#include <QQueue>
 #include <qpluginfactory.h>
 #include "syncentry.h"
 #include "synchelperplugin.h"

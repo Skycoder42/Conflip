@@ -227,8 +227,8 @@ void MainWindow::reload()
 
 		if(_svcControl->serviceExists()) {
 			switch(_svcControl->status()) {
-			case QtService::ServiceControl::ServiceStopped:
-			case QtService::ServiceControl::ServiceErrored:
+			case QtService::ServiceControl::Status::Stopped:
+			case QtService::ServiceControl::Status::Errored:
 				if(!_svcControl->start()) {
 					DialogMaster::critical(this,
 										   tr("Failed to start %1 service with error: %2")
@@ -236,7 +236,7 @@ void MainWindow::reload()
 										   tr("Service Error"));
 				}
 				break;
-			case QtService::ServiceControl::ServicePaused:
+			case QtService::ServiceControl::Status::Paused:
 				if(!_svcControl->resume()) {
 					DialogMaster::critical(this,
 										   tr("Failed to resume %1 service with error: %2")
@@ -245,18 +245,18 @@ void MainWindow::reload()
 					break;
 				}
 				Q_FALLTHROUGH();
-			case QtService::ServiceControl::ServiceRunning:
+			case QtService::ServiceControl::Status::Running:
 				on_action_Reload_Daemon_triggered();
 				break;
-			case QtService::ServiceControl::ServiceStatusUnknown:
+			case QtService::ServiceControl::Status::Unknown:
 				if(!_svcControl->start())
 					on_action_Reload_Daemon_triggered();
 				break;
-			case QtService::ServiceControl::ServiceStarting:
-			case QtService::ServiceControl::ServiceResuming:
-			case QtService::ServiceControl::ServiceReloading:
-			case QtService::ServiceControl::ServiceStopping:
-			case QtService::ServiceControl::ServicePausing:
+			case QtService::ServiceControl::Status::Starting:
+			case QtService::ServiceControl::Status::Resuming:
+			case QtService::ServiceControl::Status::Reloading:
+			case QtService::ServiceControl::Status::Stopping:
+			case QtService::ServiceControl::Status::Pausing:
 				break;
 			default:
 				Q_UNREACHABLE();

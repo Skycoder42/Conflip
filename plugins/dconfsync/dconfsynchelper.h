@@ -5,6 +5,7 @@
 #include <QJsonSerializer>
 #include <QObject>
 #include <QSettings>
+#include <QHash>
 #include <synchelper.h>
 
 class DConfEntry
@@ -20,10 +21,14 @@ public:
 	QByteArray data;
 	QDateTime lastModified;
 
+	bool operator==(const DConfEntry &other) const;
+
 private:
 	QString getType() const;
 	void setType(const QString &value);
 };
+
+uint qHash(const DConfEntry &entry, uint seed);
 
 class DConfSyncHelper;
 class DConfSyncTask : public SyncTask

@@ -249,6 +249,13 @@ void DConfSyncTask::writeSyncConf(const QFileInfo &file, const DConfSyncTask::DC
 
 
 
+bool DConfEntry::operator==(const DConfEntry &other) const
+{
+	return type == other.type &&
+			data == other.data &&
+			lastModified == other.lastModified;
+}
+
 QString DConfEntry::getType() const
 {
 	return QString::fromUtf8(type);
@@ -257,4 +264,13 @@ QString DConfEntry::getType() const
 void DConfEntry::setType(const QString &value)
 {
 	type = value.toUtf8();
+}
+
+
+
+uint qHash(const DConfEntry &entry, uint seed)
+{
+	return qHash(entry.type, seed) ^
+			qHash(entry.data, seed) ^
+			qHash(entry.lastModified, seed);
 }

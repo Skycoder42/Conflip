@@ -1,5 +1,6 @@
 #include "dconfsynchelperplugin.h"
 #include "dconfsynchelper.h"
+#include <QQueue>
 
 DConfSyncHelperPlugin::DConfSyncHelperPlugin(QObject *parent) :
 	QObject(parent)

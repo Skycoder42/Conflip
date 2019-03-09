@@ -1,2 +1,2 @@
-include(/home/sky/Programming/QtProjects/build-Conflip-Desktop_Qt_5_11_1_GCC_64bit-Debug/plugins/xmlsync/.ts-sources.pri)
+include(/home/sky/Programming/QtProjects/build-Conflip-Desktop_Qt_5_12_1_GCC_64bit-Debug/plugins/xmlsync/.ts-sources.pri)
 include(/home/sky/Programming/QtProjects/Conflip/plugins/xmlsync/xmlsync.pro)
